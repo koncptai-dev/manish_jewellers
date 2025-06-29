@@ -79,7 +79,6 @@ class PaymentController extends Controller
 
 
         $user = Auth::user();
-
         // This retrieves the ID of the authenticated user
         $query = OfflinePaymentRequests::whereRaw('1 = 1'); // Start a dummy query
 
@@ -118,13 +117,12 @@ class PaymentController extends Controller
         ], 201);
     }
 
-    public function getTotalMonths(string $planCode): int
+    public function getTotalMonths(int  $planCode): string
     {
         return match ($planCode) {
-            'INR' => 12,
-            'SNR' => 18,
-            'TNR' => 24,
-            default => 0,
+            12 => 'INR',
+            18 => 'SNR',
+            24 => 'TNR'   
         };
     }
     public function payment(Request $request): JsonResponse|Redirector|RedirectResponse

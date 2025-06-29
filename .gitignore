@@ -16,3 +16,24 @@ npm-debug.log
 yarn-error.log
 composer-setup.php
 .DS_Store
+<<<<<<< HEAD
+=======
+.dcdignore
+.editorconfig
+.env.example
+.gitattributes
+.htaccess
+.rnd
+.styleci.yml
+auto_builder_sh.sh
+backup.json
+composer.lock
+composer.phar
+firebase-messaging-sw.js
+php.ini
+webpack.mix.js
+sitemap.xml
+package-lock.json
+mySpecs.html
+modules_statuses.json
+>>>>>>> fbc9c2c83bc9d6d7f7bd7d87be1223ec2fe11772
