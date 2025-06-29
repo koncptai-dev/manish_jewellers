@@ -79,14 +79,14 @@ class PaymentController extends Controller
 
 
         $user = Auth::user();
-
+        
         // This retrieves the ID of the authenticated user
         $query = OfflinePaymentRequests::whereRaw('1 = 1'); // Start a dummy query
 
         $no_of_months = $this->getTotalMonths($request->no_of_months);
         // $payment = (new PaymentRequest)->storeData($user_id, $request->amount, $request->currency, 'pending', $request->remarks);
         $payment = (new OfflinePaymentRequests())->storeData($user->id, $request->plan_amount, $request->plan_code, $request->plan_category, $request->total_yearly_payment, $request->total_gold_purchase, $request->start_date, $request->installment_id, $request->request_date, $no_of_months, $request->remarks);
-
+        
         // $user->notify(new PaymentNotification([
         //     'message' => "Payment request of {$request->amount} created successfully.",
         //     // 'type' => "Payment"
@@ -118,13 +118,12 @@ class PaymentController extends Controller
         ], 201);
     }
 
-    public function getTotalMonths(string $planCode): int
+    public function getTotalMonths(int  $planCode): string
     {
         return match ($planCode) {
-            'INR' => 12,
-            'SNR' => 18,
-            'TNR' => 24,
-            default => 0,
+            12 => 'INR',
+            18 => 'SNR',
+            24 => 'TNR'   
         };
     }
     public function payment(Request $request): JsonResponse|Redirector|RedirectResponse
