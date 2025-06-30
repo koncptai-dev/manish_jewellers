@@ -15,7 +15,7 @@ class InstallmentResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-   public function toArray(Request $request): array
+    public function toArray(Request $request): array
     {
         $loan = Loan::select(
             'loan_amount',
@@ -25,7 +25,7 @@ class InstallmentResource extends JsonResource
         ->where('installment_id',  $this->id)
         ->where('user_id', $this->user_id)
         ->value('total_loan');
-      
+
         $startDate = new Carbon($this->start_date);
 
         $monthsToAdd = match ($this->plan_code) {
@@ -54,6 +54,8 @@ class InstallmentResource extends JsonResource
             'payment_remaining' => $this->total_yearly_payment - $this->details->sum('monthly_payment') ?? 0,
             'payment_status' => 'Success',
             'total_installment_paid' =>  $this->details->sum('monthly_payment'),
+            'total_withdrawn_amount' => $this->total_withdrawn_amount ?? 0,
+            'remaining_withdrawn_amount' => $total_balance - $this->total_withdrawn_amount ?? 0,
             'details' => InstallmentDetailResource::collection($this->details->values()->map(function ($detail, $index) {
                 $detail->installment_index = $index + 1; // Add an index property
                 return $detail;
