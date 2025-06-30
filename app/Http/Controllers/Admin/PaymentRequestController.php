@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\Withdrawal;
 
 class PaymentRequestController extends Controller
 {
@@ -151,10 +152,11 @@ class PaymentRequestController extends Controller
             ->leftJoin('users', 'users.id', '=', 'installment_payments.user_id') // ADD this line
             ->select(
                 'installment_payments.user_id',
+                'installment_payments.id as installment_id', // Include installment ID for reference
                 'installment_payments.plan_code',
                 'installment_payments.plan_category',
-                'users.name as user_name', // SELECT user name
-                DB::raw("SUM(CASE WHEN installment_payment_details.payment_status = 'paid' THEN installment_payment_details.monthly_payment ELSE 0 END) as plan_amount")
+                'users.name as user_name', 
+                DB::raw("SUM(CASE WHEN installment_payment_details.payment_status = 'paid' THEN installment_payment_details.monthly_payment ELSE 0 END) as plan_amount"),
             )->has('user')
             ->groupBy(
                 'installment_payments.user_id',
@@ -163,7 +165,6 @@ class PaymentRequestController extends Controller
                 'users.name' // group by new selected field
             )
             ->paginate(getWebConfig(name: WebConfigKey::PAGINATION_LIMIT));
-
         return view('admin-views.installment.users-installments-list', compact('installments'));
 
     }
@@ -194,5 +195,82 @@ class PaymentRequestController extends Controller
         }
 
         return view('admin-views.installment.revenue-overview-list', compact('installments'));
+    }
+
+    public function withdrawAmount(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'amount'  => 'required|numeric|min:0',
+            'remarks' => 'nullable|string|max:255',
+        ]);
+        
+        
+        try {
+            $user = User::findOrFail($request->user_id);
+            $installment = InstallmentPayment::find($request->installment_id);
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+            }
+
+            if (!$installment) {
+                return response()->json(['success' => false, 'message' => 'Installment record not found.'], 404);
+            }
+          
+            $amount = $request->amount;
+            $remarks = $request->remarks;
+            $total_invested_amount = $request->plan_amount;
+
+            if ($installment->user_id !== $user->id) {
+                return response()->json(['success' => false, 'message' => 'Access denied: This installment does not belong to the selected user.'], 403);
+            }
+
+            $remainingWithdrawable = $total_invested_amount - $installment->total_withdrawn_amount;
+            
+            if($total_invested_amount <= 0) {
+                return response()->json(['success' => false, 'message' => 'Total invested amount must be greater than zero.'], 400);
+            }
+            if ($amount > ($remainingWithdrawable + 0.0001)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Withdrawal amount (₹' . number_format($amount, 2) . ') exceeds the remaining withdrawable balance (₹' . number_format($remainingWithdrawable, 2) . ') for this plan.'
+                ], 400);
+            }
+
+            $installment->total_withdrawn_amount += $amount;
+            $installment->save();
+
+         
+            Withdrawal::create([
+                'user_id' => $request->user_id,
+                'installment_id' => $request->installment_id, 
+                'amount' => $amount,
+                'remarks' => $remarks,
+                'status' => 'completed',
+            ]);
+
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Amount ₹' . number_format($amount, 2) . ' successfully withdrawn and recorded.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function withdrawalHistory(InstallmentPayment $installment)
+    {
+        $history = $installment->withdrawals()->orderBy('created_at', 'desc')->get(['amount', 'remarks', 'created_at']);
+
+        // Calculate the current total withdrawn amount for this specific installment
+        $currentTotalWithdrawn = $history->sum('amount');
+
+        return response()->json([
+            'success' => true,
+            'history' => $history,
+            'total_withdrawn_amount_current' => $currentTotalWithdrawn, // Add this line
+            'plan_amount' => $installment->plan_amount // Also send the original plan amount for recalculation
+        ]);
     }
 }

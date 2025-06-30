@@ -63,22 +63,8 @@ class PaymentController extends Controller
 
     public function store(Request $request)
     {
-
-        // Validate input
-        $validatedData = $request->validate([
-            'plan_amount' => 'required|numeric',
-            'plan_code' => 'required|string',
-            'plan_category' => 'required|string',
-            'total_yearly_payment' => 'required|numeric',
-            'total_gold_purchase' => 'required|numeric',
-            'start_date' => 'required|date',
-            'installment_id' => 'nullable|integer',
-            'request_date' => 'required|date',
-            'no_of_months' => 'nullable|string',
-        ]);
-
-
         $user = Auth::user();
+<<<<<<< HEAD
         // This retrieves the ID of the authenticated user
         $query = OfflinePaymentRequests::whereRaw('1 = 1'); // Start a dummy query
 
@@ -109,6 +95,13 @@ class PaymentController extends Controller
         // ]));
 
 
+=======
+        
+        $no_of_months = $this->getTotalMonths($request->plan_code);
+        
+        $payment = (new OfflinePaymentRequests())->storeData($user->id, $request->plan_amount, $request->plan_code, $request->plan_category, $request->total_yearly_payment, $request->total_gold_purchase, $request->start_date, $request->installment_id, $request->request_date, $no_of_months, $request->remarks);
+        
+>>>>>>> d67848431e2f586aa793b0f3dc738ad0a295a446
 
         return response()->json([
             'status' => true,
@@ -117,12 +110,12 @@ class PaymentController extends Controller
         ], 201);
     }
 
-    public function getTotalMonths(int  $planCode): string
+    public function getTotalMonths(string  $planCode): int
     {
         return match ($planCode) {
-            12 => 'INR',
-            18 => 'SNR',
-            24 => 'TNR'   
+            'INR' => 12,
+            'SNR' => 18,
+            'TNR' => 24  
         };
     }
     public function payment(Request $request): JsonResponse|Redirector|RedirectResponse
