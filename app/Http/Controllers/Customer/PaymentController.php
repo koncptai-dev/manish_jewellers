@@ -63,53 +63,12 @@ class PaymentController extends Controller
 
     public function store(Request $request)
     {
-
-        // Validate input
-        $validatedData = $request->validate([
-            'plan_amount' => 'required|numeric',
-            'plan_code' => 'required|string',
-            'plan_category' => 'required|string',
-            'total_yearly_payment' => 'required|numeric',
-            'total_gold_purchase' => 'required|numeric',
-            'start_date' => 'required|date',
-            'installment_id' => 'nullable|integer',
-            'request_date' => 'required|date',
-            'no_of_months' => 'nullable|string',
-        ]);
-
-
         $user = Auth::user();
         
-        // This retrieves the ID of the authenticated user
-        $query = OfflinePaymentRequests::whereRaw('1 = 1'); // Start a dummy query
-
-        $no_of_months = $this->getTotalMonths($request->no_of_months);
-        // $payment = (new PaymentRequest)->storeData($user_id, $request->amount, $request->currency, 'pending', $request->remarks);
+        $no_of_months = $this->getTotalMonths($request->plan_code);
+        
         $payment = (new OfflinePaymentRequests())->storeData($user->id, $request->plan_amount, $request->plan_code, $request->plan_category, $request->total_yearly_payment, $request->total_gold_purchase, $request->start_date, $request->installment_id, $request->request_date, $no_of_months, $request->remarks);
         
-        // $user->notify(new PaymentNotification([
-        //     'message' => "Payment request of {$request->amount} created successfully.",
-        //     // 'type' => "Payment"
-        // ]));
-
-        // $user->notify(new PaymentNotification([
-        //     'message' => serialize([
-        //         'notification_type' => "payment_request",
-        //         "message" => "Payment request of {$request->amount} created successfully.",
-        //         'payment_date'     => $request->request_date,  // Payment date
-        //         'payment_time'     => now()->format('H:i:s'),  // Current time
-        //         'payment_type'     => $request->plan_category, // Payment type
-        //         'money_paid'       => $request->plan_amount,   // Amount paid
-        //         'installment_id'   => $request->installment_id,
-        //         'no_of_months'     => $request->no_of_months,
-        //         'total_payment'    => $request->total_yearly_payment,
-        //         'total_gold'       => $request->total_gold_purchase,
-        //         'remarks'          => $request->remarks,
-        //     ]),
-        //     'notification_type' => "payment_request"
-        // ]));
-
-
 
         return response()->json([
             'status' => true,
@@ -118,12 +77,12 @@ class PaymentController extends Controller
         ], 201);
     }
 
-    public function getTotalMonths(int  $planCode): string
+    public function getTotalMonths(string  $planCode): int
     {
         return match ($planCode) {
-            12 => 'INR',
-            18 => 'SNR',
-            24 => 'TNR'   
+            'INR' => 12,
+            'SNR' => 18,
+            'TNR' => 24  
         };
     }
     public function payment(Request $request): JsonResponse|Redirector|RedirectResponse
