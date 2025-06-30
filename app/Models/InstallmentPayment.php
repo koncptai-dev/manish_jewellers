@@ -137,4 +137,15 @@ class InstallmentPayment extends Model
 
         return $installmentPayment;
     }
+
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawal::class, 'installment_id');
+    }
+
+    // Accessor to calculate total withdrawn amount on the fly
+    public function getTotalWithdrawnAmountAttribute()
+    {
+        return $this->withdrawals()->sum('amount');
+    }
 }

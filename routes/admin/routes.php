@@ -211,6 +211,8 @@ Route::prefix('admin')->group(function () {
     
     Route::get('/loan-requests', [LoadRequestController::class, 'index'])->name('admin.loanRequests.index');
     Route::post('/loan-requests/approve/{id}', [LoadRequestController::class, 'approve'])->name('loan-requests.approve');
+    Route::post('/withdraw-amount', [PaymentRequestController::class, 'withdrawAmount'])->name('withdraw-amount');
+    Route::get('/installments/withdrawal-history/{installment}', [PaymentRequestController::class, 'withdrawalHistory']) ->name('admin.installments.withdrawal-history');
 
 });
 
