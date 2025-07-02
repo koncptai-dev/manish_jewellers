@@ -56,6 +56,7 @@ class InstallmentResource extends JsonResource
             'total_installment_paid' =>  $this->details->sum('monthly_payment'),
             'total_withdrawn_amount' => $this->total_withdrawn_amount ?? 0,
             'remaining_withdrawn_amount' => $total_balance - $this->total_withdrawn_amount ?? 0,
+            'plan_status' => $this->status  ?? 0,
             'details' => InstallmentDetailResource::collection($this->details->values()->map(function ($detail, $index) {
                 $detail->installment_index = $index + 1; // Add an index property
                 return $detail;
