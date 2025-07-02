@@ -156,6 +156,7 @@ class PaymentRequestController extends Controller
                 'installment_payments.plan_code',
                 'installment_payments.plan_category',
                 'users.name as user_name', 
+                'installment_payments.status', // Include status for filtering
                 DB::raw("SUM(CASE WHEN installment_payment_details.payment_status = 'paid' THEN installment_payment_details.monthly_payment ELSE 0 END) as plan_amount"),
             )->has('user')
             ->groupBy(
@@ -273,4 +274,32 @@ class PaymentRequestController extends Controller
             'plan_amount' => $installment->plan_amount // Also send the original plan amount for recalculation
         ]);
     }
+
+    public function cancelPlan(Request $request)
+{
+    $request->validate([
+        'installment_id' => 'required|exists:installment_payments,id',
+    ]);
+
+    try {
+        $installment = InstallmentPayment::findOrFail($request->installment_id);
+
+        if ($installment->status != 1) {
+            return response()->json(['success' => false, 'message' => 'Plan is already canceled or inactive.']);
+        }
+
+        $installment->status = 0; // assuming 0 = canceled
+        $installment->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Plan canceled successfully.',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Something went wrong: ' . $e->getMessage(),
+        ]);
+    }
+}
 }
