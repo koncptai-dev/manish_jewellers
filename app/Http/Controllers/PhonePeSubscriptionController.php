@@ -644,7 +644,7 @@ class PhonePeSubscriptionController extends Controller
                     if ($response->successful()) {
                         $data      = $response->json();
                         $newStatus = $data['state'] ?? 'PENDING';
-                        if (in_array($newStatus, ['ACTIVE', 'REVOKED', 'EXPIRED', 'CANCELLED', 'FAILED', 'PAUSED'])) {
+                        if (in_array($newStatus, ['PENDING'])) {
                             $mandate->status = $newStatus;
                             $results[]       = "Mandate $transactionId updated to $newStatus.";
                         }
