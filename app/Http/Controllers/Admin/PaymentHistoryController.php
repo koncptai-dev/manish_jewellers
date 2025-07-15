@@ -110,29 +110,28 @@ class PaymentHistoryController extends Controller
     public function index(Request $request)
     {
 
-        $installments = InstallmentPayment::with(['details', 'user'])
-            // ->leftJoin('subscription_mandates', 'installment_payments.id', '=', 'subscription_mandates.installment_id')
-            ->when(! empty($request['searchValue']), function ($query) use ($request) {
-                $searchValue = $request['searchValue'];
-                $query->where(function ($q) use ($searchValue) {
-                    $q->where('plan_code', 'like', '%' . $searchValue . '%')
-                        ->orWhere('plan_category', 'like', '%' . $searchValue . '%')
-                        ->orWhereHas('user', function ($userQuery) use ($searchValue) {
-                            $userQuery->where('name', 'like', '%' . $searchValue . '%');
-                        });
-                });
-            })
-              ->whereHas('details', function ($query) {
-                $query->where('payment_status', 'paid');
-            })
-                    // ->where(function ($query) {
-            //     $query->where('subscription_mandates.id')        // If no subscription exists
-            //         ->orWhere('subscription_mandates.status', 'ACTIVE'); // If subscription exists and is active
-            // })
-            ->select(
-                'installment_payments.*')
-            ->paginate(getWebConfig(name: WebConfigKey::PAGINATION_LIMIT)); // Pagination limit
-           
+        $installments = InstallmentPayment::with([
+            'user',
+            'details' => function ($q) {
+                $q->where('payment_status', 'paid');
+            }
+        ])
+        ->when(! empty($request['searchValue']), function ($query) use ($request) {
+            $searchValue = $request['searchValue'];
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('plan_code', 'like', '%' . $searchValue . '%')
+                    ->orWhere('plan_category', 'like', '%' . $searchValue . '%')
+                    ->orWhereHas('user', function ($userQuery) use ($searchValue) {
+                        $userQuery->where('name', 'like', '%' . $searchValue . '%');
+                    });
+            });
+        })
+        ->whereHas('details', function ($query) {
+            $query->where('payment_status', 'paid');
+        })
+        ->select('installment_payments.*')
+        ->paginate(getWebConfig(name: WebConfigKey::PAGINATION_LIMIT));
+
         return view('admin-views.installment.list', compact('installments'));
 
     }

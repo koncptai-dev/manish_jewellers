@@ -65,6 +65,7 @@
                                     <th>Amount Paid</th>
                                     <td>Purchase Gold Weight</td>
                                     <th>Payment Date</th>
+                                    <th>Payment ID</th>
                                     <th>Payment Type</th>
                                     <th>Status</th>
                                     
@@ -77,8 +78,17 @@
                                         <td>₹ {{ $detail->monthly_payment }}</td>
                                         <td>{{ $detail->purchase_gold_weight }}</td>
                                         <td>{{ $detail->created_at }}</td>
-                                        <td>{{ $detail->payment_type }}</td>
-                                        <td>{{ ucfirst($detail->payment_status) }}</td>
+                                        <td>{{ $detail->transaction_ref}}</td>
+                                        <td>{{ $detail->payment_type??"N/A" }}</td>
+                                        <td>
+                                            @if($detail->payment_status == 'paid')
+                                                <span class="text-success">{{ ucfirst($detail->payment_status) }}</span>
+                                            @elseif($detail->payment_status == 'pending')
+                                                <span class="text-danger">Failed</span>
+                                            @else
+                                                <span>{{ ucfirst($detail->payment_status) }}</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
