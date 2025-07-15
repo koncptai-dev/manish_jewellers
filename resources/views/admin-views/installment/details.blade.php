@@ -65,6 +65,7 @@
                                     <th>Amount Paid</th>
                                     <td>Purchase Gold Weight</td>
                                     <th>Payment Date</th>
+                                    <th>Payment ID</th>
                                     <th>Payment Type</th>
                                     <th>Status</th>
                                     
@@ -77,6 +78,7 @@
                                         <td>₹ {{ $detail->monthly_payment }}</td>
                                         <td>{{ $detail->purchase_gold_weight }}</td>
                                         <td>{{ $detail->created_at }}</td>
+                                        <td>{{ $detail->transaction_ref}}</td>
                                         <td>{{ $detail->payment_type??"N/A" }}</td>
                                         <td>
                                             @if($detail->payment_status == 'paid')
