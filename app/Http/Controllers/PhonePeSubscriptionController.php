@@ -586,14 +586,14 @@ class PhonePeSubscriptionController extends Controller
                     // Log and update the subscription
                     // $subscription->update(['last_deduction_at' => now()]);
 
-                    DB::table('installment_payment_details')->insert([
-                        'installment_payment_id' => $subscription->installment_id,
-                        'payment_status'         => 'pending',
-                        'payment_method'         => 'Phonepe',
-                        'transaction_ref'        => $merchantOrderId,
-                        'created_at'             => now(),
-                        'updated_at'             => now(),
-                    ]);
+                    // DB::table('installment_payment_details')->insert([
+                    //     'installment_payment_id' => $subscription->installment_id,
+                    //     'payment_status'         => 'pending',
+                    //     'payment_method'         => 'Phonepe',
+                    //     'transaction_ref'        => $merchantOrderId,
+                    //     'created_at'             => now(),
+                    //     'updated_at'             => now(),
+                    // ]);
 
                     $results['notified'][] = [
                         'subscription_id' => $subscription->id,
