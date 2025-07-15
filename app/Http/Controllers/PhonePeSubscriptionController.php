@@ -702,7 +702,9 @@ class PhonePeSubscriptionController extends Controller
             'installment_id'  => $subscription->installment_id,
         ]);
 
-        $subscription->update(['last_deduction_at' => now()]);
+        if( $status === 'COMPLETED') {
+            $subscription->update(['last_deduction_at' => now()]);
+        }
 
         Log::channel('phonepe_webhook')->info('Subscription Last Deduction Date Updated', [
             'subscription_id'   => $subscription->id,
