@@ -586,14 +586,14 @@ class PhonePeSubscriptionController extends Controller
                     // Log and update the subscription
                     // $subscription->update(['last_deduction_at' => now()]);
 
-                    DB::table('installment_payment_details')->insert([
-                        'installment_payment_id' => $subscription->installment_id,
-                        'payment_status'         => 'pending',
-                        'payment_method'         => 'Phonepe',
-                        'transaction_ref'        => $merchantOrderId,
-                        'created_at'             => now(),
-                        'updated_at'             => now(),
-                    ]);
+                    // DB::table('installment_payment_details')->insert([
+                    //     'installment_payment_id' => $subscription->installment_id,
+                    //     'payment_status'         => 'pending',
+                    //     'payment_method'         => 'Phonepe',
+                    //     'transaction_ref'        => $merchantOrderId,
+                    //     'created_at'             => now(),
+                    //     'updated_at'             => now(),
+                    // ]);
 
                     $results['notified'][] = [
                         'subscription_id' => $subscription->id,
@@ -644,7 +644,7 @@ class PhonePeSubscriptionController extends Controller
                     if ($response->successful()) {
                         $data      = $response->json();
                         $newStatus = $data['state'] ?? 'PENDING';
-                        if (in_array($newStatus, ['ACTIVE', 'REVOKED', 'EXPIRED', 'CANCELLED', 'FAILED', 'PAUSED'])) {
+                        if (in_array($newStatus, ['PENDING'])) {
                             $mandate->status = $newStatus;
                             $results[]       = "Mandate $transactionId updated to $newStatus.";
                         }
@@ -702,7 +702,9 @@ class PhonePeSubscriptionController extends Controller
             'installment_id'  => $subscription->installment_id,
         ]);
 
-        $subscription->update(['last_deduction_at' => now()]);
+        if( $status === 'COMPLETED') {
+            $subscription->update(['last_deduction_at' => now()]);
+        }
 
         Log::channel('phonepe_webhook')->info('Subscription Last Deduction Date Updated', [
             'subscription_id'   => $subscription->id,
