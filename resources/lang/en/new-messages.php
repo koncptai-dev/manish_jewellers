@@ -9081,4 +9081,8 @@ return [
 	"Account_Blocked" => "Account Blocked",
 	"search_by_User_Name" => "Search by User Name",
 	"search_by_user_name" => "Search by user name",
+	"hallmark charges" => "Hallmark charges",
+	"set_the_hallmark_charges_from_here." => "Set the hallmark charges from here.",
+	"hallmark_charges" => "Hallmark charges",
+	"making_charges" => "Making charges",
 ];

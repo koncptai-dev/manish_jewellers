@@ -937,6 +937,13 @@ $(document).on("change", "#choice_options", function () {
 $('input[name="choice_options_1[]"]').on("change", function () {
     calculateUnitPriceToEdit();
 });
+$("#hallmark_charges").on("change", function () {
+    if($("#is_edit").val() == 1){
+        calculateUnitPriceToEdit();
+    }else{
+        calculateUnitPrice();
+    }
+});
 function calculateUnitPriceToEdit() {
     let choiceOptions = [];
     let hasWeight = false;
@@ -967,12 +974,12 @@ function calculateUnitPriceToEdit() {
             }
         }
     });
-    let unitPrice = $("#unit_price").val();
+        let unitPrice = $("#unit_price").val();
         let makingCharges = $("#making_charges").val();
         let productMetal = $("#product_metal").val();
-
+        let hallmark_charges = $("#hallmark_charges").val();
     // Send request only if both weight and carat are available
-    if (hasWeight && hasCarat && unitPrice == "") {
+    if (hasWeight && hasCarat) {
         
         $.ajax({
             url: $("#calculate-unit-price").data("url"),
@@ -985,6 +992,7 @@ function calculateUnitPriceToEdit() {
                 unit_price: unitPrice,
                 making_charges: makingCharges,
                 product_metal: productMetal,
+                hallmark_charges: hallmark_charges,
             },
             success: function (response) {
                 if (response.unit_price !== null) {
@@ -1040,6 +1048,7 @@ function calculateUnitPrice() {
     let unitPrice = $("#unit_price").val();
     let makingCharges = $("#making_charges").val();
     let productMetal = $("#product_metal").val();
+    let hallmark_charges = $("#hallmark_charges").val();
     // Only proceed if both Weight and carat are present with values
     if (hasWeight && hasCarat && unitPrice == "") {
         $.ajax({
@@ -1054,6 +1063,7 @@ function calculateUnitPrice() {
                 unit_price: unitPrice,
                 making_charges: makingCharges,
                 product_metal: productMetal,
+                hallmark_charges: hallmark_charges,
             },
             success: function (response) {
                 console.log(response);

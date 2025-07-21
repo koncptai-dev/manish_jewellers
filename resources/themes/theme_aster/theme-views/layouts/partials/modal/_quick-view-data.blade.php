@@ -232,6 +232,8 @@
                             @csrf
                             <div class="">
                                 <input type="hidden" name="id" value="{{ $product->id }}">
+                                <input type="hidden" name="hallmark_charges" value="{{ $product->hallmark_charges }}">
+                                <input type="hidden" name="making_charges" value="{{ $product->making_charges }}">
                                 @if (count(json_decode($product->colors)) > 0)
                                     <div class="d-flex gap-4 flex-wrap align-items-center mb-3">
                                         <h6 class="fw-semibold">{{translate('color')}}</h6>

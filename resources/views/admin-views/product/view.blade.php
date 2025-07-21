@@ -377,6 +377,20 @@
                                         @endif
                                     </div>
                                 @endif
+                                <div>
+                                    <span class="key text-nowrap">{{ translate('hallmark_charges') }}</span>
+                                    <span>:</span>
+                                    <span class="value">
+                                        {{ setCurrencySymbol(amount: usdToDefaultCurrency(amount: $product->hallmark_charges), currencyCode: getCurrencyCode()) }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="key text-nowrap">{{ translate('making_charges') }}</span>
+                                    <span>:</span>
+                                    <span class="value">
+                                        {{ setCurrencySymbol(amount: usdToDefaultCurrency(amount: $product->making_charges), currencyCode: getCurrencyCode()) }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         @if(count($product->tags)>0)
