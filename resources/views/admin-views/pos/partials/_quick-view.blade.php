@@ -77,6 +77,8 @@
                 <form id="add-to-cart-form">
                     @csrf
                     <input type="hidden" name="id" value="{{ $product->id }}">
+                    <input type="hidden" name="hallmark_charges" value="{{ $product->hallmark_charges }}">
+                    <input type="hidden" name="making_charges" value="{{ $product->making_charges }}">
                     <div class="variant-change">
                         <div class="position-relative mb-4">
                             @if (count(json_decode($product->colors)) > 0)

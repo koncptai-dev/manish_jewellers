@@ -873,8 +873,9 @@ class ProductController extends BaseController
         $unit_price     = $request->input('unit_price', 0);  // Default fallback
         $making_charges = $request->input('making_charges', 0);
         $metal          = $request->input('metal');
+        $hallmark_charges = $request->input('hallmark_charges',0);
 
-        $price = Helpers::calculatePrice($choiceOptions, $unit_price, $making_charges, $metal);
+        $price = Helpers::calculatePrice($choiceOptions, $unit_price, $making_charges, $metal, $hallmark_charges);
 
         return response()->json(['unit_price' => $price]);
     }
