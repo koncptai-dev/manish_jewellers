@@ -190,6 +190,8 @@
                 <form id="add-to-cart-form" class="mb-2 addToCartDynamicForm">
                     @csrf
                     <input type="hidden" name="id" value="{{ $product->id }}">
+                    <input type="hidden" name="hallmark_charges" value="{{ $product->hallmark_charges }}">
+                    <input type="hidden" name="making_charges" value="{{ $product->making_charges }}">
                     <div class="position-relative {{Session::get('direction') === "rtl" ? 'ml-n4' : 'mr-n4'}} mb-3">
                         @if (count(json_decode($product->colors)) > 0)
                             <div class="flex-start">

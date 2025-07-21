@@ -57,6 +57,7 @@ use Illuminate\Support\Facades\DB;
  * @property string $meta_description
  * @property string $meta_image
  * @property int $is_shipping_cost_updated
+ * @property int $hallmark_charges
  */
 class Product extends Model
 {
@@ -83,6 +84,7 @@ class Product extends Model
         'digital_product_file_types',
         'digital_product_extensions',
         'unit_price',
+        'hallmark_charges',
         'purchase_price',
         'tax',
         'tax_type',

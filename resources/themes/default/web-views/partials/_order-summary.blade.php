@@ -4,6 +4,8 @@
             @php($shippingMethod=getWebConfig(name: 'shipping_method'))
             @php($subTotal=0)
             @php($totalTax=0)
+            @php($hallmarkCharges=0)
+            @php($makingCharges=0)
             @php($totalShippingCost=0)
             @php($orderWiseShippingDiscount=\App\Utils\CartManager::order_wise_shipping_discount())
             @php($totalDiscountOnProduct=0)
@@ -13,9 +15,14 @@
             @php($getShippingCostSavedForFreeDelivery=\App\Utils\CartManager::get_shipping_cost_saved_for_free_delivery(type: 'checked'))
             @if($cart->count() > 0)
                 @foreach($cart as $key => $cartItem)
-                    @php($subTotal+=$cartItem['price']*$cartItem['quantity'])
-                    @php($totalTax+=$cartItem['tax_model']=='exclude' ? ($cartItem['tax']*$cartItem['quantity']):0)
-                    @php($totalDiscountOnProduct+=$cartItem['discount']*$cartItem['quantity'])
+                    @php($itemTotal = $cartItem['price'] * $cartItem['quantity'])
+                    @php( $itemHallmark = $cartItem['hallmark_charges'] * $cartItem['quantity'])
+                    @php($itemMakingCharge = ($itemTotal * $cartItem['making_charges']) / 100)
+                    @php($subTotal += $itemTotal - $itemMakingCharge)
+                    @php($hallmarkCharges += $itemHallmark)
+                    @php($makingCharges += $itemMakingCharge)
+                    @php($totalTax += ($cartItem['tax_model'] == 'exclude') ? ($cartItem['tax'] * $cartItem['quantity']) : 0)
+                    @php( $totalDiscountOnProduct += $cartItem['discount'] * $cartItem['quantity'])
                 @endforeach
 
                 @if(session()->missing('coupon_type') || session('coupon_type') !='free_delivery')
@@ -42,11 +49,22 @@
                     <strong>{{ webCurrencyConverter(amount: $totalSavedAmount) }}!</strong>
                 </h6>
             @endif
-
             <div class="d-flex justify-content-between">
                 <span class="cart_title">{{translate('sub_total')}}</span>
                 <span class="cart_value">
-                    {{ webCurrencyConverter(amount: $subTotal) }}
+                    {{ webCurrencyConverter(amount: $subTotal-$hallmarkCharges) }}
+                </span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="cart_title">{{translate('hallmark_charges')}}</span>
+                <span class="cart_value">
+                    {{ webCurrencyConverter(amount: $hallmarkCharges) }}
+                </span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="cart_title">{{translate('making_charges')}}</span>
+                <span class="cart_value">
+                    {{ webCurrencyConverter(amount: $makingCharges) }}
                 </span>
             </div>
             <div class="d-flex justify-content-between">
@@ -115,7 +133,7 @@
             <div class="d-flex justify-content-between">
                 <span class="cart_title text-primary font-weight-bold">{{translate('total')}}</span>
                 <span class="cart_value">
-                {{ webCurrencyConverter(amount: $subTotal+$totalTax+$totalShippingCost-$coupon_dis-$totalDiscountOnProduct-$orderWiseShippingDiscount) }}
+                {{ webCurrencyConverter(amount: $subTotal+$totalTax+$totalShippingCost-$coupon_dis-$totalDiscountOnProduct-$orderWiseShippingDiscount+$makingCharges) }}
                 </span>
             </div>
         </div>

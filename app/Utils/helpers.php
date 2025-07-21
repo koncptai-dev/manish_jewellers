@@ -194,7 +194,7 @@ class Helpers
         return $data;
     }
 
-    public static function calculatePrice($choiceOptions, $unit_price, $making_charges, $product_metal)
+    public static function calculatePrice($choiceOptions, $unit_price, $making_charges, $product_metal, $hallmark_charges = 0)
     {
         if (is_string($choiceOptions)) {
             $decoded = json_decode($choiceOptions);
@@ -255,12 +255,12 @@ class Helpers
                         break;
                 }
             } else {
-                $unitPrice = $unit_price;
+                $unitPrice = $unit_price; // Fallback to unit price if gold rate is not available
             }
 
         }
 
-        return $unitPrice;
+        return $unitPrice + $hallmark_charges; // Add hallmark charges if applicable
     }
 
     public static function calculateSilverPrice($choiceOptions, $unit_price, $making_charges)

@@ -285,7 +285,7 @@ class ProductController extends Controller
                 $query->where('customer_id', $user != 'offline' ? $user->id : '0');
             }])
             ->where(['slug' => $slug])->first();
-
+            
         if (isset($product)) {
             $restockRequestedIds = $this->restockProductRepo->getListWhere(filters: ['product_id' => $product['id']], dataLimit: 'all')?->pluck('id')->toArray() ?? [];
 
@@ -296,7 +296,8 @@ class ProductController extends Controller
             } else {
                 $product['average_review'] = 0;
             }
-
+            $product['making_charges'] =($product['unit_price'] * $product['making_charges']) / 100;
+            $product['hallmark_charges'] = $product['hallmark_charges'] ?? 0;
             $temporary_close = getWebConfig(name: 'temporary_close');
             $inhouse_vacation = getWebConfig(name: 'vacation_add');
             $inhouse_vacation_start_date = $product['added_by'] == 'admin' ? $inhouse_vacation['vacation_start_date'] : null;

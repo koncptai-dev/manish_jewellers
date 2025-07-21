@@ -436,6 +436,26 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-group">
+                            <div class="d-flex gap-2">
+                                <label class="title-color" for="tax_model">
+                                    {{ translate('hallmark charges') }}
+                                    <span class="input-required-icon">*</span>
+                                </label>
+
+                                <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
+                                    title="{{ translate('set_the_hallmark_charges_from_here.').' '.translate('select_Include_with_product_to_combine_product_price_and_tax_on_the_checkout.')}}">
+                                    <img src="{{ dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg') }}"
+                                        alt="">
+                                </span>
+                            </div>
+                            <input type="number" min="0" step="0.01"
+                                placeholder="{{ translate('hallmark_charges') }}" name="hallmark_charges"
+                                id="hallmark_charges" class="form-control" value="{{ old('hallmark_charges') ?? 0 }}"
+                                required>
+                        </div>
+                    </div>
                     <div class="col-md-6 col-lg-4 col-xl-3 physical_product_show" id="shipping_cost">
                         <div class="form-group">
                             <div class="d-flex gap-2">
@@ -876,7 +896,7 @@
         </div>
     </form>
 </div>
-
+<input type="hidden" id="is_edit" value="0"/>
 <span id="route-admin-products-sku-combination" data-url="{{ route('admin.products.sku-combination') }}"></span>
 <span id="route-admin-products-digital-variation-combination"
     data-url="{{ route('admin.products.digital-variation-combination') }}"></span>
