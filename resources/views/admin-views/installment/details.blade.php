@@ -84,7 +84,9 @@
                                             @if($detail->payment_status == 'paid')
                                                 <span class="text-success">{{ ucfirst($detail->payment_status) }}</span>
                                             @elseif($detail->payment_status == 'pending')
-                                                <span class="text-danger">Failed</span>
+                                                <span class="text-secondary">Pending</span>
+                                            @elseif($detail->payment_status == 'failed')
+                                                <span class="text-danger">Pending</span>
                                             @else
                                                 <span>{{ ucfirst($detail->payment_status) }}</span>
                                             @endif
