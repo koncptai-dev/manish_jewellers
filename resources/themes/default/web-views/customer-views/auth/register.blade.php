@@ -14,6 +14,7 @@
                 <form class="needs-validation_" id="customer-register-form" action="{{ route('customer.auth.sign-up')}}"
                         method="post">
                     @csrf
+                    <input hidden name="referral_code" id="referral_code" value="{{ old('referral_code') }}" >
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="form-group">
