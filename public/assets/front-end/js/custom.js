@@ -148,17 +148,15 @@ function getReferralCodeFromURL() {
             currentUrl.search
         ).get("referral_code");
         if (referralCodeParameter) {
+            $("#referral_code").val(referralCodeParameter);
             let referralCodeInput = $("#referral_code");
             if ($("#is-request-customer-auth-sign-up").data("value"))
                 console.log(referralCodeInput.length);
             if (referralCodeInput.length) {
                 referralCodeInput.val(referralCodeParameter);
             } else {
-                let redirectLink = $("#route-customer-auth-sign-up").data(
-                    "url"
-                );
-                window.location.href =
-                    redirectLink + "?referral_code=" + referralCodeParameter;
+                let message = $("#message-referral-code-not-found").data("text");
+                toastr.error(message);
             }
         }
     }

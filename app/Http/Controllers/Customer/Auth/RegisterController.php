@@ -49,13 +49,13 @@ class RegisterController extends Controller
 
     public function getRegisterView(): View
     {
-        session()->put('keep_return_url', url()->previous());
         return view('web-views.customer-views.auth.register');
     }
 
     public function submitRegisterData(CustomerRegistrationRequest $request): JsonResponse|RedirectResponse
     {
         $referUser = $request['referral_code'] ? $this->customerRepo->getFirstWhere(params: ['referral_code' => $request['referral_code']]) : null;
+        
         $user = $this->customerRepo->add(data: $this->customerAuthService->getCustomerRegisterData($request, $referUser));
 
         $phoneVerification = getLoginConfig(key: 'phone_verification');

@@ -511,35 +511,35 @@ class PhonePeSubscriptionController extends Controller
     public function notifyUser()
     {
         $subscriptions = SubscriptionMandate::with('installment')
-            ->where('status', 'ACTIVE')
-            ->where(function ($query) {
-                $query->where(function ($q) {
-                    $q->where('frequency', 'DAILY')
-                        ->where(function ($subQ) {
-                            $subQ->whereNull('last_deduction_at')
-                                ->orWhereDate('last_deduction_at', '<=', now()->startOfDay());
-                        });
-                })->orWhere(function ($q) {
-                    $q->where('frequency', 'WEEKLY')
-                        ->where(function ($subQ) {
-                            $subQ->whereNull('last_deduction_at')
-                                ->orWhereRaw('DATE_ADD(last_deduction_at, INTERVAL 1 WEEK) <= ?', [now()]);
-                        });
-                })->orWhere(function ($q) {
-                    $q->where('frequency', 'MONTHLY')
-                        ->where(function ($subQ) {
-                            $subQ->whereNull('last_deduction_at')
-                                ->orWhereRaw('DATE_ADD(last_deduction_at, INTERVAL 1 MONTH) <= ?', [now()]);
-                        });
-                })->orWhere(function ($q) {
-                    $q->where('frequency', 'YEARLY')
-                        ->where(function ($subQ) {
-                            $subQ->whereNull('last_deduction_at')
-                                ->orWhereRaw('DATE_ADD(last_deduction_at, INTERVAL 1 YEAR) <= ?', [now()]);
-                        });
-                });
-            })
-            ->get();
+        ->where('status', 'ACTIVE')
+        ->where(function ($query) {
+            $query->where(function ($q) {
+                $q->whereRaw('LOWER(frequency) = ?', ['daily'])
+                    ->where(function ($subQ) {
+                        $subQ->whereNull('last_deduction_at')
+                            ->orWhereDate('last_deduction_at', '<=', now()->startOfDay());
+                    });
+            })->orWhere(function ($q) {
+                $q->whereRaw('LOWER(frequency) = ?', ['weekly'])
+                    ->where(function ($subQ) {
+                        $subQ->whereNull('last_deduction_at')
+                            ->orWhere('last_deduction_at', '<=', now()->subWeek());
+                    });
+            })->orWhere(function ($q) {
+                $q->whereRaw('LOWER(frequency) = ?', ['monthly'])
+                    ->where(function ($subQ) {
+                        $subQ->whereNull('last_deduction_at')
+                            ->orWhere('last_deduction_at', '<=', now()->subMonth());
+                    });
+            })->orWhere(function ($q) {
+                $q->whereRaw('LOWER(frequency) = ?', ['yearly'])
+                    ->where(function ($subQ) {
+                        $subQ->whereNull('last_deduction_at')
+                            ->orWhere('last_deduction_at', '<=', now()->subYear());
+                    });
+            });
+        })
+        ->get();
 
         $results = [
             'notified' => [],
@@ -586,14 +586,14 @@ class PhonePeSubscriptionController extends Controller
                     // Log and update the subscription
                     // $subscription->update(['last_deduction_at' => now()]);
 
-                    // DB::table('installment_payment_details')->insert([
-                    //     'installment_payment_id' => $subscription->installment_id,
-                    //     'payment_status'         => 'pending',
-                    //     'payment_method'         => 'Phonepe',
-                    //     'transaction_ref'        => $merchantOrderId,
-                    //     'created_at'             => now(),
-                    //     'updated_at'             => now(),
-                    // ]);
+                    DB::table('installment_payment_details')->insert([
+                        'installment_payment_id' => $subscription->installment_id,
+                        'payment_status'         => 'pending',
+                        'payment_method'         => 'Phonepe',
+                        'transaction_ref'        => $merchantOrderId,
+                        'created_at'             => now(),
+                        'updated_at'             => now(),
+                    ]);
 
                     $results['notified'][] = [
                         'subscription_id' => $subscription->id,
@@ -711,18 +711,35 @@ class PhonePeSubscriptionController extends Controller
             'last_deduction_at' => now(),
         ]);
 
-        DB::table('installment_payment_details')->insert([
-            'installment_payment_id' => $subscription->installment_id,
-            'payment_status'         => $status === 'COMPLETED' ? 'paid' : 'pending',
-            'payment_method'         => 'Phonepe',
-            'monthly_payment'        => $amountInRupees,
-            'transaction_ref'        => $transactionRef,
-            'payment_by'             => 'User',
-            'payment_note'           => 'Auto deducted subscription setup',
-            'payment_type'           => 1,
-            'updated_at'             => now(),
-            'created_at'             => now(),
-        ]);
+        // DB::table('installment_payment_details')->insert([
+        //     'installment_payment_id' => $subscription->installment_id,
+        //     'payment_status'         => $status === 'COMPLETED' ? 'paid' : 'pending',
+        //     'payment_method'         => 'Phonepe',
+        //     'monthly_payment'        => $amountInRupees,
+        //     'transaction_ref'        => $transactionRef,
+        //     'payment_by'             => 'User',
+        //     'payment_note'           => 'Auto deducted subscription setup',
+        //     'payment_type'           => 1,
+        //     'updated_at'             => now(),
+        //     'created_at'             => now(),
+        // ]);
+
+        DB::table('installment_payment_details')->updateOrInsert(
+            [
+                'installment_payment_id' => $subscription->installment_id,
+                'transaction_ref'        => $transactionRef,
+            ],
+            [
+                'payment_status'  => $status === 'COMPLETED' ? 'paid' : 'pending',
+                'payment_method'  => 'Phonepe',
+                'monthly_payment' => $amountInRupees,
+                'payment_by'      => 'User',
+                'payment_note'    => 'Auto deducted subscription setup',
+                'payment_type'    => 1,
+                'updated_at'      => now(),
+                'created_at'      => now(),
+            ]
+        );
 
         Log::channel('phonepe_webhook')->info('Callback Processed Successfully', ['mandateId' => $mandateId]);
         return response()->json(['message' => 'Callback Processed'], 200);
