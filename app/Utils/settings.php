@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 if (!function_exists('getWebConfig')) {
     function getWebConfig($name): string|object|array|null
     {
+        Cache::forget(CACHE_BUSINESS_SETTINGS_TABLE);
         $config = null;
         if (in_array($name, getWebConfigCacheKeys()) && Cache::has($name)) {
             $config = Cache::get($name);
@@ -72,7 +73,7 @@ if (!function_exists('getWebConfigCacheKeys')) {
             'currency_model', 'currency_symbol_position', 'system_default_currency', 'language',
             'company_name', 'decimal_point_settings', 'product_brand', 'company_email',
             'business_mode', 'storage_connection_type', 'company_web_logo', 'digital_product', 'storage_connection_type', 'recaptcha',
-            'language', 'pagination_limit', 'company_phone', 'stock_limit',
+            'language', 'pagination_limit', 'company_phone', 'stock_limit','loyalty_point_status'
         ];
     }
 }
