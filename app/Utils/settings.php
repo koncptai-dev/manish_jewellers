@@ -18,10 +18,6 @@ if (!function_exists('getWebConfig')) {
             $settings = Cache::remember(CACHE_BUSINESS_SETTINGS_TABLE, CACHE_FOR_3_HOURS, function () {
                 return BusinessSetting::all();
             });
-            echo "<pre>";
-            print_r($settings);
-            echo "</pre>";
-            
             $data = $settings?->firstWhere('type', $name);
             $config = isset($data) ? setWebConfigCache($name, $data) : $config;
         }
