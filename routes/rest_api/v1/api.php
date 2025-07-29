@@ -32,6 +32,7 @@ use App\Http\Controllers\RestAPI\v1\InstallmentPaymentController;
 use App\Http\Controllers\PhonePeController;
 use App\Http\Controllers\RestAPI\v1\LoanController;
 use App\Http\Controllers\PushNotificationController;
+use App\Http\Controllers\RestAPI\v1\UserLoyaltyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -406,8 +407,11 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
         });
         //loyalty
         Route::group(['prefix' => 'loyalty'], function () {
-            Route::get('list', 'UserLoyaltyController@list');
-            Route::post('loyalty-exchange-currency', 'UserLoyaltyController@loyalty_exchange_currency');
+            Route::controller(UserLoyaltyController::class)->group(function () {
+                Route::get('list', 'list');
+                Route::post('loyalty-exchange-currency', 'loyalty_exchange_currency');
+            });
+            
         });
     });
 
