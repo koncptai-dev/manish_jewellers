@@ -36,7 +36,7 @@ class UserLoyaltyController extends Controller
             return response()->json([
                 'limit'=>(integer)$request->limit,
                 'offset'=>(integer)$request->offset,
-                'total_loyalty_point'=>$total_loyalty_point,
+                'total_loyalty_point'=>$total_loyalty_point? (integer)$total_loyalty_point : 0,
                 'total_loyalty_point_count'=>$loyalty_point_list->total(),
                 'loyalty_point_list'=>$loyalty_point_list->items()
             ],200);
