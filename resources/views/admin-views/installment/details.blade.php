@@ -43,7 +43,19 @@
                             <th>Total Yearly Payment:</th>
                             <td>₹ {{ $installment->total_yearly_payment }}</td>
                         </tr>
-                        
+                        <tr>
+                            <th>Autopay</th>
+                            <td>
+                                @if($installment->mandate_status == 'ACTIVE')
+                                    <span class="badge badge-success">{{$installment->mandate_status?? "N/A"}}</span>
+                                @else
+                                    <span class="badge badge-secondary">{{$installment->mandate_status?? "N/A"}}</span>
+                                @endif
+                        </tr>
+                        <tr>
+                            <th>Mandate Frequency:</th>
+                            <td>{{ $installment->mandate_frequency ?? 'N/A' }}</td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -80,17 +92,24 @@
                                         <td>{{ $detail->created_at }}</td>
                                         <td>{{ $detail->transaction_ref}}</td>
                                         <td>{{ $detail->payment_type??"N/A" }}</td>
+                                        @php
+                                            $isOldPending = $detail->payment_status === 'pending' && $detail->created_at < now()->subDay();
+                                        @endphp
+
                                         <td>
                                             @if($detail->payment_status == 'paid')
                                                 <span class="text-success">{{ ucfirst($detail->payment_status) }}</span>
+                                            @elseif($isOldPending)
+                                                <span class="text-danger">Failed</span>
                                             @elseif($detail->payment_status == 'pending')
                                                 <span class="text-secondary">Pending</span>
                                             @elseif($detail->payment_status == 'failed')
-                                                <span class="text-danger">Pending</span>
+                                                <span class="text-danger">Failed</span>
                                             @else
                                                 <span>{{ ucfirst($detail->payment_status) }}</span>
                                             @endif
                                         </td>
+
                                     </tr>
                                 @empty
                                     <tr>
