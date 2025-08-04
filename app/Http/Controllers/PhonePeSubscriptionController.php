@@ -131,7 +131,7 @@ class PhonePeSubscriptionController extends Controller
                 "authWorkflowType"       => "TRANSACTION",
                 "amountType"             => "VARIABLE",
                 "maxAmount"              => $amount * 100,
-                "frequency"              => $frequency,
+                "frequency"              => strtoupper($frequency),
                 "expireAt"               => $this->getExpiryDate($request['plan_code']),
                 "paymentMode"            => [
                     "type"      => "UPI_INTENT",
@@ -159,7 +159,7 @@ class PhonePeSubscriptionController extends Controller
                 'mandate_id'        => $merchantSubscriptionId,
                 'status'            => $response->json()['state'] ?? 'PENDING',
                 'amount'            => $amount * 100,
-                'frequency'         => $frequency,
+                'frequency'         => strtoupper($frequency),
                 'start_time'        => now(),
                 'last_deduction_at' => now(),
             ]);
@@ -586,14 +586,15 @@ class PhonePeSubscriptionController extends Controller
                     // Log and update the subscription
                     // $subscription->update(['last_deduction_at' => now()]);
 
-                    DB::table('installment_payment_details')->insert([
-                        'installment_payment_id' => $subscription->installment_id,
-                        'payment_status'         => 'pending',
-                        'payment_method'         => 'Phonepe',
-                        'transaction_ref'        => $merchantOrderId,
-                        'created_at'             => now(),
-                        'updated_at'             => now(),
-                    ]);
+                    // DB::table('installment_payment_details')->insert([
+                    //     'installment_payment_id' => $subscription->installment_id,
+                    //     'subscription_id'        => $subscription->id,
+                    //     'payment_status'         => 'pending',
+                    //     'payment_method'         => 'Phonepe',
+                    //     'transaction_ref'        => $merchantOrderId,
+                    //     'created_at'             => now(),
+                    //     'updated_at'             => now(),
+                    // ]);
 
                     $results['notified'][] = [
                         'subscription_id' => $subscription->id,
@@ -711,35 +712,36 @@ class PhonePeSubscriptionController extends Controller
             'last_deduction_at' => now(),
         ]);
 
-        // DB::table('installment_payment_details')->insert([
-        //     'installment_payment_id' => $subscription->installment_id,
-        //     'payment_status'         => $status === 'COMPLETED' ? 'paid' : 'pending',
-        //     'payment_method'         => 'Phonepe',
-        //     'monthly_payment'        => $amountInRupees,
-        //     'transaction_ref'        => $transactionRef,
-        //     'payment_by'             => 'User',
-        //     'payment_note'           => 'Auto deducted subscription setup',
-        //     'payment_type'           => 1,
-        //     'updated_at'             => now(),
-        //     'created_at'             => now(),
-        // ]);
+        DB::table('installment_payment_details')->insert([
+            'installment_payment_id' => $subscription->installment_id,
+            'subscription_id'        => $subscription->id,
+            'payment_status'         => $status === 'COMPLETED' ? 'paid' : 'pending',
+            'payment_method'         => 'Phonepe',
+            'monthly_payment'        => $amountInRupees,
+            'transaction_ref'        => $transactionRef,
+            'payment_by'             => 'User',
+            'payment_note'           => 'Auto deducted subscription setup',
+            'payment_type'           => 1,
+            'updated_at'             => now(),
+            'created_at'             => now(),
+        ]);
 
-        DB::table('installment_payment_details')->updateOrInsert(
-            [
-                'installment_payment_id' => $subscription->installment_id,
-                'transaction_ref'        => $transactionRef,
-            ],
-            [
-                'payment_status'  => $status === 'COMPLETED' ? 'paid' : 'pending',
-                'payment_method'  => 'Phonepe',
-                'monthly_payment' => $amountInRupees,
-                'payment_by'      => 'User',
-                'payment_note'    => 'Auto deducted subscription setup',
-                'payment_type'    => 1,
-                'updated_at'      => now(),
-                'created_at'      => now(),
-            ]
-        );
+        // DB::table('installment_payment_details')->updateOrInsert(
+        //     [
+        //         'installment_payment_id' => $subscription->installment_id,
+        //         'transaction_ref'        => $transactionRef,
+        //     ],
+        //     [
+        //         'payment_status'  => $status === 'COMPLETED' ? 'paid' : 'pending',
+        //         'payment_method'  => 'Phonepe',
+        //         'monthly_payment' => $amountInRupees,
+        //         'payment_by'      => 'User',
+        //         'payment_note'    => 'Auto deducted subscription setup',
+        //         'payment_type'    => 1,
+        //         'updated_at'      => now(),
+        //         'created_at'      => now(),
+        //     ]
+        // );
 
         Log::channel('phonepe_webhook')->info('Callback Processed Successfully', ['mandateId' => $mandateId]);
         return response()->json(['message' => 'Callback Processed'], 200);
