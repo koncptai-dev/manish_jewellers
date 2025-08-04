@@ -141,7 +141,10 @@ class PaymentHistoryController extends Controller
 
         // Fetch installment details along with associated payment details
 
-        $installment = InstallmentPayment::with(['details', 'user'])->findOrFail($id);
+        $installment = InstallmentPayment::select('installment_payments.*', 'subscription_mandates.status as mandate_status', 'subscription_mandates.frequency as mandate_frequency')
+        ->leftJoin('subscription_mandates', 'subscription_mandates.installment_id', '=', 'installment_payments.id')
+        ->with(['details', 'user'])
+        ->findOrFail($id);
 
         // Return view with data
 
