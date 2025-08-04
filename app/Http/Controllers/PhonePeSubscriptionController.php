@@ -715,7 +715,7 @@ class PhonePeSubscriptionController extends Controller
         DB::table('installment_payment_details')->insert([
             'installment_payment_id' => $subscription->installment_id,
             'subscription_id'        => $subscription->id,
-            'payment_status'         => $status === 'COMPLETED' ? 'paid' : 'pending',
+            'payment_status'         => $status === 'COMPLETED' ? 'paid' :  strtolower($status),
             'payment_method'         => 'Phonepe',
             'monthly_payment'        => $amountInRupees,
             'transaction_ref'        => $transactionRef,
