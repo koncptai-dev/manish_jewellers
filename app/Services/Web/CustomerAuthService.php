@@ -5,10 +5,6 @@ namespace App\Services\Web;
 use App\Events\EmailVerificationEvent;
 use App\Utils\Helpers;
 use App\Utils\SMSModule;
-use Brian2694\Toastr\Facades\Toastr;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Session;
 
 class CustomerAuthService
 {
@@ -101,5 +97,18 @@ class CustomerAuthService
             'referral_code' => Helpers::generate_referer_code(),
             'referred_by' => $referUser ? $referUser['id'] : null,
         ];
+    }
+
+    public function addLoyalityPointToCustomer($user)
+    {
+        if (getWebConfig(name: 'ref_earning_status') && getWebConfig(name: 'loyalty_point_status')) {
+            $loyalityPoint = getWebConfig(name: 'ref_earning_exchange_rate');
+            if ($loyalityPoint > 0) {
+                return [
+                    'id' => $user['referred_by'],
+                    'loyalty_point' => $loyalityPoint,
+                ];
+            }
+        }
     }
 }
