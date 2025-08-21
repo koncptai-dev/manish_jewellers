@@ -55,10 +55,10 @@ class RegisterController extends Controller
     public function submitRegisterData(CustomerRegistrationRequest $request): JsonResponse|RedirectResponse
     {
         $referUser = $request['referral_code'] ? $this->customerRepo->getFirstWhere(params: ['referral_code' => $request['referral_code']]) : null;
-        
         $user = $this->customerRepo->add(data: $this->customerAuthService->getCustomerRegisterData($request, $referUser));
+        
         $loyalityPoint= $this->customerAuthService->addLoyalityPointToCustomer($user);
-        $this->customerRepo->updateWhere(params: ['id' => $loyalityPoint['id']], data: $loyalityPoint);
+        $this->customerRepo->updateWhere(params: ['id' => $loyalityPoint['id']], data: ['loyalty_point' => $loyalityPoint['loyalty_point'] + $referUser['loyalty_point']]);
         $phoneVerification = getLoginConfig(key: 'phone_verification');
         $emailVerification = getLoginConfig(key: 'email_verification');
 
