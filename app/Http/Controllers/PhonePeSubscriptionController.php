@@ -716,6 +716,10 @@ class PhonePeSubscriptionController extends Controller
             'installment_payment_id' => $subscription->installment_id,
             'subscription_id'        => $subscription->id,
             'payment_status'         => $status === 'COMPLETED' ? 'paid' :  strtolower($status),
+            'failure_reason'         => $status === 'FAILED'
+                                    ? ($data['errorCode'] ?? 'UNKNOWN') . 
+                                        (isset($data['detailedErrorCode']) ? " ({$data['detailedErrorCode']})" : '')
+                                    : null,
             'payment_method'         => 'Phonepe',
             'monthly_payment'        => $amountInRupees,
             'transaction_ref'        => $transactionRef,
