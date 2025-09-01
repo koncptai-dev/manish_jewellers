@@ -148,6 +148,14 @@ $eCommerceLogo = getWebConfig(name: 'company_web_logo');
                                 <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">Revenue Overview</span>
                             </a>
                         </li>
+                        <li class="navbar-vertical-aside-has-menu {{ Request::is('admin/insatllment-transactions*') ? 'active' : '' }}">
+                            <a class="js-navbar-vertical-aside-menu-link nav-link"
+                                href="{{ route('admin.transactions') }}"
+                                title="Loan Request List">
+                                <i class="tio-credit-card nav-icon"></i>
+                                <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">Installment Transactions</span>
+                            </a>
+                        </li>
                         @if(Helpers::module_permission_check('order_management'))
                         <li class="nav-item {{Request::is('admin/orders*')?((Request::is('admin/orders/details/*') && request()->has('vendor-order-list')) ? '' : 'scroll-here'):''}}">
                             <small class="nav-subtitle" title="">{{translate('order_management')}}</small>

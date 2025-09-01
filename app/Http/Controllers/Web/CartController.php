@@ -95,23 +95,23 @@ class CartController extends Controller
         //         }
         //     }
         // } else {
-        // $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
-        if ($string != null) {
-            $count = count(json_decode($product->variation));
-            for ($i = 0; $i < $count; $i++) {
-                if (json_decode($product->variation)[$i]->type == $string) {
-                    $product->unit_price = json_decode($product->variation)[$i]->price;
-                }
-            }
-        }
+        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
+        // if ($string != null) {
+        //     $count = count(json_decode($product->variation));
+        //     for ($i = 0; $i < $count; $i++) {
+        //         if (json_decode($product->variation)[$i]->type == $string) {
+        //             $product->unit_price = json_decode($product->variation)[$i]->price;
+        //         }
+        //     }
+        // }
 
-        $tax                 = $product->tax_model == 'exclude' ? Helpers::tax_calculation(product : $product, price: $product->unit_price, tax: $product['tax'], tax_type: $product['tax_type']): 0;
-        $update_tax          = $tax * $requestQuantity;
-        $discount            = Helpers::getProductDiscount($product, $product->unit_price);
-        $price               = $product->unit_price - $discount + $tax;
+        $tax = $product->tax_model == 'exclude' ? Helpers::tax_calculation(product: $product, price: $product->unit_price, tax: $product['tax'], tax_type: $product['tax_type']) : 0;
+        $update_tax = $tax * $requestQuantity;
+        $discount = Helpers::getProductDiscount($product, $product->unit_price);
+        $price = $product->unit_price - $discount + $tax;
         $discountedUnitPrice = $product->unit_price - $discount;
-        $unit_price          = $product->unit_price;
-        $quantity            = $product->current_stock;
+        $unit_price = $product->unit_price;
+        $quantity = $product->current_stock;
         // }
 
         $digitalVariation = DigitalProductVariation::where(['product_id' => $product['id'], 'variant_key' => $request['variant_key']])->first();

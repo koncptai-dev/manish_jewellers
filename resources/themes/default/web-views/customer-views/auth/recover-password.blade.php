@@ -13,11 +13,11 @@
                 <ol class="list-unstyled font-size-md p-0">
                     <li>
                         <span class="text-primary mr-2">{{ translate('1')}}.</span>
-                        {{ translate('use_your_registered_phone.')}}
+                        {{ translate('use_your_registered_email.')}}
                     </li>
                     <li>
                         <span class="text-primary mr-2">{{ translate('2')}}.</span>
-                        {{ translate('we_will_send_you_a_temporary_OTP_in_your_phone') }}.
+                        {{ translate('we_will_send_you_a_temporary_OTP_in_your_email') }}.
                     </li>
                     <li>
                         <span class="text-primary mr-2">{{ translate('3')}}.</span>
@@ -33,11 +33,11 @@
                             <label for="recover-email">
                                 {{ translate('Phone') }}
                             </label>
-                            <input class="form-control clean-phone-input-value" type="text" name="identity" required
-                                   placeholder="{{ translate('enter_your_phone_number') }}">
-                            <span class="fs-12 text-muted">* {{ translate('must_use_country_code_before_phone_number') }}</span>
+                            <input class="form-control clean-phone-input-value" type="email" name="identity" required
+                                   placeholder="{{ translate('enter_your_email') }}">
+                            <span class="fs-12 text-muted">* {{ translate('must_use_registered_email') }}</span>
                             <div class="invalid-feedback">
-                                {{ translate('please_provide_valid_phone_number')}}
+                                {{ translate('please_provide_valid_email')}}
                             </div>
                         </div>
                         @if($web_config['firebase_otp_verification'] && $web_config['firebase_otp_verification']['status'])

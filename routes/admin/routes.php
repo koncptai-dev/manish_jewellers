@@ -208,12 +208,15 @@ Route::prefix('admin')->group(function () {
     Route::post('/payment-request/approve/{id}', [PaymentRequestController::class, 'approve'])->name('admin.payment-request.approve');
     Route::get('/users-installments', [PaymentRequestController::class, 'userInstallments'])->name('admin.paymentRequests.userInstallments');
     Route::get('/revenue-overview', [PaymentRequestController::class, 'revenueOverview'])->name('admin.paymentRequests.revenueOverview');
+    Route::get('/insatllment-transactions', [PaymentRequestController::class, 'installmentTransactions'])->name('admin.transactions');
     
     Route::get('/loan-requests', [LoadRequestController::class, 'index'])->name('admin.loanRequests.index');
     Route::post('/loan-requests/approve/{id}', [LoadRequestController::class, 'approve'])->name('loan-requests.approve');
     Route::post('/withdraw-amount', [PaymentRequestController::class, 'withdrawAmount'])->name('withdraw-amount');
     Route::get('/installments/withdrawal-history/{installment}', [PaymentRequestController::class, 'withdrawalHistory']) ->name('admin.installments.withdrawal-history');
     Route::post('/installments/cancel-plan', [PaymentRequestController::class, 'cancelPlan']);
+    Route::get('/transactions-export', [PaymentRequestController::class, 'exportCsv'])
+        ->name('admin.export.csv');
 
 });
 

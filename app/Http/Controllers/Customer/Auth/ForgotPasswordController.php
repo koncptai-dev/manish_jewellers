@@ -45,34 +45,114 @@ class ForgotPasswordController extends Controller
         return view(VIEW_FILE_NAMES['recover_password'], compact('verification_by'));
     }
 
+    // public function resetPasswordRequest(Request $request): RedirectResponse|JsonResponse
+    // {
+    //     $request->validate([
+    //         'identity' => 'required',
+    //     ]);
+        
+    //     $firebaseOTPVerification = getWebConfig(name: 'firebase_otp_verification') ?? [];
+    //     if ($firebaseOTPVerification && $firebaseOTPVerification['status'] && empty($request['g-recaptcha-response'])) {
+    //         if (request()->ajax()) {
+    //             return response()->json([
+    //                 'status' => 'error',
+    //                 'message' => translate('ReCAPTCHA_Failed')
+    //             ]);
+    //         }
+    //         Toastr::error(translate('ReCAPTCHA_Failed'));
+    //         return redirect()->back();
+    //     }
+
+    //     $customer = $this->customerRepo->getByIdentity(filters: ['phone' => $request['identity']]);
+    //     if (!$customer) {
+    //         Toastr::error(translate('No_such_user_found'));
+    //         return back();
+    //     }
+
+    //     session()->put('forgot_password_identity', $request['identity']);
+    //     $verificationBy = 'phone';
+    //     $otpIntervalTime = getWebConfig(name: 'otp_resend_time') ?? 1;
+    //     $smsErrorMsg = translate('something_went_wrong.').' '.translate('please_try_again_after_sometime');
+
+    //     $OTPVerificationData = $this->phoneOrEmailVerificationRepo->getFirstWhere(params: ['phone_or_email' => $request['identity']]);
+
+    //     if (isset($OTPVerificationData) && Carbon::parse($OTPVerificationData->created_at)->diffInSeconds() < $otpIntervalTime) {
+    //         $time = $otpIntervalTime - Carbon::parse($OTPVerificationData->created_at)->diffInSeconds();
+    //         Toastr::error(translate('please_try_again_after_') . CarbonInterval::seconds($time)->cascade()->forHumans());
+    //         return back();
+    //     } else {
+    //         $token = $this->customerAuthService->getCustomerVerificationToken();
+
+    //         $firebaseOTPVerification = getWebConfig(name: 'firebase_otp_verification') ?? [];
+    //         if ($verificationBy == 'phone' && $firebaseOTPVerification && $firebaseOTPVerification['status']) {
+
+    //             $firebaseResponse = $this->firebaseService->sendOtp($customer['phone']);
+    //             if ($firebaseResponse['status'] == 'success') {
+    //                 $token = $firebaseResponse['sessionInfo'];
+    //                 $response = $firebaseResponse['status'];
+    //             } else {
+    //                 $smsErrorMsg = translate(strtolower($firebaseResponse['errors']));
+    //             }
+    //         } else if ($verificationBy == 'phone') {
+    //             $response = $this->customerAuthService->sendCustomerPhoneVerificationToken($customer['phone'], $token);
+    //             if (env('APP_MODE') == 'dev') {
+    //                 $response = 'success';
+    //             }
+    //         } else {
+    //             try {
+    //                 $token = Str::random(120);
+    //                 $resetUrl = route('customer.auth.reset-password', ['identity' => base64_encode($customer['email']), 'token' => $token]);
+    //                 $data = [
+    //                     'userType' => 'customer',
+    //                     'templateName' => 'forgot-password',
+    //                     'userName' => $customer['f_name'],
+    //                     'subject' => translate('password_reset'),
+    //                     'title' => translate('password_reset'),
+    //                     'passwordResetURL' => $resetUrl,
+    //                 ];
+    //                 $this->phoneOrEmailVerificationRepo->updateOrCreate(params: ['phone_or_email' => $customer['email']], value: [
+    //                     'phone_or_email' => $customer['email'],
+    //                     'token' => $token,
+    //                 ]);
+    //                 event(new PasswordResetEvent(email: $customer['email'], data: $data));
+    //                 Toastr::success(translate('Check_your_email') . ' ' . translate('Password_reset_url_sent'));
+    //             } catch (\Exception $exception) {
+    //                 Toastr::error(translate('email_is_not_configured') . '. ' . translate('contact_with_the_administrator'));
+    //             }
+    //             return back();
+    //         }
+
+    //         if (isset($response) && $response == 'success') {
+    //             $identity = $verificationBy == 'phone' ? $customer['phone'] : $customer['email'];
+    //             $type = $verificationBy == 'phone' ? 'phone_verification' : 'email_verification';
+    //             $this->phoneOrEmailVerificationRepo->updateOrCreate(params: ['phone_or_email' => $identity], value: [
+    //                 'phone_or_email' => $identity,
+    //                 'token' => $token,
+    //             ]);
+    //             Toastr::success(translate('Check_your_phone') .' '. translate('Password_reset_OTP_sent'));
+    //             return redirect()->route('customer.auth.login.verify-account', ['identity' => base64_encode($identity), 'type' => base64_encode($type), 'action' => base64_encode('password-reset')]);
+    //         } else {
+    //             Toastr::error($smsErrorMsg);
+    //             return back();
+    //         }
+    //     }
+    // }
+
+   
     public function resetPasswordRequest(Request $request): RedirectResponse|JsonResponse
     {
         $request->validate([
             'identity' => 'required',
         ]);
-
-        $firebaseOTPVerification = getWebConfig(name: 'firebase_otp_verification') ?? [];
-        if ($firebaseOTPVerification && $firebaseOTPVerification['status'] && empty($request['g-recaptcha-response'])) {
-            if (request()->ajax()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => translate('ReCAPTCHA_Failed')
-                ]);
-            }
-            Toastr::error(translate('ReCAPTCHA_Failed'));
-            return redirect()->back();
-        }
-
-        $customer = $this->customerRepo->getByIdentity(filters: ['phone' => $request['identity']]);
+        
+        $customer = $this->customerRepo->getByIdentity(filters: ['email' => $request['identity']]);
         if (!$customer) {
             Toastr::error(translate('No_such_user_found'));
             return back();
         }
-
+        
         session()->put('forgot_password_identity', $request['identity']);
-        $verificationBy = 'phone';
         $otpIntervalTime = getWebConfig(name: 'otp_resend_time') ?? 1;
-        $smsErrorMsg = translate('something_went_wrong.').' '.translate('please_try_again_after_sometime');
 
         $OTPVerificationData = $this->phoneOrEmailVerificationRepo->getFirstWhere(params: ['phone_or_email' => $request['identity']]);
 
@@ -81,26 +161,8 @@ class ForgotPasswordController extends Controller
             Toastr::error(translate('please_try_again_after_') . CarbonInterval::seconds($time)->cascade()->forHumans());
             return back();
         } else {
-            $token = $this->customerAuthService->getCustomerVerificationToken();
-
-            $firebaseOTPVerification = getWebConfig(name: 'firebase_otp_verification') ?? [];
-            if ($verificationBy == 'phone' && $firebaseOTPVerification && $firebaseOTPVerification['status']) {
-
-                $firebaseResponse = $this->firebaseService->sendOtp($customer['phone']);
-                if ($firebaseResponse['status'] == 'success') {
-                    $token = $firebaseResponse['sessionInfo'];
-                    $response = $firebaseResponse['status'];
-                } else {
-                    $smsErrorMsg = translate(strtolower($firebaseResponse['errors']));
-                }
-            } else if ($verificationBy == 'phone') {
-                $response = $this->customerAuthService->sendCustomerPhoneVerificationToken($customer['phone'], $token);
-                if (env('APP_MODE') == 'dev') {
-                    $response = 'success';
-                }
-            } else {
                 try {
-                    $token = Str::random(120);
+                    $token = Str::random(length: 6);
                     $resetUrl = route('customer.auth.reset-password', ['identity' => base64_encode($customer['email']), 'token' => $token]);
                     $data = [
                         'userType' => 'customer',
@@ -110,31 +172,18 @@ class ForgotPasswordController extends Controller
                         'title' => translate('password_reset'),
                         'passwordResetURL' => $resetUrl,
                     ];
+                   
                     $this->phoneOrEmailVerificationRepo->updateOrCreate(params: ['phone_or_email' => $customer['email']], value: [
                         'phone_or_email' => $customer['email'],
                         'token' => $token,
                     ]);
                     event(new PasswordResetEvent(email: $customer['email'], data: $data));
                     Toastr::success(translate('Check_your_email') . ' ' . translate('Password_reset_url_sent'));
+                    return back();
                 } catch (\Exception $exception) {
                     Toastr::error(translate('email_is_not_configured') . '. ' . translate('contact_with_the_administrator'));
+                    return back();
                 }
-                return back();
-            }
-
-            if (isset($response) && $response == 'success') {
-                $identity = $verificationBy == 'phone' ? $customer['phone'] : $customer['email'];
-                $type = $verificationBy == 'phone' ? 'phone_verification' : 'email_verification';
-                $this->phoneOrEmailVerificationRepo->updateOrCreate(params: ['phone_or_email' => $identity], value: [
-                    'phone_or_email' => $identity,
-                    'token' => $token,
-                ]);
-                Toastr::success(translate('Check_your_phone') .' '. translate('Password_reset_OTP_sent'));
-                return redirect()->route('customer.auth.login.verify-account', ['identity' => base64_encode($identity), 'type' => base64_encode($type), 'action' => base64_encode('password-reset')]);
-            } else {
-                Toastr::error($smsErrorMsg);
-                return back();
-            }
         }
     }
 
@@ -279,6 +328,7 @@ class ForgotPasswordController extends Controller
 
     public function resetPasswordView(Request $request): View|RedirectResponse
     {
+       
         $data = $this->phoneOrEmailVerificationRepo->getFirstWhere(params: ['phone_or_email' => base64_decode($request['identity']), 'token' => $request['token']]);
         if (isset($data)) {
             $token = $request['token'];

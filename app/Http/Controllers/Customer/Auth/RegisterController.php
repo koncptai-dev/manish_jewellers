@@ -58,7 +58,10 @@ class RegisterController extends Controller
         $user = $this->customerRepo->add(data: $this->customerAuthService->getCustomerRegisterData($request, $referUser));
         
         $loyalityPoint= $this->customerAuthService->addLoyalityPointToCustomer($user);
-        $this->customerRepo->updateWhere(params: ['id' => $loyalityPoint['id']], data: ['loyalty_point' => $loyalityPoint['loyalty_point'] + $referUser['loyalty_point']]);
+        if($loyalityPoint && $referUser)
+        {
+            $this->customerRepo->updateWhere(params: ['id' => $loyalityPoint['id']], data: ['loyalty_point' => $loyalityPoint['loyalty_point'] + $referUser['loyalty_point']]);
+        }
         $phoneVerification = getLoginConfig(key: 'phone_verification');
         $emailVerification = getLoginConfig(key: 'email_verification');
 

@@ -161,6 +161,12 @@
                                     <span
                                         class="font-regular font-for-tab d-inline-block font-size-sm text-body align-middle mt-1 {{Session::get('direction') === "rtl" ? 'mr-1 ml-md-2 ml-0 pr-md-2 pr-sm-1 pl-md-2 pl-sm-1' : 'ml-1 mr-md-2 mr-0 pl-md-2 pl-sm-1 pr-md-2 pr-sm-1'}} text-capitalize"> <span class="web-text-primary countWishlist-{{ $product->id }}"> {{$countWishlist}}</span> {{translate('wish_listed')}} </span>
                                 </div>
+                                {{-- logic to show gold rate according to carat --}}
+                                <div class="mb-3">
+                                   <span class="font-weight-normal text-accent d-flex align-items-end gap-2">
+                                        {!! $product->gold_rate !!}
+                                    </span>
+                                </div>
 
                                 @if($product['product_type'] == 'digital')
                                     <div class="digital-product-authors mb-2">

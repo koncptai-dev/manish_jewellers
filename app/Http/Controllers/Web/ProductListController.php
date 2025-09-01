@@ -70,12 +70,12 @@ class ProductListController extends Controller
         $productListData = ProductManager::getProductListData(request: $request);
 
         // Modify unit_price in the paginator's items
-        // $productListData->getCollection()->transform(function ($product) {
+        $productListData->transform(function ($product) {
 
-        //     $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges);
+             $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
 
-        //     return $product;
-        // });
+            return $product;
+        });
         $productListData = collect($productListData->all());
 
         // Debug before transform
