@@ -84,30 +84,29 @@ class HomeController extends Controller
         $featuredProductsList = ProductManager::getPriorityWiseFeaturedProductsQuery(query: $this->product->active(), dataLimit: 12);
 
         // Modify unit_price in the paginator's items
-        // $featuredProductsList->getCollection()->transform(function ($product) {
+        $featuredProductsList->getCollection()->transform(function ($product) {
 
-        //     $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, 0, $product->product_metal);
+            $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
 
-        //     return $product;
-        // });
+            return $product;
+        });
 
         $latestProductsList = $this->product->with(['reviews'])->active()->orderBy('id', 'desc')->take(8)->get();
-       
         // Modify unit_price in the paginator's items
-        // $latestProductsList->transform(function ($product1) {
-        //     $product1->unit_price = Helpers::calculatePrice(json_decode($product1->choice_options), $product1->unit_price, 0, $product1->product_metal);
-        //     return $product1;
-        // });
+        $latestProductsList->transform(function ($product1) {
+            $product1->unit_price = Helpers::calculatePrice(json_decode($product1->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal);
+            return $product1;
+        });
 
 
 
         $newArrivalProducts = ProductManager::getPriorityWiseNewArrivalProductsQuery(query: $this->product->active(), dataLimit: 8);
 
         // Modify unit_price in the paginator's items
-        // $newArrivalProducts->transform(function ($product1) {
-        //     $product1->unit_price = Helpers::calculatePrice(json_decode($product1->choice_options), $product1->unit_price, 0, $product1->product_metal);
-        //     return $product1;
-        // });
+        $newArrivalProducts->transform(function ($product1) {
+            $product1->unit_price = Helpers::calculatePrice(json_decode($product1->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal);
+            return $product1;
+        });
 
 
         $bestSellProduct = $this->order_details->with('product.reviews')
@@ -136,7 +135,7 @@ class HomeController extends Controller
         } else {
             // Modify unit_price in the paginator's items
             $bestSellProduct->transform(function ($product1) {
-                $unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->product->unit_price, 0, $product1->product->product_metal);
+                $unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->product->unit_price, $product1->making_charges, $product1->product->product_metal);
               
                 $product1->product->unit_price = $unit_price;
                 return $product1;
@@ -150,7 +149,7 @@ class HomeController extends Controller
         } else {
             // Modify unit_price in the paginator's items
             $topRated->transform(function ($product1) {
-                $product1->product->unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->unit_price, 0, $product1->product_metal);
+                $product1->product->unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal);
                 return $product1;
             });
         }

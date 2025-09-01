@@ -7,7 +7,6 @@ use App\Contracts\Repositories\CustomerRepositoryInterface;
 use App\Contracts\Repositories\LoginSetupRepositoryInterface;
 use App\Contracts\Repositories\PhoneOrEmailVerificationRepositoryInterface;
 use App\Events\EmailVerificationEvent;
-use App\Events\PasswordResetEvent;
 use App\Http\Controllers\Controller;
 use App\Mail\PasswordResetMail;
 use App\Models\PhoneOrEmailVerification;
@@ -827,11 +826,12 @@ class CustomerAPIAuthController extends Controller
         } else {
             $customer = $this->customerRepo->getFirstWhere(params: ['email' => $request['email_or_phone']]);
         }
-
+      
         if (isset($customer)) {
             $OTPIntervalTime = getWebConfig(name: 'otp_resend_time') ?? 60; // seconds
             $passwordVerificationData = DB::table('password_resets')->where('identity', $request['email_or_phone'])->first();
 
+          
             if (isset($passwordVerificationData) && Carbon::parse($passwordVerificationData?->created_at)->DiffInSeconds() < $OTPIntervalTime) {
                 $time = $OTPIntervalTime - Carbon::parse($passwordVerificationData?->created_at)->DiffInSeconds();
 
@@ -844,7 +844,7 @@ class CustomerAPIAuthController extends Controller
             }
 
             $token = (env('APP_MODE') == 'live') ? rand(100000, 999999) : 123456;
-
+ 
             DB::table('password_resets')->updateOrInsert(['identity' => $request['email_or_phone']], [
                 'token' => $token,
                 'created_at' => now(),
@@ -875,19 +875,15 @@ class CustomerAPIAuthController extends Controller
                         $emailServices = getWebConfig(name: 'mail_config_sendgrid');
                     }
 
-                    $resetUrl = route('customer.auth.reset-password', ['identity' => base64_encode($customer['email']), 'token' => $token]);
-                    $data = [
+                     $data = [
+                        'userName' => $customer['name'],
+                        'subject' => translate('password_reset_Verification_Code'),
+                        'title' => translate('password_reset_Verification_Code'),
+                        'verificationCode' => $token,
                         'userType' => 'customer',
-                        'templateName' => 'forgot-password',
-                        'userName' => $customer['f_name'],
-                        'subject' => translate('password_reset'),
-                        'title' => translate('password_reset'),
-                        'passwordResetURL' => $resetUrl,
+                        'templateName' => 'registration-verification',
                     ];
-
-                    if (isset($emailServices['status']) && $emailServices['status'] == 1) {
-                        event(new PasswordResetEvent(email: $customer['email'], data: $data));
-                    }
+                        event(new EmailVerificationEvent(email: $customer['email'], data: $data));
 
                 } catch (\Exception $exception) {
                     return response()->json(['errors' => [

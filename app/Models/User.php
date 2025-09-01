@@ -228,8 +228,21 @@ class User extends Authenticatable
 
     public function installmentPayments()
     {
-        return $this->hasMany(InstallmentPayment::class, 'user_id');
+        return $this->hasMany(InstallmentPayment::class, 'user_id')
+            ->where(function ($query) {
+                $query->whereRaw("
+                    TIMESTAMPDIFF(MONTH, installment_payments.created_at, CURDATE()) + 1 
+                    > (
+                        SELECT COUNT(*) 
+                        FROM installment_payment_details 
+                        WHERE installment_payment_details.installment_payment_id = installment_payments.id 
+                        AND installment_payment_details.payment_status = 'paid'
+                    )
+                ");
+            })
+            ->where('status', 1);
     }
+
 
     public function subscriptionMandates()
     {
