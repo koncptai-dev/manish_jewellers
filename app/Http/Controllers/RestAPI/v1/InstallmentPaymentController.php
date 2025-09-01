@@ -488,14 +488,12 @@ class InstallmentPaymentController extends Controller
 
         // Calculate the current total withdrawn amount for this specific installment
         $currentTotalWithdrawn = $history->sum('amount');
-        $remainingBalance = $installment->plan_amount - $currentTotalWithdrawn;
 
         return response()->json([
             'success' => true,
             'data' => [
                 'history' => $history,
                 'current_total_withdrawn' => $currentTotalWithdrawn,
-                'remaining_balance' => $remainingBalance,
             ],
         ], 200);
     }
