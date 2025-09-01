@@ -68,6 +68,7 @@
                                             @endif
                                         </td>
                                         <td>
+                                            @if ($installment->status == 1)
                                             <button type="button" class="btn btn-warning btn-sm withdraw-btn"
                                                 data-toggle="modal" data-target="#withdrawModal"
                                                 data-user-id="{{ $installment->user->id }}"
@@ -77,6 +78,7 @@
                                                 data-plan-amount="{{ $installment->plan_amount }}"> 
                                                 Withdraw<i class="tio-wallet-outlined nav-icon"></i>
                                             </button>
+                                            @endif
                                             <button type="button" class="btn btn-info btn-sm view-details-btn ml-2"
                                                 data-toggle="modal" data-target="#withdrawDetailsModal"
                                                 data-installment-id="{{ $installment->installment_id }}"

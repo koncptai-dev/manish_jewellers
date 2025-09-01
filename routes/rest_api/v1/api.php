@@ -84,6 +84,7 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
             Route::post('/nex-payment', 'nexPayment');
             Route::get('/user-installmnet-payment-history', 'userInstallmentPaymentHistory');
             Route::get('/check-user-active-plan', 'checkActivePlan');
+            Route::get('/withdraw-list/{installment_id}', 'withdrawList')->name('withdraw.list');
         });
 
         Route::prefix('loan')->controller(LoanController::class)->group(function () {
