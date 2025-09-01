@@ -323,7 +323,6 @@ class PaymentRequestController extends Controller
         ->orderBy('created_at', 'desc')
         ->paginate(getWebConfig(name: WebConfigKey::PAGINATION_LIMIT));
 
-
         return view('admin-views.installment.installment-transactions', compact('transactions'));
     }
 

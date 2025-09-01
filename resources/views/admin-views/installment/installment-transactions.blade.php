@@ -79,7 +79,12 @@
                                         @elseif ($transaction->payment_status == 'pending')
                                             <span class="badge badge-warning">Pending</span>
                                         @else
-                                            <span class="badge badge-danger">{{ ucfirst($transaction->payment_status) }}</span>
+                                            <span class="badge badge-danger" 
+                                                data-toggle="tooltip" 
+                                                data-placement="top" 
+                                                title="{{ $transaction->failure_reason ?? 'No reason provided' }}">
+                                                {{ ucfirst($transaction->payment_status) }}
+                                            </span>
                                         @endif
                                     </td>
                                     <td>{{ $transaction->created_at->format('d-m-Y H:i') }}</td>
