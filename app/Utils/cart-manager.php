@@ -377,8 +377,6 @@ $orderWiseShippingCost = 0;
             'variations' => json_encode($variations),
             'variant' => $string,
         ];
-
-        $price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, 0, $product->product_metal);
         if ($string != null) {
             $count = count(json_decode($product->variation));
             for ($i = 0; $i < $count; $i++) {
@@ -389,7 +387,9 @@ $orderWiseShippingCost = 0;
         }
 
         $price = $product->unit_price;
-        $tax = 0; //Helpers::tax_calculation(product: $product, price: $price, tax: $product['tax'], tax_type: 'percent');
+        $price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
+        
+        $tax = Helpers::tax_calculation(product: $product, price: $price, tax: $product['tax'], tax_type: 'percent');
         $getProductDiscount = Helpers::getProductDiscount($product, $price);
 
         $cartArray += [
@@ -397,7 +397,7 @@ $orderWiseShippingCost = 0;
             'product_id' => $request['id'],
             'product_type' => $product['product_type'],
             'quantity' => $request['quantity'],
-            'price' => $price,
+            'price' => $price + $tax,
             'tax' => $tax,
             'tax_model' => $product->tax_model,
             'discount' => $getProductDiscount,

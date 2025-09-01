@@ -135,7 +135,7 @@ class Helpers
 
     public static function set_data_format($data)
     {
-        $colors        = is_array($data['colors']) ? $data['colors'] : json_decode($data['colors']);
+        $colors        = is_array(value: $data['colors']) ? $data['colors'] : json_decode($data['colors']);
         $query_data    = Color::whereIn('code', $colors)->pluck('name', 'code')->toArray();
         $color_process = [];
         foreach ($query_data as $key => $color) {
@@ -188,16 +188,61 @@ class Helpers
         $data['variation'] = $variation;
 
         // Check if $data is array or object, and access accordingly
-        // $choiceOptions      = is_array($data) ? $data['choice_options'] ?? null : $data->choice_options ?? null;
-        // $data['unit_price'] = Helpers::calculatePrice($choiceOptions, $data['unit_price'], 0, $data['product_metal']);
-
+        $choiceOptions      = is_array($data) ? $data['choice_options'] ?? null : $data->choice_options ?? null;
+        $data['unit_price'] = Helpers::calculatePrice($choiceOptions, $data['unit_price'], $data['making_charges'], $data['product_metal']);
+        $tax = $data['tax_model'] == 'exclude' ? Helpers::tax_calculation(product: $data, price: $data['unit_price'], tax: $data['tax'], tax_type: $data['tax_type']) : 0;
+        $data['tax_price'] = $tax;
+        $data['unit_price'] = $data['unit_price'] + $tax; // Add tax to unit price
         return $data;
     }
+
+    public static function calculateGoldRate($choiceOptions)
+    {
+        // Extract today's gold rates
+        $goldRate = (new GoldRate())->getTodayGoldRate();
+
+        $carat = null;
+
+        // Get selected carat
+        foreach ($choiceOptions as $option) {
+            if ($option->title === 'carat' && !empty($option->options)) {
+                $carat = strtolower(trim($option->options[0])); // e.g. "22k"
+                break;
+            }
+        }
+
+        if (!$carat || !$goldRate) {
+            return "<div><strong>No gold rate available</strong></div>";
+        }
+
+        $pricePerGram = null;
+        $label = null;
+
+        // Match price according to carat
+        if ($carat === '24' && isset($goldRate['price_gram_24k'])) {
+            $pricePerGram = $goldRate['price_gram_24k'];
+            $label = "24 Carat";
+        } elseif ($carat === '22' && isset($goldRate['price_gram_22k'])) {
+            $pricePerGram = $goldRate['price_gram_22k'];
+            $label = "22 Carat";
+        } elseif ($carat === '18' && isset($goldRate['price_gram_18k'])) {
+            $pricePerGram = $goldRate['price_gram_18k'];
+            $label = "18 Carat";
+        }
+
+        if ($pricePerGram) {
+            $priceFor10Gram = $pricePerGram * 10; // ✅ calculate 10 gram price
+            return "<div><strong>{$label} / 10 Gram:</strong> ₹" . number_format($priceFor10Gram, 2) . "</div>";
+        }
+
+        return "<div><strong>Price not found for {$carat}</strong></div>";
+    }
+
 
     public static function calculatePrice($choiceOptions, $unit_price, $making_charges, $product_metal, $hallmark_charges = 0)
     {
         if (is_string($choiceOptions)) {
-            $decoded = json_decode($choiceOptions);
+            $decoded = json_decode(json: $choiceOptions);
 
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                 $choiceOptions = $decoded;
@@ -259,8 +304,7 @@ class Helpers
             }
 
         }
-
-        return $unitPrice + $hallmark_charges; // Add hallmark charges if applicable
+        return $unitPrice; // Add hallmark charges if applicable
     }
 
     public static function calculateSilverPrice($choiceOptions, $unit_price, $making_charges)
@@ -1088,3 +1132,5 @@ if (! function_exists('currency_converter')) {
         return Helpers::set_symbol(round($amount * $rate, 2));
     }
 }
+
+    

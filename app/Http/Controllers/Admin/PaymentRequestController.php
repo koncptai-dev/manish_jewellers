@@ -11,7 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Withdrawal;
-
+use App\Exports\InstallmentPaymentsExport;
+use Maatwebsite\Excel\Facades\Excel;
 class PaymentRequestController extends Controller
 {
     public function index(Request $request)
@@ -276,30 +277,61 @@ class PaymentRequestController extends Controller
     }
 
     public function cancelPlan(Request $request)
-{
-    $request->validate([
-        'installment_id' => 'required|exists:installment_payments,id',
-    ]);
+    {
+        $request->validate([
+            'installment_id' => 'required|exists:installment_payments,id',
+        ]);
 
-    try {
-        $installment = InstallmentPayment::findOrFail($request->installment_id);
+        try {
+            $installment = InstallmentPayment::findOrFail($request->installment_id);
 
-        if ($installment->status != 1) {
-            return response()->json(['success' => false, 'message' => 'Plan is already canceled or inactive.']);
+            if ($installment->status != 1) {
+                return response()->json(['success' => false, 'message' => 'Plan is already canceled or inactive.']);
+            }
+
+            $installment->status = 0; // assuming 0 = canceled
+            $installment->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Plan canceled successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ]);
         }
-
-        $installment->status = 0; // assuming 0 = canceled
-        $installment->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Plan canceled successfully.',
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Something went wrong: ' . $e->getMessage(),
-        ]);
     }
-}
+    public function installmentTransactions()
+    {
+        $transactions = InstallmentPaymentDetail::with(['installmentPayment.user'])
+        ->when(request('searchValue'), function ($query) {
+            $searchValue = request('searchValue');
+            $query->where(function ($q) use ($searchValue) {
+                // Search by user name
+                $q->whereHas('installmentPayment.user', function ($userQuery) use ($searchValue) {
+                    $userQuery->where('name', 'like', '%' . $searchValue . '%');
+                })
+                // Search by transaction reference
+                ->orWhere('transaction_ref', 'like', '%' . $searchValue . '%')
+                // Search by payment status
+                ->orWhere('payment_status', 'like', '%' . $searchValue . '%');
+            });
+        })
+        ->where('payment_by', 'User')
+        ->orderBy('created_at', 'desc')
+        ->paginate(getWebConfig(name: WebConfigKey::PAGINATION_LIMIT));
+
+
+        return view('admin-views.installment.installment-transactions', compact('transactions'));
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $searchValue = $request->searchValue;
+
+        return Excel::download(new InstallmentPaymentsExport($searchValue), 'installments.csv', \Maatwebsite\Excel\Excel::CSV);
+    }
+
 }

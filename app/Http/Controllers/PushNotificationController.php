@@ -20,7 +20,7 @@ class PushNotificationController extends Controller
             return response()->json(['status' => true, 'message' => 'No users found.']);
         }
 
-        $title           = 'Manish Jwellers';
+        $title           = 'Manish Jewellers';
         $body            = 'You have pending installments. Please pay soon.';
         $credentialsPath = storage_path('app/firebase/firebase_credentials.json');
 
