@@ -470,4 +470,34 @@ class InstallmentPaymentController extends Controller
 
         return $redirect_link;
     }
+
+    public function withdrawList(Request $request, $installment_id)
+    {
+        $user = Helpers::getCustomerInformation($request);
+
+        if (!$user || $user === 'offline') {
+            return response()->json(['error' => 'Unauthorized user or guest not allowed'], 401);
+        }
+
+        // Fetch installment by ID
+        $installment = InstallmentPayment::findOrFail($installment_id);
+
+        $history = $installment->withdrawals()
+            ->orderBy('created_at', 'desc')
+            ->get(['amount', 'remarks', 'created_at']);
+
+        // Calculate the current total withdrawn amount for this specific installment
+        $currentTotalWithdrawn = $history->sum('amount');
+        $remainingBalance = $installment->plan_amount - $currentTotalWithdrawn;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'history' => $history,
+                'current_total_withdrawn' => $currentTotalWithdrawn,
+                'remaining_balance' => $remainingBalance,
+            ],
+        ], 200);
+    }
+
 }
