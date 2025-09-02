@@ -96,14 +96,14 @@ class CartController extends Controller
         //     }
         // } else {
         $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
-        // if ($string != null) {
-        //     $count = count(json_decode($product->variation));
-        //     for ($i = 0; $i < $count; $i++) {
-        //         if (json_decode($product->variation)[$i]->type == $string) {
-        //             $product->unit_price = json_decode($product->variation)[$i]->price;
-        //         }
-        //     }
-        // }
+        if ($string != null) {
+            $count = count(json_decode($product->variation));
+            for ($i = 0; $i < $count; $i++) {
+                if (json_decode($product->variation)[$i]->type == $string) {
+                    $product->unit_price = json_decode($product->variation)[$i]->price;
+                }
+            }
+        }
 
         $tax = $product->tax_model == 'exclude' ? Helpers::tax_calculation(product: $product, price: $product->unit_price, tax: $product['tax'], tax_type: $product['tax_type']) : 0;
         $update_tax = $tax * $requestQuantity;
