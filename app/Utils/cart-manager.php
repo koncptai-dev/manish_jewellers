@@ -385,10 +385,11 @@ $orderWiseShippingCost = 0;
                 }
             }
         }
+      
 
         $price = $product->unit_price;
-        $price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
-        
+        // $price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
+          
         // $tax = Helpers::tax_calculation(product: $product, price: $price, tax: $product['tax'], tax_type: 'percent');
         $tax = $product->tax_model == 'include' ? 0 : Helpers::tax_calculation(product: $product, price: $price, tax: $product['tax'], tax_type: 'percent');
         $getProductDiscount = Helpers::getProductDiscount($product, $price);

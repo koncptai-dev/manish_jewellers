@@ -202,7 +202,6 @@ $("#colors-selector").on("change", function () {
 });
 
 $('#unit_price').on("change", function () {
-    console.log("unit_price_val");
     let productType = elementProductTypeByID.val();
     if (productType && productType.toString() === "physical") {
         getUpdateSKUFunctionality();
@@ -224,10 +223,14 @@ function getUpdateSKUFunctionality() {
         type: "POST",
         url: $("#route-admin-products-sku-combination").data("url"),
         data: $("#product_form").serialize(),
+        beforeSend: function () {
+            $("#loading").fadeIn(); // Show loader
+        },
         success: function (data) {
             $("#sku_combination").html(data.view);
             updateProductQuantity();
             updateProductQuantityByKeyUp();
+
             let productType = elementProductTypeByID.val();
             if (productType && productType.toString() === "physical") {
                 if (data.length > 1) {
@@ -236,11 +239,20 @@ function getUpdateSKUFunctionality() {
                     $("#quantity").show();
                 }
             }
+
             generateSKUPlaceHolder();
             removeSymbol();
         },
+        complete: function () {
+            $("#loading").fadeOut(); // Hide loader
+        },
+        error: function (xhr) {
+            console.error("Error:", xhr.responseText);
+            $("#loading").fadeOut(); // Ensure loader hides even on error
+        },
     });
 }
+
 
 $("#discount_type").on("change", function () {
     if ($(this).val().toString() === "flat") {

@@ -9111,4 +9111,6 @@ return [
 	"link_to_your_preferred_destination_that_will_work_when_someone_clicks_on_the_Button_Name" => "Link to your preferred destination that will work when someone clicks on the Button Name",
 	"add_the_link_where_the_button_will_redirect_users" => "Add the link where the button will redirect users",
 	"password_reset_Verification_Code" => "Password reset Verification Code",
+	"Active Customers" => "Active Customers",
+	"Inactive Customers" => "Inactive Customers",
 ];
