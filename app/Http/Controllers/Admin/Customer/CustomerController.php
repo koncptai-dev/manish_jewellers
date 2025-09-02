@@ -67,16 +67,16 @@ class CustomerController extends BaseController
     }
 
     public function getListView(Request $request): View|RedirectResponse
-    {
+        {
         $filters = [
-            'is_active' => $request['is_active'] ?? null,
             'order_date' => $request['order_date'],
             'sort_by' => $request['sort_by'] ?? null,
             'avoid_walking_customer' => 1,
         ];
         $takeItem = $request->get('choose_first');
 
-        if (isset($request['order_date']) && !empty($request['order_date'])) {
+        // Date validation for order_date
+        if (!empty($request['order_date'])) {
             $dates = explode(' - ', $request['order_date']);
             if (count($dates) !== 2 || !checkDateFormatInMDY($dates[0]) || !checkDateFormatInMDY($dates[1])) {
                 Toastr::error(translate('Invalid_date_range_format'));
@@ -84,9 +84,10 @@ class CustomerController extends BaseController
             }
         }
 
+        // Customer joining date
         $joiningStartDate = '';
         $joiningEndDate = '';
-        if (isset($request['customer_joining_date']) && !empty($request['customer_joining_date'])) {
+        if (!empty($request['customer_joining_date'])) {
             $dates = explode(' - ', $request['customer_joining_date']);
             if (count($dates) !== 2 || !checkDateFormatInMDY($dates[0]) || !checkDateFormatInMDY($dates[1])) {
                 Toastr::error(translate('Invalid_date_range_format'));
@@ -96,9 +97,10 @@ class CustomerController extends BaseController
             $joiningEndDate = Carbon::createFromFormat('m/d/Y', $dates[1])->endOfDay();
         }
 
-        $customers = $this->customerRepo->getListWhereBetween(
+        // Active Customers
+        $activeCustomers = $this->customerRepo->getListWhereBetween(
             searchValue: $request['searchValue'],
-            filters: $filters,
+            filters: array_merge($filters, ['is_active' => 1]),
             relations: ['orders'],
             whereBetween: 'created_at',
             whereBetweenFilters: $joiningStartDate && $joiningEndDate ? [$joiningStartDate, $joiningEndDate] : [],
@@ -106,12 +108,28 @@ class CustomerController extends BaseController
             dataLimit: getWebConfig(name: WebConfigKey::PAGINATION_LIMIT),
             appends: $request->all(),
         );
+
+        // Inactive Customers
+        $inactiveCustomers = $this->customerRepo->getListWhereBetween(
+            searchValue: $request['searchValue'],
+            filters: array_merge($filters, ['is_active' => 0]),
+            relations: ['orders'],
+            whereBetween: 'created_at',
+            whereBetweenFilters: $joiningStartDate && $joiningEndDate ? [$joiningStartDate, $joiningEndDate] : [],
+            takeItem: $takeItem,
+            dataLimit: getWebConfig(name: WebConfigKey::PAGINATION_LIMIT),
+            appends: $request->all(),
+        );
+
         $totalCustomers = $this->customerRepo->getListWhere(dataLimit: 'all')->count();
+
         return view(Customer::LIST[VIEW], [
-            'customers' => $customers,
+            'activeCustomers' => $activeCustomers,
+            'inactiveCustomers' => $inactiveCustomers,
             'totalCustomers' => $totalCustomers,
         ]);
     }
+
 
     public function updateStatus(Request $request): JsonResponse
     {
