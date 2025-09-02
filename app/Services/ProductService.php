@@ -748,6 +748,7 @@ class ProductService
 
     public function generatePhysicalVariationCombination(object|array $request, object|array $options, object|array $combinations, object|array|null $product): array
     {
+       
         $productName = $request['name'][array_search('en', $request['lang'])];
         $unitPrice = $request['unit_price'];
 
@@ -769,12 +770,17 @@ class ProductService
             $weights = explode(',', $choice_option[0]);
             
         }
+         
         $i= 0;
-      
+           
         foreach ($combinations as $combination) {
             $type = '';
             foreach ($combination as $combinationKey => $item) {
-                    $unitPrice = $request['unit_price'] * $weights[$i];
+              
+                    if($weights && isset($weights[$combinationKey]) && is_numeric($weights[$combinationKey]) && $weights[$combinationKey] > 0){
+                         $unitPrice = $request['unit_price'] * $weights[$combinationKey];
+                      
+                    }                  
                 if ($combinationKey > 0) {
                     $type .= '-' . str_replace(' ', '', $item);
                     
@@ -807,7 +813,7 @@ class ProductService
             } else {
                 $generateCombination[] = [
                     'type' => $type,
-                    'price' => $unitPrice,
+                    'price' => floatval($unitPrice),
                     'sku' => str_replace(' ', '', $sku),
                     'qty' => 1,
                 ];
