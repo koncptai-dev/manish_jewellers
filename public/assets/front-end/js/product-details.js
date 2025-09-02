@@ -88,31 +88,31 @@ function renderFocusPreviewImageByColor() {
 }
 renderFocusPreviewImageByColor();
 
-$('.variant-radio').on('change', function() {
-    var selectedSize = $(this).val();
-    $.ajax({
-        url: $("#route-variant-product-size-price").data("url"), // change this URL to your route
-        type: 'POST',
-        data: {
-            size: selectedSize,
-            product_id: $("#products-details-page-data").data("id"),
-        },
-        beforeSend: function () {
-            $('#loading').fadeIn();
-        },
-        success: function(response) {
-            $("#chosen_price").text(response.price);
-            $(".discounted_unit_price").text(response.price);
-            $(".unit_price").text(response.price);
-            $(".unit_price").attr("data-price", response.price);
-            $(".unit_price").attr("data-price-variant", response.price);
+// $('.variant-radio').on('change', function() {
+//     var selectedSize = $(this).val();
+//     $.ajax({
+//         url: $("#route-variant-product-size-price").data("url"), // change this URL to your route
+//         type: 'POST',
+//         data: {
+//             size: selectedSize,
+//             product_id: $("#products-details-page-data").data("id"),
+//         },
+//         beforeSend: function () {
+//             $('#loading').fadeIn();
+//         },
+//         success: function(response) {
+//             $("#chosen_price").text(response.price);
+//             $(".discounted_unit_price").text(response.price);
+//             $(".unit_price").text(response.price);
+//             $(".unit_price").attr("data-price", response.price);
+//             $(".unit_price").attr("data-price-variant", response.price);
             
-        },
-        error: function(xhr) {
-            console.log('Error:', xhr.responseText);
-        },
-        complete: function () {
-            $('#loading').fadeOut();
-        },
-    });
-});
+//         },
+//         error: function(xhr) {
+//             console.log('Error:', xhr.responseText);
+//         },
+//         complete: function () {
+//             $('#loading').fadeOut();
+//         },
+//     });
+// });
