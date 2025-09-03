@@ -30,7 +30,7 @@ class OfflinePaymentRequests extends Model
         // 'no_of_months'
     ];
 
-    public function storeData($user_id, $plan_amount, $plan_code, $plan_category, $total_yearly_payment, $total_gold_purchase, $start_date, $installment_id, $request_date, $no_of_months, $remarks)
+    public function storeData($user_id, $plan_amount, $plan_code, $plan_category, $total_yearly_payment, $total_gold_purchase, $start_date, $installment_id, $request_date, $no_of_months, $remarks, $acquired_gold_rate)
     {
         $end_date = date('Y-m-d', strtotime($start_date . ' +1 year'));
 
@@ -42,11 +42,12 @@ class OfflinePaymentRequests extends Model
         $payment->total_gold_purchase = $total_gold_purchase;
         $payment->user_id = $user_id;
         $payment->start_date = $start_date;
-        if ($plan_category === 'First Installment Plan') {
+        $payment->acquired_gold_rate = $acquired_gold_rate;
+        if ($plan_code === 'INR') {
             $payment->end_date =  Carbon::parse($start_date)->addYear();
-        } elseif ($plan_category === 'Second Installment Plan') {
+        } elseif ($plan_code === 'SNR') {
             $payment->end_date = Carbon::parse($start_date)->addMonths(18);
-        } elseif ($plan_category === 'Third Installment Plan') {
+        } elseif ($plan_code === 'TNR') {
             $payment->end_date = Carbon::parse($start_date)->addYears(2);
         }
         // $payment->end_date = $end_date;
