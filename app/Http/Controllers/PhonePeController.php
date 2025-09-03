@@ -187,6 +187,7 @@ class PhonePeController extends Controller
             'payment_method' => "PhonePe",
             'additional_data' => json_encode($request->all()),
             'is_paid' => 0,
+            'acquired_gold_rate'=>$request->acquired_gold_rate
         ]);
 
         $merchantOrderId = $paymentRequest->id;

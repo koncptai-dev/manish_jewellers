@@ -51,7 +51,8 @@ class PaymentRequest extends Model
             'receiver_information' => $data['receiver_information'] ?? null,
             'attribute_id' => $data['attribute_id'] ?? null,
             'attribute' => $data['attribute'] ?? null,
-            'payment_platform' => $data['payment_platform'] ?? null
+            'payment_platform' => $data['payment_platform'] ?? null,
+            'acquired_gold_rate' => $data['acquired_gold_rate'] ?? null,
         ]);
     }
 }
