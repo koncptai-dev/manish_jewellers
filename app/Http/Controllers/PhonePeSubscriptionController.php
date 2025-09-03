@@ -373,6 +373,12 @@ class PhonePeSubscriptionController extends Controller
 
         if ($response->successful()) {
             SubscriptionMandate::where('mandate_id', $subscriptionId)->update(['status' => 'CANCELLED']);
+            InstallmentPayment::where('id', function ($query) use ($subscriptionId) {
+                $query->select('installment_id')
+                    ->from('subscription_mandates')
+                    ->where('mandate_id', $subscriptionId)
+                    ->limit(1);
+            })->update(['status' => 0]); // Assuming '0' indicates cancelled
             return response()->json(['message' => 'Subscription cancelled successfully']);
         } else {
             return response()->json(['error' => 'Failed to cancel subscription'], 500);
