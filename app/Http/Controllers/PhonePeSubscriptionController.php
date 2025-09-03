@@ -281,6 +281,7 @@ class PhonePeSubscriptionController extends Controller
         $payment->receiver_id            = 1;
         $payment->currency_code          = $currency_code;
         $payment->payment_method         = "PhonePe";
+        $payment->acquired_gold_rate     = $request->acquired_gold_rate;
         $payment->additional_data        = json_encode($request->all());
         $payment->payer_information      = json_encode($payer->information());
         $payment->receiver_information   = json_encode($receiverInfo->information());
@@ -299,6 +300,7 @@ class PhonePeSubscriptionController extends Controller
             'plan_category'        => $request->plan_category,
             'total_yearly_payment' => $paymentAmount,
             'total_gold_purchase'  => $request->total_gold_purchase,
+            'acquired_gold_rate'   => $request->acquired_gold_rate,
             'start_date'           => $request->start_date,
         ];
 

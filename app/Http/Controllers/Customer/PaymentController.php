@@ -65,7 +65,7 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
         $no_of_months = $this->getTotalMonths($request->plan_code);
-        $payment = (new OfflinePaymentRequests())->storeData($user->id, $request->plan_amount, $request->plan_code, $request->plan_category, $request->total_yearly_payment, $request->total_gold_purchase, $request->start_date, $request->installment_id, $request->request_date, $no_of_months, $request->remarks);
+        $payment = (new OfflinePaymentRequests())->storeData($user->id, $request->plan_amount, $request->plan_code, $request->plan_category, $request->total_yearly_payment, $request->total_gold_purchase, $request->start_date, $request->installment_id, $request->request_date, $no_of_months, $request->remarks, $request->acquired_gold_rate);
 
         return response()->json([
             'status' => true,

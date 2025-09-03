@@ -48,6 +48,7 @@ class InstallmentResource extends JsonResource
 
             'pending_installments' => 11 -  $this->details->count() ?? 0, // Total pending installments
             'total_gold_purchase' => $this->total_gold_purchase ?? 0,
+            'acquired_gold_rate' => $this->acquired_gold_rate ?? 0,
             'monthly_average' => $this->monthly_average ?? 0,
 
             'payment_done' => $this->details->sum('monthly_payment') ?? 0, // Total payments made
