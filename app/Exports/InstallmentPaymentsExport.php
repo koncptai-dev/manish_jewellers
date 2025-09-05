@@ -10,10 +10,12 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 class InstallmentPaymentsExport implements FromCollection, WithHeadings, WithMapping
 {
     protected $searchValue;
+    protected $date;
 
-    public function __construct($searchValue = null)
+    public function __construct($searchValue = null, $date = null)
     {
         $this->searchValue = $searchValue;
+        $this->date = $date;
     }
 
     public function collection()
@@ -25,9 +27,11 @@ class InstallmentPaymentsExport implements FromCollection, WithHeadings, WithMap
                     $q->whereHas('installmentPayment.user', function ($userQuery) use ($searchValue) {
                         $userQuery->where('name', 'like', '%' . $searchValue . '%');
                     })
-                    ->orWhere('transaction_ref', 'like', '%' . $searchValue . '%')
-                    ->orWhere('payment_status', 'like', '%' . $searchValue . '%');
+                    ->orWhere('transaction_ref', 'like', '%' . $searchValue . '%');
                 });
+            })
+            ->when($this->date, function($query) {
+                $query->whereDate('created_at', $this->date);
             })
             ->where('payment_by', 'User')
             ->orderBy('created_at', 'desc')

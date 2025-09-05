@@ -27,6 +27,7 @@ class OfflinePaymentRequests extends Model
         'payment_collect_date',
         'total_yearly_payment',
         'installment_id',
+        'remarks',
         // 'no_of_months'
     ];
 
