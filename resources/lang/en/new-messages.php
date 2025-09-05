@@ -9113,4 +9113,10 @@ return [
 	"password_reset_Verification_Code" => "Password reset Verification Code",
 	"Active Customers" => "Active Customers",
 	"Inactive Customers" => "Inactive Customers",
+	"Transaction Start Date" => "Transaction Start Date",
+	"Transaction End Date" => "Transaction End Date",
+	"Search by user name, transaction ref or date (YYYY-MM-DD)" => "Search by user name  transaction ref or date (YYYY-MM-DD)",
+	"Search by user name or transaction ref" => "Search by user name or transaction ref",
+	"No transactions found" => "No transactions found",
+	"withdrawals" => "Withdrawals",
 ];

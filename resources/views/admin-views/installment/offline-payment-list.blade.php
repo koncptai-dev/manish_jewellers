@@ -49,6 +49,7 @@
                                 <th>Total Yearly Payment</th>
                                 <th>User Name</th>
                                 <th>Total Installment Paid</th>
+                                <th> Remark</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -64,8 +65,30 @@
                                 <td>{{ $installment->user->name }}</td>
                                 <td>{{ $installment->count() }}</td>
                                 <td>
+                                    @if($installment->remarks)
+                                        <div style="
+                                            max-height: 100px;
+                                            overflow-y: auto;
+                                            background: #f9f9ff;
+                                            border-left: 4px solid #0d6efd;
+                                            padding: 8px 12px;
+                                            border-radius: 6px;
+                                            font-size: 14px;
+                                            line-height: 1.5;
+                                            color: #333;
+                                            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+                                        ">
+                                            {!! nl2br(e($installment->remarks ?? '—')) !!}
+                                        </div>
+                                    @else
+                                    —
+                                    @endif
+                                </td>
+                                <td>
                                     @if($installment->status !== 'done')
-                                    <button class="btn btn-success accept-payment" data-id="{{ $installment->id }}">Accept</button>
+                                    <button class="btn btn-success accept-payment" data-id="{{ $installment->id }}">
+                                        Accept
+                                    </button>
                                     @endif
                                 </td>
                             </tr>
@@ -88,28 +111,65 @@
     </div>
 </div>
 
+<!-- Modal for Remark -->
+<div class="modal fade" id="remarkModal" tabindex="-1" aria-labelledby="remarkModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="remarkModalLabel">Approve Payment</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="paymentId">
+        <div class="form-group">
+            <label for="remarkInput">Remark</label>
+            <textarea id="remarkInput" class="form-control" placeholder="Enter remark (optional)"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" id="submitRemark">Approve</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        let selectedPaymentId = null;
+
+        // Open modal when clicking Accept
         document.querySelectorAll('.accept-payment').forEach(button => {
             button.addEventListener('click', function() {
-                let id = this.getAttribute('data-id');
-                if (confirm('Are you sure you want to approve this payment?')) {
-                    fetch(`/admin/payment-request/approve/${id}`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({})
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            alert(data.message);
-                            location.reload();
-                        })
-                        .catch(error => console.error('Error:', error));
-                }
+                selectedPaymentId = this.getAttribute('data-id');
+                document.getElementById('paymentId').value = selectedPaymentId;
+                document.getElementById('remarkInput').value = ''; // clear old remark
+                var remarkModal = new bootstrap.Modal(document.getElementById('remarkModal'));
+                remarkModal.show();
             });
+        });
+
+        // Submit remark and approve
+        document.getElementById('submitRemark').addEventListener('click', function() {
+            let id = document.getElementById('paymentId').value;
+            let remark = document.getElementById('remarkInput').value;
+
+            fetch(`/admin/payment-request/approve/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ remark: remark })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload();
+            })
+            .catch(error => console.error('Error:', error));
         });
     });
 </script>
