@@ -48,6 +48,7 @@
                                     <th>Plan Category</th>
                                     <th>Total Invested Amount</th>
                                     <th>Plan Status</th>
+                                    <th>Withdrawn Request</th>
                                     <th>Action</th> {{-- Added Action Column --}}
                                 </tr>
                             </thead>
@@ -67,6 +68,7 @@
                                                 <span class="badge badge-danger">Canceled</span>
                                             @endif
                                         </td>
+                                        <td>{{$installment->withdraw_request}}</td>
                                         <td>
                                             @if ($installment->status == 1)
                                             <button type="button" class="btn btn-warning btn-sm withdraw-btn"

@@ -498,4 +498,62 @@ class InstallmentPaymentController extends Controller
         ], 200);
     }
 
+    public function withdrawRequest(Request $request)
+    {
+        $user = Helpers::getCustomerInformation($request);
+
+        if (!$user || $user === 'offline') {
+            return response()->json(['error' => 'Unauthorized user or guest not allowed'], 401);
+        }
+
+        // Validate request
+        $validator = Validator::make($request->all(), [
+            'installment_id' => 'required|exists:installment_payments,id',
+            'amount' => 'required|numeric|min:1',
+            'remarks' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        // Fetch installment by ID
+        $installment = InstallmentPayment::with('details')
+        ->findOrFail($request->installment_id);
+
+       $totalPaid = $installment->details()
+        ->where('payment_status', 'paid')
+        ->sum('monthly_payment');
+       
+        // Calculate the total withdrawn amount
+        $totalWithdrawn = $installment->withdrawals()->sum('amount');
+
+        // Available for withdrawal
+        $availableForWithdrawal = $totalPaid - $totalWithdrawn;
+
+        if ($request->amount > $availableForWithdrawal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Requested amount exceeds available balance for withdrawal.',
+            ], 400);
+        }
+
+        // Create a new withdrawal record
+        $installment->withdrawals()->create([
+            'user_id' => $user->id,
+            'amount' => $request->amount,
+            'remarks' => $request->remarks,
+            'status' => 'pending',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Withdrawal request submitted successfully.',
+        ], 200);
+    }
+
 }
