@@ -44,8 +44,6 @@ class PaymentRequestController extends Controller
             // Start a transaction
             DB::beginTransaction();
 
-            $remark = $request->input('remark') ?? 'Offline payment accepted by admin';
-
             if (is_null($paymentRequest->installment_id) || $paymentRequest->installment_id == 0) {
                 // Create new InstallmentPayment
                 $installmentPayment = InstallmentPayment::create([
@@ -70,7 +68,7 @@ class PaymentRequestController extends Controller
                     'payment_method'         => 'cash',
                     'transaction_ref'        => $paymentRequest->transaction_id ?? null,
                     'payment_by'             => 'Admin',
-                    'payment_note'           => $remark, // ✅ store remark
+                    'payment_note'           => "Offline payment accepted by admin"
                 ]);
 
                 // Update payment request
@@ -94,60 +92,54 @@ class PaymentRequestController extends Controller
                     'payment_method'         => 'cash',
                     'transaction_ref'        => $paymentRequest->transaction_id ?? null,
                     'payment_by'             => 'Admin',
-                    'payment_note'           => $remark, // ✅ store remark
+                    'payment_note'           => "Offline payment accepted by admin"
                 ]);
             }
 
-            // Update the status to 'done'
-            $paymentRequest->update([
-                'status'               => 'done',
-                'payment_collect_date' => now(),
-                'remarks'              => $remark, // ✅ optional if OfflinePaymentRequests has a `remark` column
-            ]);
+            $paymentRequest->update(['status' => 'done', 'payment_collect_date' => now()]);
 
             DB::commit();
 
             return response()->json(['message' => 'Payment approved and status updated successfully.'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Error: ' . $e->getMessage()], status: 500);
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 
     public function userInstallments(Request $request)
     {
-        $installments = InstallmentPayment::with('user')
-        ->when(! empty($request['searchValue']), function ($query) use ($request) {
-            $searchValue = strtolower($request['searchValue']);
-            $query->where(function ($q) use ($searchValue) {
-                $q->whereRaw('LOWER(installment_payments.plan_category) LIKE ?', ['%' . $searchValue . '%'])
-                    ->orWhereRaw('LOWER(installment_payments.plan_code) LIKE ?', ['%' . $searchValue . '%'])
-                    ->orWhereHas('user', function ($userQuery) use ($searchValue) {
-                        $userQuery->whereRaw('LOWER(users.name) LIKE ?', ['%' . $searchValue . '%']);
-                    });
-            });
-        })
-        ->leftJoin('installment_payment_details', 'installment_payment_details.installment_payment_id', '=', 'installment_payments.id')
-        ->leftJoin('users', 'users.id', '=', 'installment_payments.user_id')
-        ->leftJoin('withdrawals', 'withdrawals.installment_id', '=', 'installment_payments.id')
-        ->select(
-            'installment_payments.user_id',
-            'installment_payments.id as installment_id',
-            'installment_payments.plan_code',
-            'installment_payments.plan_category',
-            'users.name as user_name',
-            'installment_payments.status',
-            DB::raw("SUM(CASE WHEN installment_payment_details.payment_status = 'paid' THEN installment_payment_details.monthly_payment ELSE 0 END) as plan_amount"),
-            DB::raw("COUNT(CASE WHEN withdrawals.status = 'pending' THEN 1 END) as withdraw_request")
-        )
-        ->has('user')
-        ->groupBy(
-            'installment_payments.user_id',
-            'installment_payments.plan_code',
-            'installment_payments.plan_category',
-            'users.name'
-        )
-        ->paginate(getWebConfig(name: WebConfigKey::PAGINATION_LIMIT));
+        $installments = InstallmentPayment::with('user') // still needed if you return the full model somewhere else
+            ->when(! empty($request['searchValue']), function ($query) use ($request) {
+                $searchValue = strtolower($request['searchValue']);
+                $query->where(function ($q) use ($searchValue) {
+                    $q->whereRaw('LOWER(installment_payments.plan_category) LIKE ?', ['%' . $searchValue . '%'])
+                        ->orWhereRaw('LOWER(installment_payments.plan_code) LIKE ?', ['%' . $searchValue . '%'])
+                        ->orWhereHas('user', function ($userQuery) use ($searchValue) {
+                            $userQuery->whereRaw('LOWER(users.name) LIKE ?', ['%' . $searchValue . '%']);
+                        });
+                });
+            })
+            ->leftJoin('installment_payment_details', 'installment_payment_details.installment_payment_id', '=', 'installment_payments.id')
+            ->leftJoin('users', 'users.id', '=', 'installment_payments.user_id') // ADD this line
+            ->select(
+                'installment_payments.user_id',
+                'installment_payments.id as installment_id', // Include installment ID for reference
+                'installment_payments.plan_code',
+                'installment_payments.plan_category',
+                'users.name as user_name', 
+                'installment_payments.status', // Include status for filtering
+                'installment_payments.cancel_request',
+                'installment_payments.cancellation_reason',
+                DB::raw("SUM(CASE WHEN installment_payment_details.payment_status = 'paid' THEN installment_payment_details.monthly_payment ELSE 0 END) as plan_amount"),
+            )->has('user')
+            ->groupBy(
+                'installment_payments.user_id',
+                'installment_payments.plan_code',
+                'installment_payments.plan_category',
+                'users.name' // group by new selected field
+            )
+            ->paginate(getWebConfig(name: WebConfigKey::PAGINATION_LIMIT));
         return view('admin-views.installment.users-installments-list', compact('installments'));
 
     }
@@ -222,25 +214,13 @@ class PaymentRequestController extends Controller
             $installment->total_withdrawn_amount += $amount;
             $installment->save();
 
-            // Withdrawal::create([
-            //     'user_id'        => $request->user_id,
-            //     'installment_id' => $request->installment_id,
-            //     'amount'         => $amount,
-            //     'remarks'        => $remarks,
-            //     'status'         => 'completed',
-            // ]);
-
-            Withdrawal::updateOrCreate([
-                    'user_id' => $request->user_id,
-                    'installment_id' => $request->installment_id,
-                    'status' => 'pending', // ensure only pending gets updated
-                ],
-        [
-                    'status' => 'completed',
-                    'amount' => $amount,
-                    'remarks' => $remarks,
-                ]
-            );
+            Withdrawal::create([
+                'user_id'        => $request->user_id,
+                'installment_id' => $request->installment_id,
+                'amount'         => $amount,
+                'remarks'        => $remarks,
+                'status'         => 'completed',
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -321,6 +301,35 @@ class PaymentRequestController extends Controller
         $date        = $request->date;
 
         return Excel::download(new InstallmentPaymentsExport($searchValue, $date), 'installments.csv', \Maatwebsite\Excel\Excel::CSV);
+    }
+
+    public function acceptCancel(Request $request)
+    {
+        $request->validate([
+            'installment_id' => 'required|exists:installment_payments,id',
+        ]);
+
+        try {
+            $installment = InstallmentPayment::findOrFail($request->installment_id);
+
+            if ($installment->cancel_request != 1) {
+                return response()->json(['success' => false, 'message' => 'No cancel request to accept.']);
+            }
+
+            $installment->status         = 0; // assuming 0 = canceled
+            $installment->cancel_request = 0; // reset cancel request
+            $installment->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cancel request accepted and plan canceled successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ]);
+        }
     }
 
 }

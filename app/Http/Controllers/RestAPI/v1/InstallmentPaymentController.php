@@ -498,7 +498,7 @@ class InstallmentPaymentController extends Controller
         ], 200);
     }
 
-    public function withdrawRequest(Request $request)
+    public function cancelPlan(Request $request)
     {
         $user = Helpers::getCustomerInformation($request);
 
@@ -506,11 +506,9 @@ class InstallmentPaymentController extends Controller
             return response()->json(['error' => 'Unauthorized user or guest not allowed'], 401);
         }
 
-        // Validate request
         $validator = Validator::make($request->all(), [
             'installment_id' => 'required|exists:installment_payments,id',
-            'amount' => 'required|numeric|min:1',
-            'remarks' => 'nullable|string|max:255',
+            'reason' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
@@ -520,40 +518,20 @@ class InstallmentPaymentController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
-
-        // Fetch installment by ID
-        $installment = InstallmentPayment::with('details')
-        ->findOrFail($request->installment_id);
-
-       $totalPaid = $installment->details()
-        ->where('payment_status', 'paid')
-        ->sum('monthly_payment');
-       
-        // Calculate the total withdrawn amount
-        $totalWithdrawn = $installment->withdrawals()->sum('amount');
-
-        // Available for withdrawal
-        $availableForWithdrawal = $totalPaid - $totalWithdrawn;
-
-        if ($request->amount > $availableForWithdrawal) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Requested amount exceeds available balance for withdrawal.',
-            ], 400);
+        $installment = InstallmentPayment::where('id', $request->installment_id)
+            ->where('user_id', $user->id)
+            ->first();
+        if (!$installment) {
+            return response()->json(['error' => 'Installment plan not found or does not belong to user'], 404);
         }
-
-        // Create a new withdrawal record
-        $installment->withdrawals()->create([
-            'user_id' => $user->id,
-            'amount' => $request->amount,
-            'remarks' => $request->remarks,
-            'status' => 'pending',
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Withdrawal request submitted successfully.',
-        ], 200);
+        if ($installment->status === 'cancellation_requested') {
+            return response()->json(['error' => 'Cancellation request already submitted'], 400);
+        }
+        $installment->cancel_request = 1;
+        $installment->cancellation_reason = $request->reason;
+        $installment->cancellation_requested_at = now();
+        $installment->save();
+        return response()->json(['success' => true, 'message' => 'Cancellation request submitted successfully'], 200);
     }
 
 }
