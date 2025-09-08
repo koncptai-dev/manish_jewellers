@@ -30,6 +30,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Modules\Gateways\Traits\SmsGateway;
+use App\Models\ReferralReward;
 
 class RegisterController extends Controller
 {
@@ -62,6 +63,12 @@ class RegisterController extends Controller
         {
             $this->customerRepo->updateWhere(params: ['id' => $loyalityPoint['id']], data: ['loyalty_point' => $loyalityPoint['loyalty_point'] + $referUser['loyalty_point']]);
         }
+         // ✅ Referral bonus logic starts here
+        if ($referUser) {
+            $this->checkAndRewardReferral($referUser);
+        }
+       
+        // ✅ Referral bonus logic ends here
         $phoneVerification = getLoginConfig(key: 'phone_verification');
         $emailVerification = getLoginConfig(key: 'email_verification');
 
@@ -100,6 +107,53 @@ class RegisterController extends Controller
         }
     }
 
+    protected function checkAndRewardReferral($referUser)
+    {
+        $count = $this->countReferralsInLastMonth($referUser->id);
+
+        if ($count >= 5) {
+            $alreadyRewarded = $this->hasReferralRewardThisMonth($referUser->id);
+
+            if (!$alreadyRewarded) {
+                // Reward = referrals count × 100 points
+                $points = $count * 100;
+
+                // Record the reward event
+                $this->recordReferralReward($referUser->id, $points);
+            }
+        }
+    }
+
+    public function countReferralsInLastMonth($refer_by): int
+    {
+        return User::where('referred_by', $refer_by )
+            ->where('created_at', '>=', Carbon::now()->subMonth())
+            ->count();
+    }
+
+    // Check if the referral reward already exists for this month
+    public function hasReferralRewardThisMonth($userId): bool
+    {
+        return ReferralReward::where('user_id', $userId)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->exists();
+    }
+
+    // Record the reward in the referral_rewards table
+    public function recordReferralReward($userId, $points): void
+    {
+        ReferralReward::create([
+            'user_id' => $userId,
+            'points' => $points,
+        ]);
+    }
+
+    // Add loyalty points to the user
+    public function addLoyaltyPoints($userId, $points): void
+    {
+        User::where('id', $userId)->increment('loyalty_point', $points);
+    }
     public function getCustomerVerificationCheck($user, $type, $config = []): array|RedirectResponse|string|null
     {
         $token = $this->customerAuthService->getCustomerVerificationToken();

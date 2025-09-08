@@ -9119,4 +9119,8 @@ return [
 	"Search by user name or transaction ref" => "Search by user name or transaction ref",
 	"No transactions found" => "No transactions found",
 	"withdrawals" => "Withdrawals",
+	"Greetings" => "Greetings",
+	"is_the_best_ecommerce_platform_in_the_country.if_you_are_new_to_this_website_dont_forget_to_use" => "Is the best ecommerce platform in the country.if you are new to this website dont forget to use",
+	"as_the_referral_code_while_sign_up_into." => "As the referral code while sign up into.",
+	"Share_Modal" => "Share Modal",
 ];
