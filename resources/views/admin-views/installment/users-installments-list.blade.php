@@ -48,7 +48,7 @@
                                     <th>Plan Category</th>
                                     <th>Total Invested Amount</th>
                                     <th>Plan Status</th>
-                                    <th>Withdrawn Request</th>
+                                    <th>Cancel Request</th>
                                     <th>Action</th> {{-- Added Action Column --}}
                                 </tr>
                             </thead>
@@ -68,7 +68,17 @@
                                                 <span class="badge badge-danger">Canceled</span>
                                             @endif
                                         </td>
-                                        <td>{{$installment->withdraw_request}}</td>
+                                        <td>{{-- New Accept Cancel Request Button --}}
+                                            @if ($installment->cancel_request == 1)
+                                                <button type="button" class="btn btn-success btn-sm accept-cancel-btn ml-2"
+                                                    data-toggle="modal" data-target="#acceptCancelModal"
+                                                    data-installment-id="{{ $installment->installment_id }}"
+                                                    data-user-name="{{ $installment->user->name }}"
+                                                    data-plan-code="{{ $installment->plan_code }}"
+                                                    data-remarks="{{ $installment->cancellation_reason ?? 'No remarks provided' }}">
+                                                    Accept
+                                                </button>
+                                            @endif</td>
                                         <td>
                                             @if ($installment->status == 1)
                                             <button type="button" class="btn btn-warning btn-sm withdraw-btn"
@@ -229,6 +239,33 @@
             </div>
         </div>
     </div>
+
+    <!-- Accept Cancel Request Modal -->
+<div class="modal fade" id="acceptCancelModal" tabindex="-1" role="dialog" aria-labelledby="acceptCancelModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel Request for <span id="acceptCancelUserName"></span> (Plan: <span id="acceptCancelPlanCode"></span>)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p><strong>Customer Remarks:</strong></p>
+                <p id="acceptCancelRemarks">Loading...</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="confirmAcceptCancelBtn">Accept</button>
+                <button type="button" class="btn btn-danger" id="confirmDenyCancelBtn">Deny</button>
+                <input type="hidden" id="acceptCancelInstallmentId">
+            </div>
+        </div>
+    </div>
+</div>
 
 
     @push('script')
@@ -422,6 +459,91 @@
                         alert('An error occurred during plan cancellation.');
                     });
             });
+
+            const acceptCancelModal = $('#acceptCancelModal');
+const acceptCancelUserNameSpan = document.getElementById('acceptCancelUserName');
+const acceptCancelPlanCodeSpan = document.getElementById('acceptCancelPlanCode');
+const acceptCancelRemarksP = document.getElementById('acceptCancelRemarks');
+const acceptCancelInstallmentIdInput = document.getElementById('acceptCancelInstallmentId');
+const confirmAcceptCancelBtn = document.getElementById('confirmAcceptCancelBtn');
+const confirmDenyCancelBtn = document.getElementById('confirmDenyCancelBtn');
+
+document.querySelectorAll('.accept-cancel-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const installmentId = this.getAttribute('data-installment-id');
+        const userName = this.getAttribute('data-user-name');
+        const planCode = this.getAttribute('data-plan-code');
+        const remarks = this.getAttribute('data-remarks');
+
+        acceptCancelInstallmentIdInput.value = installmentId;
+        acceptCancelUserNameSpan.textContent = userName;
+        acceptCancelPlanCodeSpan.textContent = planCode;
+        acceptCancelRemarksP.textContent = remarks;
+    });
+});
+
+// Accept cancel request
+confirmAcceptCancelBtn.addEventListener('click', function() {
+    const installmentId = acceptCancelInstallmentIdInput.value;
+    if (confirm('Are you sure you want to accept this cancel request?')) {
+        fetch('/admin/accept-cancel', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                installment_id: installmentId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                acceptCancelModal.modal('hide');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while accepting the cancel request.');
+        });
+    }
+});
+
+// Deny cancel request
+confirmDenyCancelBtn.addEventListener('click', function() {
+    const installmentId = acceptCancelInstallmentIdInput.value;
+    if (confirm('Are you sure you want to deny this cancel request?')) {
+        fetch('/admin/installments/deny-cancel', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                installment_id: installmentId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                acceptCancelModal.modal('hide');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while denying the cancel request.');
+        });
+    }
+});
+
         </script>
     @endpush
 
