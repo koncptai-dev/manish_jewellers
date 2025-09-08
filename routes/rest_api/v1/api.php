@@ -413,7 +413,7 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
                 Route::get('list', 'list');
                 Route::post('loyalty-exchange-currency', 'loyalty_exchange_currency');
             });
-            
+            Route::get('/referral-rewards', [UserLoyaltyController::class, 'getReferralRewards']);
         });
     });
 

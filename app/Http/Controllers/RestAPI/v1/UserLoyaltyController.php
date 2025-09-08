@@ -91,4 +91,28 @@ class UserLoyaltyController extends Controller
             'message' => translate('point_to_wallet_transfer_successfully!')
         ],200);
     }
+
+  public function getReferralRewards(Request $request)
+    {
+        $user = Helpers::getCustomerInformation($request);
+
+        if (!$user || $user === 'offline') {
+            return response()->json(['error' => 'Unauthorized user or guest not allowed'], 401);
+        }
+
+        $userId = $user->id;
+    
+        $rewards = \DB::table('users as u')
+            ->selectRaw("DATE_FORMAT(u.created_at, '%Y-%m') as month, COUNT(u.id) as referred_count,
+                (SELECT COALESCE(SUM(r.points), 0) FROM referral_rewards r WHERE r.user_id = ?) as bonus", [$userId])
+            ->where('u.referred_by', $userId)
+            ->groupBy('month')
+            ->orderBy('month', 'desc')
+            ->get();
+
+        
+        return response()->json(['data' => $rewards], 200);
+
+    }
+
 }
