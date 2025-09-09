@@ -195,6 +195,7 @@ Route::group(['prefix' => 'login'], function () {
 Route::prefix('admin')->group(function () {
     Route::get('silver', [SilverRateController::class, 'index'])->name('admin.silver.view');
     Route::get('silver/index', [SilverRateController::class, 'index'])->name('admin.silver.index');
+    Route::post('adjust-gold-rate', [SilverRateController::class, 'adjustGoldRate'])->name('admin.adjust-gold-rate');
 
     Route::get('silver/create', [SilverRateController::class, 'create'])->name('admin.silver.create');
     Route::post('silver', [SilverRateController::class, 'store'])->name('admin.silver.store');
