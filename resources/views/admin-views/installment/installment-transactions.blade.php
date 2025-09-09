@@ -127,7 +127,7 @@
                 {{-- Pagination --}}
                 <div class="table-responsive mt-4">
                     <div class="px-4 d-flex justify-content-lg-end">
-                        {{ $transactions->links() }}
+                        {{ $transactions->appends(request()->except('page'))->links() }}
                     </div>
                 </div>
 
