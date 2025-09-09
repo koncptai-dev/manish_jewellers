@@ -282,7 +282,7 @@ class PaymentRequestController extends Controller
                     $q->whereHas('installmentPayment.user', function ($userQuery) use ($searchValue) {
                         $userQuery->where('name', 'like', '%' . $searchValue . '%');
                     })
-                        ->orWhere('transaction_ref', 'like', '%' . $searchValue . '%');
+                    ->orWhere('transaction_ref', 'like', '%' . $searchValue . '%');
                 });
             })
             ->when(request('date'), function ($query) {
@@ -290,7 +290,8 @@ class PaymentRequestController extends Controller
             })
             ->where('payment_by', 'User')
             ->orderBy('created_at', 'desc')
-            ->paginate(getWebConfig(name: WebConfigKey::PAGINATION_LIMIT));
+            ->paginate(getWebConfig(name: WebConfigKey::PAGINATION_LIMIT))
+            ->appends(request()->except('page'));
 
         return view('admin-views.installment.installment-transactions', compact('transactions'));
     }
