@@ -24,6 +24,19 @@ class GoldMetalPriceResource extends JsonResource
         $price_1gram_22k = $price_gram_22k / 10;
         $price_1gram_18k = $price_gram_18k / 10;
 
+            // Apply adjustment if exists
+            $adjustment = \App\Models\AdjustedGoldRate::first(); // Fetch the first record for adjustment
+            if ($adjustment) {
+                if ($adjustment->adjust_type === 'add') {
+                    $price_gram_24k += $adjustment->amount;
+                    $price_gram_22k += $adjustment->amount;
+                    $price_gram_18k += $adjustment->amount;
+                } elseif ($adjustment->adjust_type === 'subtract') {
+                    $price_gram_24k -= $adjustment->amount;
+                    $price_gram_22k -= $adjustment->amount;
+                    $price_gram_18k -= $adjustment->amount;
+                }
+            }
         return [
             'date' => $this->date,
             'timestamp' => $this->timestamp,

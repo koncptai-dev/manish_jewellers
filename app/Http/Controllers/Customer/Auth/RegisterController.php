@@ -117,7 +117,7 @@ class RegisterController extends Controller
             if (!$alreadyRewarded) {
                 // Reward = referrals count × 100 points
                 $points = $count * 100;
-
+                $this->addLoyaltyPoints($referUser->id, $points);
                 // Record the reward event
                 $this->recordReferralReward($referUser->id, $points);
             }
