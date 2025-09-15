@@ -36,13 +36,9 @@ class PaymentRequestController extends Controller
         try {
             // Fetch the payment request
             $paymentRequest = OfflinePaymentRequests::find($id);
-
             if (! $paymentRequest) {
                 return response()->json(['message' => 'PaymentRequest not found.'], 404);
             }
-
-            // Start a transaction
-            DB::beginTransaction();
 
             if (is_null($paymentRequest->installment_id) || $paymentRequest->installment_id == 0) {
                 // Create new InstallmentPayment
@@ -68,7 +64,8 @@ class PaymentRequestController extends Controller
                     'payment_method'         => 'cash',
                     'transaction_ref'        => $paymentRequest->transaction_id ?? null,
                     'payment_by'             => 'Admin',
-                    'payment_note'           => "Offline payment accepted by admin"
+                    'payment_note'           => "Offline payment accepted by admin",
+                    'acquired_gold_rate'     => $paymentRequest->acquired_gold_rate ?? 0,
                 ]);
 
                 // Update payment request
@@ -92,17 +89,15 @@ class PaymentRequestController extends Controller
                     'payment_method'         => 'cash',
                     'transaction_ref'        => $paymentRequest->transaction_id ?? null,
                     'payment_by'             => 'Admin',
-                    'payment_note'           => "Offline payment accepted by admin"
+                    'payment_note'           => "Offline payment accepted by admin",
+                    'acquired_gold_rate'     => $paymentRequest->acquired_gold_rate,
                 ]);
             }
 
             $paymentRequest->update(['status' => 'done', 'payment_collect_date' => now()]);
 
-            DB::commit();
-
             return response()->json(['message' => 'Payment approved and status updated successfully.'], 200);
         } catch (\Exception $e) {
-            DB::rollBack();
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
     }

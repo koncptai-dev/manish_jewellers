@@ -17,6 +17,7 @@ class InstallmentPayment extends Model
         'total_gold_purchase',
         'start_date',
         'uuid',
+        'acquired_gold_rate'
     ];
 
     public function details()
