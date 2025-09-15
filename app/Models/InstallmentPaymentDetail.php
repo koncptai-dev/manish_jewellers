@@ -16,7 +16,9 @@ class InstallmentPaymentDetail extends Model
         'payment_status',
         'payment_method',
         'transaction_ref',
-        'payment_by'
+        'payment_by',
+        'acquired_gold_rate',
+        'payment_note'
     ];
 
     /**
