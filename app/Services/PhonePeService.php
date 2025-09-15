@@ -505,6 +505,7 @@ class PhonePeService
                 'transaction_ref' => $transactionId,
                 'payment_by' => 'User',
                 'payment_note' => 'Payment received via PhonePe',
+                'acquired_gold_rate' => $paymentRequest['acquired_gold_rate'] ?? 0,
 
             ]);
 
