@@ -10,7 +10,7 @@ class SubscriptionMandate extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'user_id', 'transaction_id', 'mandate_id', 'status', 'amount', 'frequency', 'start_time', 'end_time' ,'installment_id' , 'last_deduction_at'
+        'user_id', 'transaction_id', 'mandate_id', 'status', 'amount', 'frequency', 'start_time', 'end_time' ,'installment_id' , 'last_deduction_at','acquired_gold_rate'
     ];
 
     public function user()

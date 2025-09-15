@@ -162,6 +162,7 @@ class PhonePeSubscriptionController extends Controller
                 'frequency'         => strtoupper($frequency),
                 'start_time'        => now(),
                 'last_deduction_at' => now(),
+                'acquired_gold_rate' => $request->acquired_gold_rate ?? 0,
             ]);
 
             return response()->json([
@@ -281,7 +282,6 @@ class PhonePeSubscriptionController extends Controller
         $payment->receiver_id            = 1;
         $payment->currency_code          = $currency_code;
         $payment->payment_method         = "PhonePe";
-        $payment->acquired_gold_rate     = $request->acquired_gold_rate;
         $payment->additional_data        = json_encode($request->all());
         $payment->payer_information      = json_encode($payer->information());
         $payment->receiver_information   = json_encode($receiverInfo->information());
@@ -300,7 +300,6 @@ class PhonePeSubscriptionController extends Controller
             'plan_category'        => $request->plan_category,
             'total_yearly_payment' => $paymentAmount,
             'total_gold_purchase'  => $request->total_gold_purchase,
-            'acquired_gold_rate'   => $request->acquired_gold_rate,
             'start_date'           => $request->start_date,
         ];
 
@@ -733,6 +732,7 @@ class PhonePeSubscriptionController extends Controller
             'transaction_ref'        => $transactionRef,
             'payment_by'             => 'User',
             'payment_note'           => 'Auto deducted subscription setup',
+            'acquired_gold_rate'     => $subscription->acquired_gold_rate,
             'payment_type'           => 1,
             'updated_at'             => now(),
             'created_at'             => now(),
