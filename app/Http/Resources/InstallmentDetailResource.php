@@ -27,6 +27,7 @@ class InstallmentDetailResource extends JsonResource
             'installment' => $installmentIndex ? ($installmentIndex . '/' . 11)  : 0,
             "purchase_gold_weight" => $this->purchase_gold_weight ?? 0,
             "payment_type" => $this->payment_type ?? "",
+            "acquired_gold_rate" => $this->acquired_gold_rate ?? 0,
         ];
     }
 }

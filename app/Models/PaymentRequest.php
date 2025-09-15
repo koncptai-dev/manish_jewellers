@@ -29,7 +29,8 @@ class PaymentRequest extends Model
         'receiver_information',
         'attribute_id',
         'attribute',
-        'payment_platform'
+        'payment_platform',
+        'acquired_gold_rate'
     ];
 
     public static function createPaymentRequest($data)
