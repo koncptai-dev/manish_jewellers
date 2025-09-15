@@ -28,6 +28,7 @@ class OfflinePaymentRequests extends Model
         'total_yearly_payment',
         'installment_id',
         'remarks',
+        'acquired_gold_rate'
         // 'no_of_months'
     ];
 

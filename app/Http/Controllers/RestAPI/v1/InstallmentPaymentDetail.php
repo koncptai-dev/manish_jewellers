@@ -13,6 +13,7 @@ class InstallmentPaymentDetail extends Model
         'installment_payment_id',
         'monthly_payment',
         'purchase_gold_weight',
+        'acquired_gold_rate'
     ];
 
     /**
