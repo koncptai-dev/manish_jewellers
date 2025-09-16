@@ -103,10 +103,6 @@ class ProductListController extends Controller
             ], 200);
         }
 
-        echo "<pre>";
-        print_r(VIEW_FILE_NAMES['products_view_page']);
-        echo "</pre>";
-        die;
         return view(VIEW_FILE_NAMES['products_view_page'], [
             'products' => $products,
             'data' => $data,
