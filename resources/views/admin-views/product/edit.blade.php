@@ -145,6 +145,22 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-6 col-lg-4 col-xl-3 physical_product_show">
+                                <div class="form-group">
+                                    <label class="title-color">
+                                {{ translate('catalogues') }}
+                            </label>
+                            
+                            <select class="js-select2-custom form-control" name="catalogue_id" id="catalogue-select">
+                                <option value="{{ null }}" selected disabled>{{ translate('select_catalogue') }}</option> 
+                                @foreach($catalogues as $catalogue)
+                                    <option
+                                        value="{{ $catalogue['id']}}" {{ $catalogue['id']==$product->catalogue_id	 ? 'selected' : ''}} >{{ $catalogue['name']}}</option>
+                                @endforeach
+                            </select>
+                                </div>
+                            </div>
+
                         @endif
 
                         <div class="col-md-6 col-lg-4 col-xl-3">

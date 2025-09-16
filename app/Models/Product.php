@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
  * @property int $sub_category_id
  * @property int $sub_sub_category_id
  * @property int $brand_id
+ * @property int $catelogue_id
  * @property string $unit
  * @property string $digital_product_type
  * @property string $product_type
@@ -74,6 +75,7 @@ class Product extends Model
         'sub_category_id',
         'sub_sub_category_id',
         'brand_id',
+        'catalogue_id',
         'unit',
         'digital_product_type',
         'product_type',
