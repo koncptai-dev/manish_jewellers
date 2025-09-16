@@ -174,7 +174,7 @@ use App\Http\Controllers\Admin\Notification\PushNotificationSettingsController;
 use App\Http\Controllers\Admin\SilverRateController;
 use App\Http\Controllers\Admin\PaymentHistoryController;
 use App\Http\Controllers\Admin\PaymentRequestController;
-use App\Http\Controllers\Admin\Product\catalogueController;
+use App\Http\Controllers\Admin\Product\CatalogueController;
 
 Route::controller(SharedController::class)->group(function () {
     Route::post('change-language', 'changeLanguage')->name('change-language');
