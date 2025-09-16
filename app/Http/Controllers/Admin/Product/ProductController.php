@@ -44,7 +44,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-
+use App\Models\Catalogue;
 class ProductController extends BaseController
 {
     use ProductTrait;
@@ -116,7 +116,6 @@ class ProductController extends BaseController
         }
 
         $dataArray = $service->getAddProductData(request: $request, addedBy: 'admin');
-
         $savedProduct = $this->productRepo->add(data: $dataArray);
         $this->productRepo->addRelatedTags(request: $request, product: $savedProduct);
         $this->translationRepo->add(request: $request, model: 'App\Models\Product', id: $savedProduct->id);
@@ -219,6 +218,7 @@ class ProductController extends BaseController
         $product['colors']       = json_decode($product['colors']);
         $categories              = $this->categoryRepo->getListWhere(filters: ['position' => 0], dataLimit: 'all');
         $brands                  = $this->brandRepo->getListWhere(dataLimit: 'all');
+        $catalogues              = Catalogue::orderBy('id', 'desc')->where('status', 1)->get();
         $brandSetting            = getWebConfig(name: 'product_brand');
         $digitalProductSetting   = getWebConfig(name: 'digital_product');
         $languages               = getWebConfig(name: 'pnc_language') ?? null;
@@ -229,7 +229,7 @@ class ProductController extends BaseController
         $digitalProductAuthors   = $this->authorRepo->getListWhere(dataLimit: 'all');
         $publishingHouseList     = $this->publishingHouseRepo->getListWhere(dataLimit: 'all');
 
-        return view(Product::UPDATE[VIEW], compact('product', 'categories', 'brands', 'brandSetting', 'digitalProductSetting', 'colors', 'attributes', 'languages', 'defaultLanguage', 'digitalProductFileTypes', 'digitalProductAuthors', 'publishingHouseList', 'productAuthorIds', 'productPublishingHouseIds'));
+        return view(Product::UPDATE[VIEW], compact('product', 'categories', 'brands', 'brandSetting', 'digitalProductSetting', 'colors', 'attributes', 'languages', 'defaultLanguage', 'digitalProductFileTypes', 'digitalProductAuthors', 'publishingHouseList', 'productAuthorIds', 'productPublishingHouseIds', 'catalogues'));
     }
 
     public function update(ProductUpdateRequest $request, ProductService $service, string | int $id): JsonResponse | RedirectResponse

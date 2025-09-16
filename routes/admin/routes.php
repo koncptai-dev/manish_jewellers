@@ -174,6 +174,7 @@ use App\Http\Controllers\Admin\Notification\PushNotificationSettingsController;
 use App\Http\Controllers\Admin\SilverRateController;
 use App\Http\Controllers\Admin\PaymentHistoryController;
 use App\Http\Controllers\Admin\PaymentRequestController;
+use App\Http\Controllers\Admin\Product\catalogueController;
 
 Route::controller(SharedController::class)->group(function () {
     Route::post('change-language', 'changeLanguage')->name('change-language');
@@ -354,6 +355,17 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::post(Brand::DELETE[URI], 'delete')->name('delete');
             Route::get(Brand::EXPORT[URI], 'exportList')->name('export');
             Route::post(Brand::STATUS[URI], 'updateStatus')->name('status-update');
+        });
+    });
+    Route::group(['prefix' => 'catalogue', 'as' => 'catalogue.', 'middleware' => ['module:product_management']], function () {
+        Route::controller(CatalogueController::class)->group(function () {
+            Route::get('add-new', 'create')->name('add-new');
+            Route::post('store', 'store')->name('store');
+            Route::get('list', 'index')->name('list');
+            Route::get('edit/{id}', 'edit')->name('edit');
+            Route::post('update/{id}', 'update')->name('update');
+            Route::post('status-update', 'statusUpdate')->name('status-update');
+            Route::get('get-catalogues', 'getCatalogues')->name('get-catalogues');
         });
     });
 

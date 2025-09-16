@@ -13,6 +13,7 @@ class BrandController extends Controller
 {
     public function get_brands(Request $request): JsonResponse
     {
+        
         if ($request->has('seller_id') && $request['seller_id'] != null) {
             //finding brand ids
             $brand_ids = Product::active()
@@ -23,9 +24,18 @@ class BrandController extends Controller
                     return $query->where(['added_by' => 'admin']);
                 })->pluck('brand_id');
 
-            $brands = Brand::active()->whereIn('id', $brand_ids)->withCount('brandProducts');
+            $brands = Brand::active()
+            ->whereIn('id', $brand_ids)
+            ->withCount('brandProducts')
+            ->with(['catalogues' => function($query) {
+                $query->where('status', 1);
+            }]);
         } else {
-            $brands = Brand::active()->withCount('brandProducts');
+            $brands = Brand::active()
+            ->withCount('brandProducts')
+            ->with(['catalogues' => function($query) {
+                $query->where('status', 1);
+            }]);
         }
 
         $brands = self::getPriorityWiseBrandProductsQuery(query: $brands);

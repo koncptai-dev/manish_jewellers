@@ -108,4 +108,9 @@ class Brand extends Model
             }]);
         });
     }
+
+    public function catalogues()
+    {
+        return $this->hasMany(Catalogue::class);
+    }
 }
