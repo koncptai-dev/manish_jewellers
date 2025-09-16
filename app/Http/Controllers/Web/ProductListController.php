@@ -52,7 +52,6 @@ class ProductListController extends Controller
     {
         $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting();
         $activeBrands = BrandManager::getActiveBrandWithCountingAndPriorityWiseSorting();
-
         $data = self::getProductListRequestData(request: $request);
         if ($request['data_from'] == 'category' && $request['category_id']) {
             $data['brand_name'] = Category::find((int)$request['category_id'])->name;
@@ -72,7 +71,7 @@ class ProductListController extends Controller
         // Modify unit_price in the paginator's items
         $productListData->transform(function ($product) {
 
-             $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
+            $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
 
             return $product;
         });
@@ -104,6 +103,10 @@ class ProductListController extends Controller
             ], 200);
         }
 
+        echo "<pre>";
+        print_r(VIEW_FILE_NAMES['products_view_page']);
+        echo "</pre>";
+        die;
         return view(VIEW_FILE_NAMES['products_view_page'], [
             'products' => $products,
             'data' => $data,

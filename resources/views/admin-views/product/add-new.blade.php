@@ -130,7 +130,7 @@
                                 {{ translate('brand') }}
                                 <span class="input-required-icon">*</span>
                             </label>
-                            <select class="js-select2-custom form-control" name="brand_id" required>
+                            <select class="js-select2-custom form-control" name="brand_id" id="brand-select" required>
                                 <option value="{{ null }}" selected disabled>{{ translate('select_Brand') }}</option>
                                 @foreach ($brands as $brand)
                                 <option value="{{ $brand['id'] }}">{{ $brand['defaultName'] }}</option>
@@ -139,6 +139,17 @@
                         </div>
                     </div>
                     @endif
+
+                    <div class="col-md-6 col-lg-4 col-xl-3 physical_product_show">
+                        <div class="form-group">
+                            <label class="title-color">
+                                {{ translate('catalogues') }}
+                            </label>
+                            <select class="js-select2-custom form-control" name="catalogue_id" id="catalogue-select">
+                                <option value="{{ null }}" selected disabled>{{ translate('select_catalogue') }}</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="col-md-6 col-lg-4 col-xl-3">
                         <div class="form-group">
@@ -214,22 +225,22 @@
 
                     <div class="col-md-6 col-lg-4 col-xl-3">
                         <div class="form-group">
-                            <label class="title-color d-flex justify-content-between gap-2">
-                                <span class="d-flex align-items-center gap-2">
-                                    {{ translate('product_SKU') }}
-                                    <span class="input-required-icon">*</span>
-                                    <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
-                                        title="{{ translate('create_a_unique_product_code_by_clicking_on_the_Generate_Code_button') }}">
-                                        <img src="{{ dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg') }}"
-                                            alt="">
+                            <div class="d-flex gap-2">
+                                <label class="title-color d-flex align-items-center gap-2">
+                                    <span class="d-flex align-items-center gap-2">
+                                        {{ translate('product_SKU') }}
+                                        <span class="input-required-icon">*</span>
+                                        <span class="input-label-secondary cursor-pointer" data-toggle="tooltip"
+                                            title="{{ translate('create_a_unique_product_code_by_clicking_on_the_Generate_Code_button') }}">
+                                            <img src="{{ dynamicAsset(path: 'public/assets/back-end/img/info-circle.svg') }}"
+                                                alt="">
+                                        </span>
                                     </span>
-                                </span>
-                                <span
-                                    class="style-one-pro cursor-pointer user-select-none text--primary action-onclick-generate-number"
-                                    data-input="#generate_number">
+                                </label>
+                                <span class="style-one-pro cursor-pointer user-select-none text--primary action-onclick-generate-number" data-input="#generate_number">
                                     {{ translate('generate_code') }}
                                 </span>
-                            </label>
+                            </div>
                             <input type="text" minlength="6" id="generate_number" name="code" class="form-control"
                                 value="{{ old('code') }}" placeholder="{{ translate('ex').': 161183'}}" required>
                         </div>
@@ -927,4 +938,28 @@
 <script src="{{ dynamicAsset(path: 'public/assets/back-end/plugins/summernote/summernote.min.js') }}"></script>
 <script src="{{ dynamicAsset(path: 'public/assets/back-end/js/admin/product-add-update.js') }}"></script>
 <script src="{{ dynamicAsset(path: 'public/assets/back-end/js/admin/product-add-colors-img.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        $('#brand-select').on('change', function() {
+            var brandId = $(this).val();
+            var catalogueSelect = $('#catalogue-select');
+            catalogueSelect.empty().append('<option value="{{ null }}" selected disabled>{{ translate('select_catalogue') }}</option>');
+
+            if (brandId) {
+                $.ajax({
+                    url: '{{ route('admin.catalogue.get-catalogues') }}',
+                    type: 'GET',
+                    data: {
+                        brand_id: brandId
+                    },
+                    success: function(data) {
+                        $.each(data, function(key, value) {
+                            catalogueSelect.append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    }
+                });
+            }
+        });
+    });
+</script>
 @endpush
