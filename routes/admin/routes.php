@@ -216,6 +216,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/loan-requests/approve/{id}', [LoadRequestController::class, 'approve'])->name('loan-requests.approve');
     Route::post('/withdraw-amount', [PaymentRequestController::class, 'withdrawAmount'])->name('withdraw-amount');
     Route::post('/accept-cancel', [PaymentRequestController::class, 'acceptCancel'])->name('accept-cancel');
+    Route::post('/installments/delete-plan', [PaymentRequestController::class, 'deletePlan'])->name('delete-plan');
     Route::get('/installments/withdrawal-history/{installment}', [PaymentRequestController::class, 'withdrawalHistory']) ->name('admin.installments.withdrawal-history');
     Route::post('/installments/cancel-plan', [PaymentRequestController::class, 'cancelPlan']);
     Route::get('/transactions-export', [PaymentRequestController::class, 'exportCsv'])
