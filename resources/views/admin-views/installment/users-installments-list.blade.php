@@ -5,7 +5,6 @@
 @section('content')
 
     <div class="content container-fluid">
-
         <div class="mb-3">
             <h2 class="h1 mb-0 text-capitalize d-flex gap-2">
                 <img src="{{ dynamicAsset(path: 'public/assets/back-end/img/inhouse-product-list.png') }}" alt="">
@@ -78,36 +77,83 @@
                                                     data-remarks="{{ $installment->cancellation_reason ?? 'No remarks provided' }}">
                                                     Accept
                                                 </button>
-                                            @endif</td>
+                                            @endif
+                                        </td>
                                         <td>
-                                            @if ($installment->status == 1)
-                                            <button type="button" class="btn btn-warning btn-sm withdraw-btn"
-                                                data-toggle="modal" data-target="#withdrawModal"
-                                                data-user-id="{{ $installment->user->id }}"
-                                                data-user-name="{{ $installment->user->name }}"
-                                                data-plan-code="{{ $installment->plan_code }}"
-                                                data-installment-id="{{ $installment->installment_id }}"
-                                                data-plan-amount="{{ $installment->plan_amount }}"> 
-                                                Withdraw<i class="tio-wallet-outlined nav-icon"></i>
-                                            </button>
-                                            @endif
-                                            <button type="button" class="btn btn-info btn-sm view-details-btn ml-2"
-                                                data-toggle="modal" data-target="#withdrawDetailsModal"
-                                                data-installment-id="{{ $installment->installment_id }}"
-                                                data-user-name="{{ $installment->user->name }}"
-                                                data-plan-code="{{ $installment->plan_code }}"
-                                                data-plan-amount="{{ $installment->plan_amount }}">
-                                                <i class="tio-visible nav-icon"></i> 
-                                            </button>
-                                            @if ($installment->status == 1)
-                                                <button type="button" class="btn btn-danger btn-sm cancel-plan-btn ml-2"
-                                                    data-toggle="modal" data-target="#cancelPlanModal"
-                                                    data-installment-id="{{ $installment->installment_id }}"
-                                                    data-user-name="{{ $installment->user->name }}"
-                                                    data-plan-code="{{ $installment->plan_code }}">
-                                                    Cancel <i class="tio-remove-from-trash nav-icon"></i>
-                                                </button>
-                                            @endif
+                                            <div class="d-flex flex-column gap-2">
+                                                @if ($installment->status == 1)
+                                                    {{-- First row: Withdraw and Cancel --}}
+                                                    <div class="d-flex flex-row gap-2">
+                                                        <button type="button" class="btn btn-primary btn-sm withdraw-btn"
+                                                            data-toggle="modal" data-target="#withdrawModal"
+                                                            data-user-id="{{ $installment->user->id }}"
+                                                            data-user-name="{{ $installment->user->name }}"
+                                                            data-plan-code="{{ $installment->plan_code }}"
+                                                            data-installment-id="{{ $installment->installment_id }}"
+                                                            data-plan-amount="{{ $installment->plan_amount }}">
+                                                            Withdraw <i class="tio-wallet-outlined nav-icon"></i>
+                                                        </button>
+                                                        <button type="button"
+                                                            class="btn btn-warning btn-sm cancel-plan-btn"
+                                                            data-toggle="modal" data-target="#cancelPlanModal"
+                                                            data-installment-id="{{ $installment->installment_id }}"
+                                                            data-user-name="{{ $installment->user->name }}"
+                                                            data-plan-code="{{ $installment->plan_code }}">
+                                                            Cancel <i class="tio-remove-from-trash nav-icon"></i>
+                                                        </button>
+                                                    </div>
+
+                                                    {{-- Second row: View and Delete --}}
+                                                    <div class="d-flex flex-row gap-2">
+                                                        <button type="button" class="btn btn-info btn-sm view-details-btn"
+                                                            data-toggle="modal" data-target="#withdrawDetailsModal"
+                                                            data-installment-id="{{ $installment->installment_id }}"
+                                                            data-user-name="{{ $installment->user->name }}"
+                                                            data-plan-code="{{ $installment->plan_code }}"
+                                                            data-plan-amount="{{ $installment->plan_amount }}">
+                                                            <i class="tio-visible nav-icon"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger btn-sm delete-plan-btn"
+                                                            data-toggle="modal" data-target="#deletePlanModal"
+                                                            data-installment-id="{{ $installment->installment_id }}"
+                                                            data-user-name="{{ $installment->user->name }}"
+                                                            data-plan-code="{{ $installment->plan_code }}">
+                                                            Delete <i class="tio-delete-outlined nav-icon"></i>
+                                                        </button>
+                                                    </div>
+                                                @else
+                                                    {{-- For canceled plans, only show View and Delete buttons --}}
+                                                    <div class="d-flex flex-row gap-2">
+                                                        <button type="button" class="btn btn-info btn-sm view-details-btn"
+                                                            data-toggle="modal" data-target="#withdrawDetailsModal"
+                                                            data-installment-id="{{ $installment->installment_id }}"
+                                                            data-user-name="{{ $installment->user->name }}"
+                                                            data-plan-code="{{ $installment->plan_code }}"
+                                                            data-plan-amount="{{ $installment->plan_amount }}">
+                                                            <i class="tio-visible nav-icon"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger btn-sm delete-plan-btn"
+                                                            data-toggle="modal" data-target="#deletePlanModal"
+                                                            data-installment-id="{{ $installment->installment_id }}"
+                                                            data-user-name="{{ $installment->user->name }}"
+                                                            data-plan-code="{{ $installment->plan_code }}">
+                                                            Delete <i class="tio-delete-outlined nav-icon"></i>
+                                                        </button>
+                                                    </div>
+                                                @endif
+
+                                                @if ($installment->cancel_request == 1)
+                                                    <button type="button"
+                                                        class="btn btn-success btn-sm accept-cancel-btn ml-2"
+                                                        data-toggle="modal" data-target="#acceptCancelModal"
+                                                        data-installment-id="{{ $installment->installment_id }}"
+                                                        data-user-name="{{ $installment->user->name }}"
+                                                        data-plan-code="{{ $installment->plan_code }}"
+                                                        data-remarks="{{ $installment->cancellation_reason ?? 'No remarks provided' }}">
+                                                        Accept
+                                                    </button>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -241,32 +287,60 @@
     </div>
 
     <!-- Accept Cancel Request Modal -->
-<div class="modal fade" id="acceptCancelModal" tabindex="-1" role="dialog" aria-labelledby="acceptCancelModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Cancel Request for <span id="acceptCancelUserName"></span> (Plan: <span id="acceptCancelPlanCode"></span>)</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+    <div class="modal fade" id="acceptCancelModal" tabindex="-1" role="dialog"
+        aria-labelledby="acceptCancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cancel Request for <span id="acceptCancelUserName"></span> (Plan: <span
+                            id="acceptCancelPlanCode"></span>)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
 
-            <div class="modal-body">
-                <p><strong>Customer Remarks:</strong></p>
-                <p id="acceptCancelRemarks">Loading...</p>
-            </div>
+                <div class="modal-body">
+                    <p><strong>Customer Remarks:</strong></p>
+                    <p id="acceptCancelRemarks">Loading...</p>
+                </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" id="confirmAcceptCancelBtn">Accept</button>
-                <button type="button" class="btn btn-danger" id="confirmDenyCancelBtn">Deny</button>
-                <input type="hidden" id="acceptCancelInstallmentId">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="confirmAcceptCancelBtn">Accept</button>
+                    <input type="hidden" id="acceptCancelInstallmentId">
+                </div>
             </div>
         </div>
     </div>
-</div>
 
+    {{-- delete model --}}
+    <div class="modal fade" id="deletePlanModal" tabindex="-1" role="dialog" aria-labelledby="deletePlanModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deletePlanModalLabel">Confirm Plan Deletion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to <strong class="text-danger">permanently delete this plan</strong> for:</p>
+                    <ul class="mb-2">
+                        <li><strong>User:</strong> <span id="deleteModalUserName"></span></li>
+                        <li><strong>Plan Code:</strong> <span id="deleteModalPlanCode"></span></li>
+                    </ul>
+                    <p class="text-danger">This action cannot be undone and will remove all associated data, including
+                        withdrawal history.</p>
+                    <input type="hidden" id="deleteInstallmentId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No, Keep Plan</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeletePlanBtn">Yes, Delete Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @push('script')
         {{-- Use @push and @endpush for scripts --}}
@@ -281,7 +355,6 @@
                 const modalUserNameSpan = document.getElementById('modalUserName');
                 const modalPlanCodeSpan = document.getElementById('modalPlanCode');
                 const withdrawForm = document.getElementById('withdrawForm');
-
                 document.querySelectorAll('.withdraw-btn').forEach(button => {
                     button.addEventListener('click', function() {
                         const userId = this.getAttribute('data-user-id');
@@ -289,7 +362,6 @@
                         const planCode = this.getAttribute('data-plan-code');
                         const installmentId = this.getAttribute('data-installment-id');
                         const planAmount = this.getAttribute('data-plan-amount'); // Get the plan amount
-
                         withdrawUserIdInput.value = userId;
                         withdrawPlanCodeInput.value = planCode;
                         modalUserNameSpan.textContent = userName;
@@ -298,17 +370,14 @@
                         planAmountInput.value = planAmount; // Assign plan amount to the hidden input
                     });
                 });
-
                 withdrawForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-
                     const userId = withdrawUserIdInput.value;
                     const planCode = withdrawPlanCodeInput.value;
                     const installmentId = installmentIdInput.value;
                     const planAmount = planAmountInput.value; // Get plan amount from the hidden input
                     const amount = document.getElementById('amount').value;
                     const remarks = document.getElementById('remarks').value;
-
                     if (confirm(`Are you sure you want to withdraw ₹${amount} for this user?`)) {
                         fetch('/admin/withdraw-amount', { // This will be your new route
                                 method: 'POST',
@@ -343,7 +412,6 @@
                     }
                 });
             });
-
             const withdrawDetailsModal = $('#withdrawDetailsModal');
             const detailsModalUserNameSpan = document.getElementById('detailsModalUserName');
             const detailsModalPlanCodeSpan = document.getElementById('detailsModalPlanCode');
@@ -351,18 +419,15 @@
             const detailsModalTotalWithdrawnSpan = document.getElementById('detailsModalTotalWithdrawn');
             const detailsModalRemainingWithdrawableSpan = document.getElementById('detailsModalRemainingWithdrawable');
             const withdrawalHistoryTableBody = document.getElementById('withdrawalHistoryTableBody');
-
             document.querySelectorAll('.view-details-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const installmentId = this.getAttribute('data-installment-id');
                     const userName = this.getAttribute('data-user-name');
                     const planCode = this.getAttribute('data-plan-code');
                     const planAmount = parseFloat(this.getAttribute('data-plan-amount'));
-
                     detailsModalUserNameSpan.textContent = userName;
                     detailsModalPlanCodeSpan.textContent = planCode;
                     detailsModalPlanAmountSpan.textContent = planAmount.toFixed(2);
-
                     // Fetch withdrawal history via AJAX
                     fetch(`{{ url('admin/installments/withdrawal-history') }}/${installmentId}`, { // Ensure this route exists and is correct
                             method: 'GET',
@@ -386,7 +451,6 @@
                             detailsModalTotalWithdrawnSpan.textContent = fetchedTotalWithdrawn.toFixed(2);
                             detailsModalRemainingWithdrawableSpan.textContent = fetchedRemainingWithdrawable
                                 .toFixed(2);
-
                             // Populate withdrawal history table
                             withdrawalHistoryTableBody.innerHTML = ''; // Clear previous data
                             if (data.history && data.history.length > 0) {
@@ -410,7 +474,6 @@
                         });
                 });
             });
-
             const cancelPlanModal = $('#cancelPlanModal');
             const cancelModalUserNameSpan = document.getElementById('cancelModalUserName');
             const cancelModalPlanCodeSpan = document.getElementById('cancelModalPlanCode');
@@ -422,17 +485,14 @@
                     const installmentId = this.getAttribute('data-installment-id');
                     const userName = this.getAttribute('data-user-name');
                     const planCode = this.getAttribute('data-plan-code');
-
                     cancelInstallmentIdInput.value = installmentId;
                     cancelModalUserNameSpan.textContent = userName;
                     cancelModalPlanCodeSpan.textContent = planCode;
                 });
             });
-
             // Confirm cancel
             confirmCancelPlanBtn.addEventListener('click', function() {
                 const installmentId = cancelInstallmentIdInput.value;
-
                 fetch('/admin/installments/cancel-plan', {
                         method: 'POST',
                         headers: {
@@ -459,91 +519,101 @@
                         alert('An error occurred during plan cancellation.');
                     });
             });
-
             const acceptCancelModal = $('#acceptCancelModal');
-const acceptCancelUserNameSpan = document.getElementById('acceptCancelUserName');
-const acceptCancelPlanCodeSpan = document.getElementById('acceptCancelPlanCode');
-const acceptCancelRemarksP = document.getElementById('acceptCancelRemarks');
-const acceptCancelInstallmentIdInput = document.getElementById('acceptCancelInstallmentId');
-const confirmAcceptCancelBtn = document.getElementById('confirmAcceptCancelBtn');
-const confirmDenyCancelBtn = document.getElementById('confirmDenyCancelBtn');
-
-document.querySelectorAll('.accept-cancel-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const installmentId = this.getAttribute('data-installment-id');
-        const userName = this.getAttribute('data-user-name');
-        const planCode = this.getAttribute('data-plan-code');
-        const remarks = this.getAttribute('data-remarks');
-
-        acceptCancelInstallmentIdInput.value = installmentId;
-        acceptCancelUserNameSpan.textContent = userName;
-        acceptCancelPlanCodeSpan.textContent = planCode;
-        acceptCancelRemarksP.textContent = remarks;
-    });
-});
-
-// Accept cancel request
-confirmAcceptCancelBtn.addEventListener('click', function() {
-    const installmentId = acceptCancelInstallmentIdInput.value;
-    if (confirm('Are you sure you want to accept this cancel request?')) {
-        fetch('/admin/accept-cancel', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                installment_id: installmentId
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                acceptCancelModal.modal('hide');
-                location.reload();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while accepting the cancel request.');
-        });
-    }
-});
-
-// Deny cancel request
-confirmDenyCancelBtn.addEventListener('click', function() {
-    const installmentId = acceptCancelInstallmentIdInput.value;
-    if (confirm('Are you sure you want to deny this cancel request?')) {
-        fetch('/admin/installments/deny-cancel', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                installment_id: installmentId
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);
-                acceptCancelModal.modal('hide');
-                location.reload();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while denying the cancel request.');
-        });
-    }
-});
-
+            const acceptCancelUserNameSpan = document.getElementById('acceptCancelUserName');
+            const acceptCancelPlanCodeSpan = document.getElementById('acceptCancelPlanCode');
+            const acceptCancelRemarksP = document.getElementById('acceptCancelRemarks');
+            const acceptCancelInstallmentIdInput = document.getElementById('acceptCancelInstallmentId');
+            const confirmAcceptCancelBtn = document.getElementById('confirmAcceptCancelBtn');
+            document.querySelectorAll('.accept-cancel-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const installmentId = this.getAttribute('data-installment-id');
+                    const userName = this.getAttribute('data-user-name');
+                    const planCode = this.getAttribute('data-plan-code');
+                    const remarks = this.getAttribute('data-remarks');
+                    acceptCancelInstallmentIdInput.value = installmentId;
+                    acceptCancelUserNameSpan.textContent = userName;
+                    acceptCancelPlanCodeSpan.textContent = planCode;
+                    acceptCancelRemarksP.textContent = remarks;
+                });
+            });
+            // Accept cancel request
+            confirmAcceptCancelBtn.addEventListener('click', function() {
+                const installmentId = acceptCancelInstallmentIdInput.value;
+                if (confirm('Are you sure you want to accept this cancel request?')) {
+                    fetch('/admin/accept-cancel', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content'),
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                installment_id: installmentId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message);
+                                acceptCancelModal.modal('hide');
+                                location.reload();
+                            } else {
+                                alert('Error: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while accepting the cancel request.');
+                        });
+                }
+            });
+            // Add this to the existing script block
+            const deletePlanModal = $('#deletePlanModal');
+            const deleteModalUserNameSpan = document.getElementById('deleteModalUserName');
+            const deleteModalPlanCodeSpan = document.getElementById('deleteModalPlanCode');
+            const deleteInstallmentIdInput = document.getElementById('deleteInstallmentId');
+            const confirmDeletePlanBtn = document.getElementById('confirmDeletePlanBtn');
+            // Open delete modal with data
+            document.querySelectorAll('.delete-plan-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const installmentId = this.getAttribute('data-installment-id');
+                    const userName = this.getAttribute('data-user-name');
+                    const planCode = this.getAttribute('data-plan-code');
+                    deleteInstallmentIdInput.value = installmentId;
+                    deleteModalUserNameSpan.textContent = userName;
+                    deleteModalPlanCodeSpan.textContent = planCode;
+                });
+            });
+            // Confirm deletion and send request
+            confirmDeletePlanBtn.addEventListener('click', function() {
+                const installmentId = deleteInstallmentIdInput.value;
+                fetch('/admin/installments/delete-plan', {
+                        method: 'POST', // Or 'DELETE' if you prefer RESTful conventions
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            installment_id: installmentId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            deletePlanModal.modal('hide');
+                            location.reload(); // Reload to reflect the deletion
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred during plan deletion.');
+                    });
+            });
         </script>
     @endpush
 
