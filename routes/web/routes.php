@@ -70,6 +70,10 @@ Route::controller(WebController::class)->group(function () {
     Route::get('maintenance-mode', 'maintenance_mode')->name('maintenance-mode');
 });
 
+Route::get('/investment-plan', function () {
+    return redirect()->away('https://play.google.com/store/apps/details?id=com.banana.com');
+});
+
 
 
 Route::group(['namespace' => 'Web', 'middleware' => ['maintenance_mode', 'guestCheck']], function () {
