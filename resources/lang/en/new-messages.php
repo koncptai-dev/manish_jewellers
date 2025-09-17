@@ -9138,4 +9138,9 @@ return [
 	"if_disabled_this_catalogue_will_be_hidden_from_the_website_and_customer_app" => "If disabled this catalogue will be hidden from the website and customer app",
 	"catalogues" => "Catalogues",
 	"select_catalogue" => "Select catalogue",
+	"filterss" => "Filterss",
+	"Catalouges" => "Catalouges",
+	"Choose Catalouges" => "Choose Catalouges",
+	"Choose catalogues" => "Choose catalogues",
+	"No Catalouges Found" => "No Catalouges Found",
 ];
