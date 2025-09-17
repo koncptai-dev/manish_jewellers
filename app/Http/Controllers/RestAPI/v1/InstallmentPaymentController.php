@@ -257,7 +257,7 @@ class InstallmentPaymentController extends Controller
             ->where('user_id', $user->id)
             ->whereHas('details', function ($query) {
                 $query->where('payment_status', 'paid');
-            })
+            })->where('deleted', 0)
             ->get();
 
         // Group by user_id and plan_code

@@ -104,7 +104,7 @@ class PaymentRequestController extends Controller
 
     public function userInstallments(Request $request)
     {
-        $installments = InstallmentPayment::with('user') // still needed if you return the full model somewhere else
+        $installments = InstallmentPayment::with('user')->where('deleted', 0)
             ->when(! empty($request['searchValue']), function ($query) use ($request) {
                 $searchValue = strtolower($request['searchValue']);
                 $query->where(function ($q) use ($searchValue) {
@@ -116,14 +116,14 @@ class PaymentRequestController extends Controller
                 });
             })
             ->leftJoin('installment_payment_details', 'installment_payment_details.installment_payment_id', '=', 'installment_payments.id')
-            ->leftJoin('users', 'users.id', '=', 'installment_payments.user_id') // ADD this line
+            ->leftJoin('users', 'users.id', '=', 'installment_payments.user_id')
             ->select(
                 'installment_payments.user_id',
-                'installment_payments.id as installment_id', // Include installment ID for reference
+                'installment_payments.id as installment_id',
                 'installment_payments.plan_code',
                 'installment_payments.plan_category',
                 'users.name as user_name', 
-                'installment_payments.status', // Include status for filtering
+                'installment_payments.status', 
                 'installment_payments.cancel_request',
                 'installment_payments.cancellation_reason',
                 DB::raw("SUM(CASE WHEN installment_payment_details.payment_status = 'paid' THEN installment_payment_details.monthly_payment ELSE 0 END) as plan_amount"),
@@ -132,7 +132,7 @@ class PaymentRequestController extends Controller
                 'installment_payments.user_id',
                 'installment_payments.plan_code',
                 'installment_payments.plan_category',
-                'users.name' // group by new selected field
+                'users.name'
             )
             ->paginate(getWebConfig(name: WebConfigKey::PAGINATION_LIMIT));
         return view('admin-views.installment.users-installments-list', compact('installments'));
@@ -327,5 +327,36 @@ class PaymentRequestController extends Controller
             ]);
         }
     }
+
+    public function deletePlan(Request $request)
+    {
+        try {
+            $installment = InstallmentPayment::findOrFail($request->installment_id);
+
+            if ($installment->status == 1) {
+                return response()->json(['success' => false, 'message' => 'Active plans cannot be deleted. Please cancel the plan first.']);
+            }
+
+            InstallmentPayment::where('id', $installment->id)->update(['deleted' => 1]);
+            // Delete related installment payment details
+            // InstallmentPaymentDetail::where('installment_payment_id', $installment->id)->delete();
+
+            // Delete related withdrawals
+            // Withdrawal::where('installment_id', $installment->id)->delete();
+
+            // Finally, delete the installment payment record
+            // $installment->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Plan and all related records deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ]);
+        }
+    }   
 
 }
