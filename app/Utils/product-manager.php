@@ -1909,6 +1909,9 @@ class ProductManager
             ->when($request['data_from'] == 'brand' && $request['brand_id'], function ($query) use ($request) {
                 return $query->where('brand_id', $request['brand_id']);
             })
+            ->when($request->has('catalogue_id') && !empty($request['catalogue_id']), function ($query) use ($request) {
+                return $query->where('catalogue_id', $request['catalogue_id']);
+            })
             ->when($request->has('brand_ids') && !empty($request['brand_ids']) && is_array($request['brand_ids']), function ($query) use ($request) {
                 return $query->whereIn('brand_id', $request['brand_ids']);
             })
