@@ -291,6 +291,26 @@
                                             </ul>
                                         @endforeach
                                     </ul>
+
+                                    <h6 class="font-semibold fs-15 mb-2">{{ translate('catalogues') }}</h6>
+                                        <div class="pb-2">
+                                            <div class="input-group-overlay input-group-sm">
+                                                <select class="form-control custom-select product-list-filter-on-catalogue">
+                                                    <option selected disabled>{{translate('Choose catalogues')}}</option>
+                                                    @if (isset($catalogues) && count($catalogues) > 0)
+                                                        @foreach($catalogues as $catalogue)
+                                                            <option
+                                                                value="{{$catalogue->id}}" {{isset($data['data_from'])!=null?$data['data_from']==$catalogue->id?'selected':'':''}}>{{$catalogue->name}}</option>
+                                                        @endforeach
+                                                    @else
+                                                        <option disabled>{{translate('No Catalouges Found')}}</option>
+                                                        
+                                                    @endif
+                                                </select>
+                                            </div>
+                                        </div>
+                                    
+
                                 </div>
                             @endif
 

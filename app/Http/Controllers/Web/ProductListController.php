@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Models\Author;
 use App\Models\BusinessSetting;
+use App\Models\Catalogue;
 use App\Models\DigitalProductAuthor;
 use App\Models\DigitalProductPublishingHouse;
 use App\Models\PublishingHouse;
@@ -32,7 +33,6 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
 class ProductListController extends Controller
 {
 
@@ -50,6 +50,7 @@ class ProductListController extends Controller
 
     public function default_theme($request): View|JsonResponse|Redirector|RedirectResponse
     {
+        $catalogues = [];
         $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting();
         $activeBrands = BrandManager::getActiveBrandWithCountingAndPriorityWiseSorting();
         $data = self::getProductListRequestData(request: $request);
@@ -58,6 +59,7 @@ class ProductListController extends Controller
         }
         if ($request['data_from'] == 'brand') {
             $brand_data = Brand::active()->find((int)$request['brand_id']);
+            $catalogues = Catalogue::where(['brand_id'=>$request['brand_id'],'status'=>1])->get();
             if ($brand_data) {
                 $data['brand_name'] = $brand_data->name;
             } else {
@@ -108,6 +110,7 @@ class ProductListController extends Controller
             'data' => $data,
             'activeBrands' => $activeBrands,
             'categories' => $categories,
+            'catalogues'=>$catalogues
         ]);
     }
 
