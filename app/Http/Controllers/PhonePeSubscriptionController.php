@@ -757,5 +757,97 @@ class PhonePeSubscriptionController extends Controller
         Log::channel('phonepe_webhook')->info('Callback Processed Successfully', ['mandateId' => $mandateId]);
         return response()->json(['message' => 'Callback Processed'], 200);
     }
+    
+    public function testhandleCallback(Request $request)
+    {
+        // Log the incoming callback request
+        Log::channel('phonepe_webhook')->info('PhonePe Callback Received', ['data' => $request->all()]);
+
+        $request = $request->input('data');
+
+        $type = $request['type'];
+        $data = $request['payload'];
+        $timestamp = $request['payload']['paymentDetails'][0]['timestamp']/1000 ;
+        $date = "2025-09-16 00:00:00"; //date('Y-m-d H:i:s', $timestamp);
+      
+        if (! is_array($data) || ! isset($data['paymentFlow'])) {
+            Log::channel('phonepe_webhook')->warning('Invalid callback structure');
+            return response()->json(['message' => 'Invalid Callback Structure'], 400);
+        }
+
+        $status         = $data['state'] ?? 'PENDING';
+        $mandateId      = $data['paymentFlow']['merchantSubscriptionId'] ?? null;
+        $transactionRef = $data['merchantOrderId'] ?? "MO" . $timestamp;
+        $amountInRupees = $data['amount'] / 100;
+
+        Log::channel('phonepe_webhook')->info('Processing Callback', [
+            'mandateId' => $mandateId,
+            'status'    => $status,
+            'type'      => $type,
+        ]);
+
+        if (! $mandateId) {
+            Log::channel('phonepe_webhook')->warning('Callback Missing Mandate ID');
+            return response()->json(['message' => 'Invalid Callback Data'], 400);
+        }
+
+        $subscription = SubscriptionMandate::where('mandate_id', $mandateId)->first();
+        if (! $subscription) {
+            Log::channel('phonepe_webhook')->error('Subscription Not Found for Mandate ID', ['mandateId' => $mandateId]);
+            return response()->json(['message' => 'Subscription Not Found'], 404);
+        }
+
+        Log::channel('phonepe_webhook')->info('Subscription Found', [
+            'subscription_id' => $subscription->id,
+            'installment_id'  => $subscription->installment_id,
+        ]);
+
+        if( $status === 'COMPLETED') {
+            $subscription->update(['last_deduction_at' => $date]);
+        }
+
+        Log::channel('phonepe_webhook')->info('Subscription Last Deduction Date Updated', [
+            'subscription_id'   => $subscription->id,
+            'last_deduction_at' => now(),
+        ]);
+
+        DB::table('installment_payment_details')->insert([
+            'installment_payment_id' => $subscription->installment_id,
+            'subscription_id'        => $subscription->id,
+            'payment_status'         => $status === 'COMPLETED' ? 'paid' :  strtolower($status),
+            'failure_reason'         => $status === 'FAILED'
+                                    ? ($data['errorCode'] ?? 'UNKNOWN') . 
+                                        (isset($data['detailedErrorCode']) ? " ({$data['detailedErrorCode']})" : '')
+                                    : null,
+            'payment_method'         => 'Phonepe',
+            'monthly_payment'        => $amountInRupees,
+            'transaction_ref'        => $transactionRef,
+            'payment_by'             => 'User',
+            'payment_note'           => 'Auto deducted subscription setup',
+            'payment_type'           => 1,
+            'updated_at'             => $date,
+            'created_at'             => $date,
+        ]);
+
+        // DB::table('installment_payment_details')->updateOrInsert(
+        //     [
+        //         'installment_payment_id' => $subscription->installment_id,
+        //         'transaction_ref'        => $transactionRef,
+        //     ],
+        //     [
+        //         'payment_status'  => $status === 'COMPLETED' ? 'paid' : 'pending',
+        //         'payment_method'  => 'Phonepe',
+        //         'monthly_payment' => $amountInRupees,
+        //         'payment_by'      => 'User',
+        //         'payment_note'    => 'Auto deducted subscription setup',
+        //         'payment_type'    => 1,
+        //         'updated_at'      => now(),
+        //         'created_at'      => now(),
+        //     ]
+        // );
+
+        Log::channel('phonepe_webhook')->info('Callback Processed Successfully', ['mandateId' => $mandateId]);
+        return response()->json(['message' => 'Callback Processed'], 200);
+    }
 
 }
