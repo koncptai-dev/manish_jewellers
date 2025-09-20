@@ -57,6 +57,8 @@ Route::group(['namespace' => 'RestAPI\v1', 'prefix' => 'v1', 'middleware' => ['a
    // PhonePe AutoPay Callback Route
     Route::post('/phonepe/subscription/callback', [PhonePeSubscriptionController::class, 'handleCallback'])
     ->middleware('phonepe.callback');
+    Route::post('/phonepe/subscription/test-callback', [PhonePeSubscriptionController::class, 'testhandleCallback']);
+
     
     Route::post('/user-plans', [NotificationController::class, 'user_plans']);
     //phonepe
