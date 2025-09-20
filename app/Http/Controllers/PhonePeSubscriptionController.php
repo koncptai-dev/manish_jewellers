@@ -732,7 +732,6 @@ class PhonePeSubscriptionController extends Controller
             'transaction_ref'        => $transactionRef,
             'payment_by'             => 'User',
             'payment_note'           => 'Auto deducted subscription setup',
-            'acquired_gold_rate'     => $subscription->acquired_gold_rate,
             'payment_type'           => 1,
             'updated_at'             => now(),
             'created_at'             => now(),
