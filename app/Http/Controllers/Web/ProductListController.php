@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Web;
 
 use App\Models\Author;
 use App\Models\BusinessSetting;
-use App\Models\Catalogue;
 use App\Models\DigitalProductAuthor;
 use App\Models\DigitalProductPublishingHouse;
 use App\Models\PublishingHouse;
@@ -50,8 +49,11 @@ class ProductListController extends Controller
 
     public function default_theme($request): View|JsonResponse|Redirector|RedirectResponse
     {
-        $catalogues = [];
-        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting();
+        $brand_id = 1;
+        if($request['data_from'] == 'brand'){
+            $brand_id = (int)$request['brand_id']; 
+        }
+        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting($brand_id, null);
         $activeBrands = BrandManager::getActiveBrandWithCountingAndPriorityWiseSorting();
         $data = self::getProductListRequestData(request: $request);
         if ($request['data_from'] == 'category' && $request['category_id']) {
@@ -59,7 +61,6 @@ class ProductListController extends Controller
         }
         if ($request['data_from'] == 'brand') {
             $brand_data = Brand::active()->find((int)$request['brand_id']);
-            $catalogues = Catalogue::where(['brand_id'=>$request['brand_id'],'status'=>1])->get();
             if ($brand_data) {
                 $data['brand_name'] = $brand_data->name;
             } else {
@@ -110,13 +111,12 @@ class ProductListController extends Controller
             'data' => $data,
             'activeBrands' => $activeBrands,
             'categories' => $categories,
-            'catalogues'=>$catalogues
         ]);
     }
 
     public function theme_aster($request): View|JsonResponse|Redirector|RedirectResponse
     {
-        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting();
+        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting(1,null);
         $activeBrands = BrandManager::getActiveBrandWithCountingAndPriorityWiseSorting();
 
         $data = self::getProductListRequestData(request: $request);
@@ -170,7 +170,7 @@ class ProductListController extends Controller
 
     public function theme_fashion(Request $request): View|JsonResponse|Redirector|RedirectResponse
     {
-        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting();
+        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting(1,null);
         $activeBrands = BrandManager::getActiveBrandWithCountingAndPriorityWiseSorting();
         $banner = BusinessSetting::where(['type' => 'banner_product_list_page'])->whereJsonContains('value', ['status' => '1'])->first();
 
@@ -249,7 +249,7 @@ class ProductListController extends Controller
 
     public function theme_all_purpose(Request $request): View|JsonResponse|Redirector|RedirectResponse
     {
-        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting();
+        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting(1,null);
         $banner = BusinessSetting::where('type', 'banner_product_list_page')->whereJsonContains('value', ['status' => '1'])->first();
 
         $data = self::getProductListRequestData(request: $request);

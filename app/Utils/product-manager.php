@@ -35,7 +35,7 @@ class ProductManager
             ->where('id', $id)->first();
     }
 
-    public static function get_latest_products($request, $limit = 10, $offset = 1)
+    public static function get_latest_products($request, $limit = 10, $offset = 1, $brand_id)
     {
         $user = Helpers::getCustomerInformation($request);
         $paginator = Product::active()
@@ -43,6 +43,7 @@ class ProductManager
             ->withCount(['reviews', 'wishList' => function ($query) use ($user) {
                 $query->where('customer_id', $user != 'offline' ? $user->id : '0');
             }])
+            ->where(['brand_id' => $brand_id])
             ->orderBy('id', 'desc')
             ->paginate($limit, ['*'], 'page', $offset);
 
@@ -77,14 +78,15 @@ class ProductManager
         ];
     }
 
-    public static function getNewArrivalProducts($request, $limit = 10, $offset = 1)
+    public static function getNewArrivalProducts($request, $limit = 10, $offset = 1, $brand_id)
     {
         $user = Helpers::getCustomerInformation($request);
         $products = Product::active()
             ->with(['rating', 'tags', 'seller.shop', 'flashDealProducts.flashDeal'])
             ->withCount(['reviews', 'wishList' => function ($query) use ($user) {
                 $query->where('customer_id', $user != 'offline' ? $user->id : '0');
-            }]);
+            }])
+            ->where(['brand_id'=>$brand_id]);
 
         $products = ProductManager::getPriorityWiseNewArrivalProductsQuery(query: $products, dataLimit: $limit, offset: $offset);
 
@@ -114,7 +116,7 @@ class ProductManager
         return $products;
     }
 
-    public static function getFeaturedProductsList($request, $limit = 10, $offset = 1): array
+    public static function getFeaturedProductsList($request, $limit = 10, $offset = 1, $brand_id ): array
     {
         $user = Helpers::getCustomerInformation($request);
         $currentDate = date('Y-m-d H:i:s');
@@ -123,7 +125,7 @@ class ProductManager
             ->withCount(['reviews', 'wishList' => function ($query) use ($user) {
                 $query->where('customer_id', $user != 'offline' ? $user->id : '0');
             }])
-            ->where('featured', 1)
+            ->where(['featured'=> 1,'brand_id' => $brand_id])
             ->withCount(['orderDetails', 'reviews']);
 
         $products = self::getPriorityWiseFeaturedProductsQuery(query: $products, dataLimit: $limit, offset: $request->get('page', $offset), appends: $request->all());
@@ -158,7 +160,7 @@ class ProductManager
         ];
     }
 
-    public static function getTopRatedProducts($request, $limit = 10, $offset = 1)
+    public static function getTopRatedProducts($request, $limit = 10, $offset = 1, $brand_id)
     {
         $user = Helpers::getCustomerInformation($request);
         $currentDate = date('Y-m-d H:i:s');
@@ -182,7 +184,7 @@ class ProductManager
                 }])
             ->withCount(['reviews', 'wishList' => function ($query) use ($user) {
                 $query->where('customer_id', $user != 'offline' ? $user->id : '0');
-            }]);
+            }])->where(['brand_id'=>$brand_id]);
 
         $productListData = ProductManager::getPriorityWiseTopRatedProductsQuery(query: $productListData->whereIn('id', $getReviewProductIds), dataLimit: $limit, offset: $offset);
 
@@ -213,7 +215,7 @@ class ProductManager
         return $productListData;
     }
 
-    public static function getBestSellingProductsList($request, $limit = 10, $offset = 1)
+    public static function getBestSellingProductsList($request, $limit = 10, $offset = 1, $brand_id )
     {
         $user = Helpers::getCustomerInformation($request);
         $currentDate = date('Y-m-d H:i:s');
@@ -240,7 +242,7 @@ class ProductManager
                 }])
             ->withCount(['reviews', 'wishList' => function ($query) use ($user) {
                 $query->where('customer_id', $user != 'offline' ? $user->id : '0');
-            }]);
+            }])->where(['brand_id'=>$brand_id]);
 
         $productListData = ProductManager::getPriorityWiseBestSellingProductsQuery(query: $productListData->whereIn('id', $getOrderedProductIds), dataLimit: $limit, offset: $offset);
 
@@ -306,8 +308,10 @@ class ProductManager
         ];
     }
 
-    public static function get_related_products($product_id, $request = null)
+    public static function get_related_products($product_id, $request = null,$brand_id )
     {
+        echo $brand_id;
+        die;
         $user = Helpers::getCustomerInformation($request);
         $product = Product::find($product_id);
         $products = Product::active()->with(['rating', 'flashDealProducts.flashDeal', 'tags', 'seller.shop'])
@@ -316,6 +320,7 @@ class ProductManager
             }])
             ->where('category_ids', $product->category_ids)
             ->where('id', '!=', $product->id)
+            ->where(['brand_id'=>$brand_id])
             ->limit(10)
             ->get();
 
@@ -788,7 +793,7 @@ class ProductManager
         ];
     }
 
-    public static function get_discounted_product($request, $limit = 10, $offset = 1)
+    public static function get_discounted_product($request, $limit = 10, $offset = 1, $brand_id )
     {
         $user = Helpers::getCustomerInformation($request);
         //change review to ratting
@@ -796,7 +801,7 @@ class ProductManager
             ->withCount(['reviews', 'wishList' => function ($query) use ($user) {
                 $query->where('customer_id', $user != 'offline' ? $user->id : '0');
             }])
-            ->where('discount', '!=', 0)
+            ->where('discount', '!=', 0)->where(['brand_id'=>$brand_id])
             ->orderBy('id', 'desc')
             ->paginate($limit, ['*'], 'page', $offset);
 
@@ -1908,9 +1913,6 @@ class ProductManager
             })
             ->when($request['data_from'] == 'brand' && $request['brand_id'], function ($query) use ($request) {
                 return $query->where('brand_id', $request['brand_id']);
-            })
-            ->when($request->has('catalogue_id') && !empty($request['catalogue_id']), function ($query) use ($request) {
-                return $query->where('catalogue_id', $request['catalogue_id']);
             })
             ->when($request->has('brand_ids') && !empty($request['brand_ids']) && is_array($request['brand_ids']), function ($query) use ($request) {
                 return $query->whereIn('brand_id', $request['brand_ids']);

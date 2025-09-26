@@ -51,6 +51,18 @@
                                                     }
                                                 }
                                                 ?>
+                                            <!-- Brand Dropdown -->
+                                            <div class="form-group mb-4">
+                                                <label for="brand_id" class="title-color">{{ translate('Select Brand') }} <span class="text-danger">*</span></label>
+                                                <select name="brand_id" id="brand_id" class="form-control" required>
+                                                    <option value="">{{ translate('Select Brand') }}</option>
+                                                    @foreach($brands as $brand)
+                                                        <option value="{{ $brand->id }}" {{ $category['brand_id'] == $brand->id ? 'selected' : '' }}>
+                                                        {{ $brand->name }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                             <div class="form-group {{ $lang != $defaultLanguage ? 'd-none':''}} form-system-language-form"
                                                 id="{{ $lang}}-form">
                                                 <label class="title-color">

@@ -75,7 +75,6 @@ class Product extends Model
         'sub_category_id',
         'sub_sub_category_id',
         'brand_id',
-        'catalogue_id',
         'unit',
         'digital_product_type',
         'product_type',

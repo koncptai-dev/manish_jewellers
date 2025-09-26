@@ -19,7 +19,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-
+use App\Models\Brand;
 class SubCategoryController extends BaseController
 {
     use PaginatorTrait;
@@ -42,39 +42,61 @@ class SubCategoryController extends BaseController
         return $this->getAddView($request);
     }
 
-    public function getAddView( Request $request ): View
+    public function getAddView(Request $request): View
     {
         $categories = $this->categoryRepo->getListWhere(
             searchValue: $request->get('searchValue'),
             filters: ['position' => 1],
-            dataLimit: getWebConfig(name: 'pagination_limit'));
+            relations: ['brand'],
+            dataLimit: getWebConfig(name: 'pagination_limit')
+        );
 
         $parentCategories = $this->categoryRepo->getListWhere(
             filters: ['position' => 0],
-            dataLimit: 'all');
-        $languages = getWebConfig(name: 'pnc_language') ?? null;
+            relations: ['brand'],
+            dataLimit: 'all'
+        );
+
+        $languages       = getWebConfig(name: 'pnc_language') ?? null;
         $defaultLanguage = $languages[0];
 
         return view(SubCategory::LIST[VIEW], [
-            'categories' => $categories,
+            'categories'       => $categories,
             'parentCategories' => $parentCategories,
-            'languages' => $languages,
-            'defaultLanguage' => $defaultLanguage,
+            'languages'        => $languages,
+            'defaultLanguage'  => $defaultLanguage,
         ]);
     }
+
 
     public function getUpdateView(string|int $id): View
-    {
-        $category = $this->categoryRepo->getFirstWhere(params:['id'=>$id], relations: ['translations']);
-        $languages = getWebConfig(name: 'pnc_language') ?? null;
-        $defaultLanguage = $languages[0];
+{
+    $category = $this->categoryRepo->getFirstWhere(
+        params: ['id' => $id],
+        relations: ['translations', 'parent', 'brand'] // make sure parent & brand relations exist in model
+    );
 
-        return view(SubCategory::UPDATE[VIEW], [
-            'category' => $category,
-            'languages' => $languages,
-            'defaultLanguage' => $defaultLanguage,
-        ]);
-    }
+    $languages = getWebConfig(name: 'pnc_language') ?? null;
+    $defaultLanguage = $languages[0];
+
+    // All active brands
+    $brands = Brand::where('status', 1)->get();
+
+    // Parent categories (main categories), grouped with brand
+    $parentCategories = $this->categoryRepo->getListWhere(
+        filters: ['position' => 0],
+        dataLimit: 'all'
+    );
+
+    return view('admin-views.category.sub-category-update', [
+        'category'         => $category,
+        'brands'           => $brands,
+        'parentCategories' => $parentCategories,
+        'languages'        => $languages,
+        'defaultLanguage'  => $defaultLanguage,
+    ]);
+}
+
 
     public function add(SubCategoryAddRequest $request, CategoryService $categoryService): RedirectResponse
     {
@@ -85,15 +107,15 @@ class SubCategoryController extends BaseController
         return back();
     }
 
-    public function update(CategoryUpdateRequest $request, CategoryService $categoryService): JsonResponse
+    public function update(CategoryUpdateRequest $request, CategoryService $categoryService)
     {
         $category = $this->categoryRepo->getFirstWhere(params:['id'=>$request['id']]);
         $dataArray = $categoryService->getUpdateData(request:$request, data:$category);
         $this->categoryRepo->update(id:$request['id'], data:$dataArray);
         $this->translationRepo->update(request:$request, model:'App\Models\Category', id:$request['id']);
 
-        Toastr::success(translate('category_updated_successfully'));
-        return response()->json();
+        Toastr::success(translate('sub_category_updated_successfully'));
+        return back();
     }
 
     public function delete(Request $request): JsonResponse

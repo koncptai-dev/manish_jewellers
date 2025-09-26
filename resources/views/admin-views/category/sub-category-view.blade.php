@@ -50,22 +50,31 @@
                                             @endforeach
                                             <input name="position" value="1" class="d-none">
                                         </div>
+
+                                        {{-- Brand Dropdown --}}
                                         <div class="form-group {{ theme_root_path() == 'theme_aster'?'w-100':'col-md-6 col-lg-4' }}">
-                                            <label class="title-color"
-                                                   for="exampleFormControlSelect1">{{ translate('main_Category') }}
-                                                <span class="text-danger">*</span></label>
-                                            <select id="exampleFormControlSelect1" name="parent_id"
-                                                    class="form-control" required>
-                                                <option value="" selected disabled>
-                                                    {{ translate('select_main_category') }}
-                                                </option>
+                                            <label class="title-color">{{ translate('brand') }} <span class="text-danger">*</span></label>
+                                            <select id="brandSelect" class="form-control" name="brand_id" required>
+                                                <option value="" selected disabled>{{ translate('select_brand') }}</option>
+                                                @foreach($parentCategories->pluck('brand')->unique()->filter() as $brand)
+                                                    <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        {{-- Main Category Dropdown --}}
+                                        <div class="form-group {{ theme_root_path() == 'theme_aster'?'w-100':'col-md-6 col-lg-4' }}">
+                                            <label class="title-color">{{ translate('main_Category') }} <span class="text-danger">*</span></label>
+                                            <select id="categorySelect" name="parent_id" class="form-control" required>
+                                                <option value="" selected disabled>{{ translate('select_main_category') }}</option>
                                                 @foreach($parentCategories as $category)
-                                                    <option value="{{ $category['id']}}">
-                                                        {{ $category['defaultname']}}
+                                                    <option value="{{ $category->id }}" data-brand="{{ $category->brand_id }}">
+                                                        {{ $category->defaultname }}
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </div>
+
                                         <div class="form-group {{ theme_root_path() == 'theme_aster'?'w-100':'col-md-6 col-lg-4' }}">
                                             <label class="title-color" for="priority">{{ translate('priority') }}
                                                 <span>
@@ -122,6 +131,7 @@
             </div>
         </div>
 
+        {{-- Subcategory List --}}
         <div class="row mt-20" id="cate-table">
             <div class="col-md-12">
                 <div class="card">
@@ -167,6 +177,7 @@
                                     <th class="text-center">{{ translate('sub_category_Image') }}</th>
                                 @endif
                                 <th>{{ translate('sub_category_name') }}</th>
+                                <th>{{ translate('brand') }}</th> {{-- 👈 New Brand column --}}
                                 <th>{{ translate('category_name') }}</th>
                                 <th class="text-center">{{ translate('priority') }}</th>
                                 <th class="text-center">{{ translate('action') }}</th>
@@ -182,8 +193,9 @@
                                                  src="{{ getStorageImages(path: $category->icon_full_url , type: 'backend-basic') }}">
                                         </td>
                                     @endif
-                                    <td>{{($category['defaultname']) }}</td>
-                                    <td>{{$category?->parent?->defaultname ?? translate('category_not_found') }}</td>
+                                    <td>{{ $category['defaultname'] }}</td>
+                                    <td>{{ $category->brand?->name ?? translate('no_brand') }}</td>
+                                    <td>{{ $category?->parent?->defaultname ?? translate('category_not_found') }}</td>
                                     <td class="text-center">{{ $category['priority']}}</td>
                                     <td>
                                         <div class="d-flex justify-content-center gap-2">
@@ -224,4 +236,37 @@
 
 @push('script')
     <script src="{{ dynamicAsset(path: 'public/assets/back-end/js/products-management.js') }}"></script>
+
+    <script>
+        const brandSelect = document.getElementById('brandSelect');
+        const categorySelect = document.getElementById('categorySelect');
+        const categoryOptions = document.querySelectorAll('#categorySelect option');
+
+        // Initially disable category dropdown until brand selected
+        categorySelect.disabled = true;
+
+        brandSelect.addEventListener('change', function () {
+            let brandId = this.value;
+
+            // reset dropdown
+            categorySelect.value = '';
+            categoryOptions.forEach(option => {
+                if (!option.value) return; // skip placeholder
+                option.style.display = 'none';
+            });
+
+            if (brandId) {
+                categorySelect.disabled = false;
+                categoryOptions.forEach(option => {
+                    if (!option.value) return; // skip placeholder
+                    if (option.getAttribute('data-brand') === brandId) {
+                        option.style.display = 'block';
+                    }
+                });
+            } else {
+                categorySelect.disabled = true;
+            }
+        });
+    </script>
 @endpush
+

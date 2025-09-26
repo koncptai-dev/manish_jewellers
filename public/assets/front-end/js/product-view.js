@@ -14,7 +14,6 @@ let productListPageData = {
     vendor_id: productListPageBackup.data('vendor-id'),
     author_id: productListPageBackup.data('author-id'),
     publishing_house_id: productListPageBackup.data('publishing-house-id'),
-    catalogue_id: productListPageBackup.data('catalogue-id'),
 };
 
 function getProductListFilterRender() {
@@ -43,10 +42,6 @@ function getProductListFilterRender() {
 
 $('.product-list-filter-on-viewpage').on('change', function (){
     productListPageData.sort_by = $(this).val();
-    getProductListFilterRender();
-})
-$('.product-list-filter-on-catalogue').on('change', function (){
-    productListPageData.catalogue_id = $(this).val();
     getProductListFilterRender();
 })
 
