@@ -14,6 +14,7 @@ class CategoryService
         $storage = config('filesystems.disks.default') ?? 'public';
 
         return [
+            'brand_id' => $request->brand_id,
             'name' => $request['name'][array_search('en', $request['lang'])],
             'slug' => Str::slug($request['name'][array_search('en', $request['lang'])]),
             'icon' => $this->upload('category/', 'webp', $request->file('image')),
@@ -30,6 +31,8 @@ class CategoryService
         $image = $request->file('image') ? $this->update('category/', $data['image'], 'webp', $request->file('image')) : $data['icon'];
         return [
             'name' => $request['name'][array_search('en', $request['lang'])],
+            'brand_id' => $request->brand_id,
+            'parent_id'=> $request->get('parent_id', 0),
             'slug' => Str::slug($request['name'][array_search('en', $request['lang'])]),
             'icon' => $image,
             'icon_storage_type' => $request->has('image') ? $storage : $data['icon_storage_type'],

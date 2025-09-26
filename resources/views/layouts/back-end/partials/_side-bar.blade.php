@@ -355,41 +355,7 @@ $eCommerceLogo = getWebConfig(name: 'company_web_logo');
                                 title="">{{translate('product_management')}}</small>
                             <small class="tio-more-horizontal nav-subtitle-replacer"></small>
                         </li>
-                        <li class="navbar-vertical-aside-has-menu {{(Request::is('admin/category*') || Request::is('admin/sub-category*') || Request::is('admin/sub-sub-category*')) ?'active':''}}">
-                            <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle"
-                                href="javascript:" title="{{translate('category_Setup')}}">
-                                <i class="tio-filter-list nav-icon"></i>
-                                <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                    {{translate('category_Setup')}}
-                                </span>
-                            </a>
-                            <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                                style="display: {{(Request::is('admin/category*') ||Request::is('admin/sub*'))?'block':''}}">
-                                <li class="nav-item {{Request::is('admin/category/'.Category::LIST[URI])?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.category.view')}}"
-                                        title="{{translate('categories')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate">{{translate('categories')}}</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{Request::is('admin/sub-category/'.SubCategory::LIST[URI])?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.sub-category.view')}}"
-                                        title="{{translate('sub_Categories')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate">{{translate('sub_Categories')}}</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item {{Request::is('admin/sub-sub-category/'.SubSubCategory::LIST[URI])?'active':''}}">
-                                    <a class="nav-link " href="{{route('admin.sub-sub-category.view')}}"
-                                        title="{{translate('sub_Sub_Categories')}}">
-                                        <span class="tio-circle nav-indicator-icon"></span>
-                                        <span
-                                            class="text-truncate">{{translate('sub_Sub_Categories')}}</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="navbar-vertical-aside-has-menu {{Request::is('admin/brand*')?'active':''}}">
+                           <li class="navbar-vertical-aside-has-menu {{Request::is('admin/brand*')?'active':''}}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle"
                                 href="javascript:" title="{{translate('brands')}}">
                                 <i class="tio-star nav-icon"></i>
@@ -414,30 +380,38 @@ $eCommerceLogo = getWebConfig(name: 'company_web_logo');
                                 </li>
                             </ul>
                         </li>
-
-                        <li class="navbar-vertical-aside-has-menu {{Request::is('admin/catalogue*')?'active':''}}">
+                        <li class="navbar-vertical-aside-has-menu {{(Request::is('admin/category*') || Request::is('admin/sub-category*') || Request::is('admin/sub-sub-category*')) ?'active':''}}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle"
-                                href="javascript:" title="{{translate('catalogue')}}">
-                                <i class="tio-star nav-icon"></i>
-                                <span
-                                    class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('catalogue')}}</span>
+                                href="javascript:" title="{{translate('category_Setup')}}">
+                                <i class="tio-filter-list nav-icon"></i>
+                                <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
+                                    {{translate('category_Setup')}}
+                                </span>
                             </a>
                             <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                                style="display: {{Request::is('admin/catalogue*')?'block':'none'}}">
-                                <li class="nav-item {{Request::is('admin/catalogue/'.Brand::ADD[URI])?'active':''}}"
-                                    title="{{translate('add_new')}}">
-                                    <a class="nav-link " href="{{route('admin.catalogue.add-new')}}">
+                                style="display: {{(Request::is('admin/category*') ||Request::is('admin/sub*'))?'block':''}}">
+                                <li class="nav-item {{Request::is('admin/category/'.Category::LIST[URI])?'active':''}}">
+                                    <a class="nav-link " href="{{route('admin.category.view')}}"
+                                        title="{{translate('categories')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate">{{translate('add_new')}}</span>
+                                        <span class="text-truncate">{{translate('categories')}}</span>
                                     </a>
                                 </li>
-                                <li class="nav-item {{Request::is('admin/catalogue/'.Brand::LIST[URI])?'active':''}}"
-                                    title="{{translate('list')}}">
-                                    <a class="nav-link " href="{{route('admin.catalogue.list')}}">
+                                <li class="nav-item {{Request::is('admin/sub-category/'.SubCategory::LIST[URI])?'active':''}}">
+                                    <a class="nav-link " href="{{route('admin.sub-category.view')}}"
+                                        title="{{translate('sub_Categories')}}">
                                         <span class="tio-circle nav-indicator-icon"></span>
-                                        <span class="text-truncate">{{translate('list')}}</span>
+                                        <span class="text-truncate">{{translate('sub_Categories')}}</span>
                                     </a>
                                 </li>
+                                {{-- <li class="nav-item {{Request::is('admin/sub-sub-category/'.SubSubCategory::LIST[URI])?'active':''}}">
+                                    <a class="nav-link " href="{{route('admin.sub-sub-category.view')}}"
+                                        title="{{translate('sub_Sub_Categories')}}">
+                                        <span class="tio-circle nav-indicator-icon"></span>
+                                        <span
+                                            class="text-truncate">{{translate('sub_Sub_Categories')}}</span>
+                                    </a>
+                                </li> --}}
                             </ul>
                         </li>
 

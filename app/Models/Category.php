@@ -27,6 +27,7 @@ class Category extends Model
     use StorageTrait, CacheManagerTrait;
 
     protected $fillable = [
+        'brand_id',
         'name',
         'slug',
         'icon',
@@ -43,6 +44,7 @@ class Category extends Model
         'icon' => 'string',
         'icon_storage_type' => 'string',
         'parent_id' => 'integer',
+        'brand_id' => 'integer',
         'position' => 'integer',
         'home_status' => 'integer',
         'priority' => 'integer',
@@ -130,5 +132,10 @@ class Category extends Model
                 }
             }]);
         });
+    }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
     }
 }

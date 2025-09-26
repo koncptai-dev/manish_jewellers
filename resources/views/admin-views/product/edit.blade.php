@@ -83,49 +83,6 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 col-lg-4 col-xl-3">
-                            <div class="form-group">
-                                <label for="name" class="title-color">
-                                    {{ translate('category') }}
-                                    <span class="input-required-icon">*</span>
-                                </label>
-                                <select class="js-example-basic-multiple js-states js-example-responsive form-control action-get-request-onchange"
-                                    name="category_id"
-                                    id="category_id"
-                                    data-url-prefix="{{ url('/admin/products/get-categories?parent_id=') }}"
-                                    data-element-id="sub-category-select"
-                                    data-element-type="select">
-                                    <option value="0" selected disabled>---{{ translate('select') }}---</option>
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category['id']}}" {{ $category->id==$product['category_id'] ? 'selected' : ''}}>{{ $category['defaultName']}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 col-lg-4 col-xl-3">
-                            <div class="form-group">
-                                <label class="title-color">{{ translate('sub_Category') }}</label>
-                                <select
-                                    class="js-example-basic-multiple js-states js-example-responsive form-control action-get-request-onchange"
-                                    name="sub_category_id" id="sub-category-select"
-                                    data-id="{{ $product['sub_category_id'] }}"
-                                    data-url-prefix="{{ url('/admin/products/get-categories?parent_id=') }}"
-                                    data-element-id="sub-sub-category-select"
-                                    data-element-type="select">
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 col-xl-3">
-                            <div class="form-group">
-                                <label class="title-color">{{ translate('sub_Sub_Category') }}</label>
-                                <select
-                                    class="js-example-basic-multiple js-states js-example-responsive form-control"
-                                    data-id="{{ $product['sub_sub_category_id'] }}"
-                                    name="sub_sub_category_id" id="sub-sub-category-select">
-                                </select>
-                            </div>
-                        </div>
                         @if($brandSetting)
                             <div class="col-md-6 col-lg-4 col-xl-3 physical_product_show">
                                 <div class="form-group">
@@ -135,7 +92,7 @@
                                     </label>
                                     <select
                                         class="js-example-basic-multiple js-states js-example-responsive form-control"
-                                        name="brand_id">
+                                        name="brand_id" id="brand-select">
                                         <option value="{{null}}" selected disabled>---{{ translate('select') }}---
                                         </option>
                                         @foreach($brands as $brand)
@@ -145,23 +102,49 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6 col-lg-4 col-xl-3 physical_product_show">
-                                <div class="form-group">
-                                    <label class="title-color">
-                                {{ translate('catalogues') }}
-                            </label>
-                            
-                            <select class="js-select2-custom form-control" name="catalogue_id" id="catalogue-select">
-                                <option value="{{ null }}" selected disabled>{{ translate('select_catalogue') }}</option> 
-                                @foreach($catalogues as $catalogue)
-                                    <option
-                                        value="{{ $catalogue['id']}}" {{ $catalogue['id']==$product->catalogue_id	 ? 'selected' : ''}} >{{ $catalogue['name']}}</option>
-                                @endforeach
-                            </select>
-                                </div>
-                            </div>
 
                         @endif
+                        <div class="col-md-6 col-lg-4 col-xl-3">
+    <div class="form-group">
+        <label for="name" class="title-color">
+            {{ translate('category') }}
+            <span class="input-required-icon">*</span>
+        </label>
+        <select class="js-example-basic-multiple js-states js-example-responsive form-control action-get-request-onchange"
+            name="category_id"
+            id="category-select-ajax"
+            data-url-prefix="{{ url('/admin/products/get-categories?parent_id=') }}"
+            data-element-id="sub-category-select-ajax" {{-- Ensure sub-category ID is correct --}}
+            data-element-type="select">
+            {{-- Initial categories loaded from server are already here --}}
+            <option value="0" selected disabled>---{{ translate('select') }}---</option>
+            @foreach($categories as $category)
+                <option value="{{ $category['id']}}" {{ $category->id==$product['category_id'] ? 'selected' : ''}}>{{ $category['name']}}</option>
+            @endforeach
+        </select>
+    </div>
+</div>
+
+<div class="col-md-6 col-lg-4 col-xl-3">
+    <div class="form-group">
+        <label class="title-color">{{ translate('sub_Category') }}</label>
+        <select
+            class="js-example-basic-multiple js-states js-example-responsive form-control action-get-request-onchange"
+            name="sub_category_id" id="sub-category-select-ajax"
+            data-id="{{ $product['sub_category_id'] }}" {{-- Saved sub-category ID --}}
+            data-url-prefix="{{ url('/admin/products/get-categories?parent_id=') }}"
+            data-element-id="sub-sub-category-select"
+            data-element-type="select">
+            {{-- **CORRECTION:** Add the currently selected sub-category option if it exists to hold the value until AJAX runs --}}
+            @if(isset($product['sub_category']) && $product['sub_category'])
+                <option value="{{ $product['sub_category_id'] }}" selected>{{ $product['sub_category']['name'] ?? translate('selected') }}</option>
+            @else
+                <option value="{{ null }}" selected disabled>---{{ translate('select') }}---</option>
+            @endif
+        </select>
+    </div>
+</div>
+                       
 
                         <div class="col-md-6 col-lg-4 col-xl-3">
                             <div class="form-group">
@@ -1432,4 +1415,147 @@
         updateProductQuantity();
 
     </script>
+
+    @push('script')
+<script>
+    $(document).ready(function() {
+
+        // Function to load categories based on a selected brand
+        function loadCategoriesByBrand(brand_id, selected_category_id) {
+            var $categorySelect = $('#category-select-ajax');
+            
+            // Clear and set loading state
+            $categorySelect.html('<option value="" selected disabled>{{ translate('loading') }}...</option>');
+            $('#sub-category-select-ajax').empty();
+            $('#sub-sub-category-select').empty();
+
+            if (brand_id) {
+                $.ajax({
+                    url: '{{ route('admin.products.get-categories-by-brand') }}',
+                    type: 'GET',
+                    data: { brand_id: brand_id },
+                    dataType: 'json',
+                    success: function(data) {
+                        $categorySelect.empty();
+                        $categorySelect.append('<option value="0" selected disabled>---{{ translate('select') }}---</option>');
+
+                        $.each(data, function(key, value) {
+                            var selected = (value.id == selected_category_id) ? 'selected' : '';
+                            $categorySelect.append('<option value="' + value.id + '" ' + selected + '>' + value.name + '</option>');
+                        });
+                        
+                        // **Trigger the next cascade level if a category was selected**
+                        if (selected_category_id) {
+                            $categorySelect.trigger('change');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $categorySelect.empty();
+                        $categorySelect.append('<option value="" selected disabled>{{ translate('error_loading_categories') }}</option>');
+                        console.error("Error loading categories by brand:", error);
+                    }
+                });
+            } else {
+                $categorySelect.empty();
+                $categorySelect.append('<option value="0" selected disabled>---{{ translate('select') }}---</option>');
+            }
+        }
+        
+        // Function to load sub-categories based on a selected parent category
+        function loadSubCategories(parent_id, selected_sub_category_id) {
+            var $subCategorySelect = $('#sub-category-select-ajax');
+            
+            // Clear and set loading state
+            $subCategorySelect.html('<option value="" selected disabled>{{ translate('loading') }}...</option>');
+            $('#sub-sub-category-select').empty();
+            if (parent_id) {
+                $.ajax({
+                    url: '{{ url('/admin/products/get-categories?parent_id=') }}' + parent_id, // Using the full URL from data attribute
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log('sub cat', data)
+                        $subCategorySelect.empty();
+                        $subCategorySelect.append('<option value="" selected disabled>{{ translate('select_Sub_Category') }}</option>');
+
+                        $.each(data, function(key, value) {
+                            var selected = (value.id == selected_sub_category_id) ? 'selected' : '';
+                            $subCategorySelect.append('<option value="' + value.id + '" ' + selected + '>' + value.name + '</option>');
+                        });
+                        
+                        // **Trigger the next cascade level if a sub-category was selected**
+                        if (selected_sub_category_id) {
+                            $subCategorySelect.trigger('change');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $subCategorySelect.empty();
+                        $subCategorySelect.append('<option value="" selected disabled>{{ translate('error_loading_sub_categories') }}</option>');
+                        console.error("Error loading sub-categories:", error);
+                    }
+                });
+            }
+        }
+
+      // --- 1. Brand -> Category Cascade Listener ---
+        $('#brand-select').on('change', function() {
+            var brand_id = $(this).val();
+            // Pass null for selected category since the user just changed the brand
+            loadCategoriesByBrand(brand_id, null);
+        });
+
+        // --- 2. Category -> Sub-Category Cascade Listener ---
+        $('#category-select-ajax').on('change', function() {
+            var parent_id = $(this).val();
+            var selected_sub_category_id = $('#sub-category-select-ajax').data('id'); // Get saved ID from HTML data attribute
+            loadSubCategories(parent_id, selected_sub_category_id);
+            // After the first manual run, clear the data-id to prevent re-selection on subsequent manual changes
+            $('#sub-category-select-ajax').data('id', null); 
+        });
+
+        // --- 3. Sub-Category -> Sub-Sub-Category Cascade Listener ---
+        $('#sub-category-select-ajax').on('change', function() {
+            var parent_id = $(this).val();
+            var selected_sub_sub_category_id = $('#sub-sub-category-select').data('id'); // Assuming you have a similar data-id for sub-sub
+            loadSubSubCategories(parent_id, selected_sub_sub_category_id);
+            $('#sub-sub-category-select').data('id', null);
+        });
+        
+        // =========================================================
+        // ** INITIAL LOAD FOR EDIT PAGE **
+        // =========================================================
+        var initial_brand_id = $('#brand-select').val();
+        var initial_category_id = '{{ $product['category_id'] ?? 'null' }}';
+        var initial_sub_category_id = '{{ $product['sub_category_id'] ?? 'null' }}';
+        var initial_sub_sub_category_id = '{{ $product['sub_sub_category_id'] ?? 'null' }}';
+
+        // Only run the cascade if a brand is initially selected
+        if (initial_brand_id && initial_category_id !== 'null') {
+            
+            // The Brand dropdown is typically already populated in the Blade template.
+            // When we run the initial category load, we pass the saved category ID.
+            loadCategoriesByBrand(initial_brand_id, initial_category_id);
+            
+            // To ensure the sub-category/sub-sub-category logic uses the saved IDs 
+            // during the AJAX calls triggered by loadCategoriesByBrand, we set 
+            // the data attributes which the cascade listeners will use.
+            
+            $('#sub-category-select-ajax').data('id', initial_sub_category_id !== 'null' ? initial_sub_category_id : null);
+            $('#sub-sub-category-select').data('id', initial_sub_sub_category_id !== 'null' ? initial_sub_sub_category_id : null);
+            
+            // NOTE: The 'loadCategoriesByBrand' function is designed to call the 
+            // 'change' trigger on the category select if an initial ID is passed, 
+            // which will then initiate the sub-category load.
+            
+        } else if (initial_category_id !== 'null') {
+            // Case where Brand is disabled or not required, but category is selected.
+            // You would need a separate AJAX call here to load sub-categories.
+            loadSubCategories(initial_category_id, initial_sub_category_id);
+            
+            $('#sub-sub-category-select').data('id', initial_sub_sub_category_id !== 'null' ? initial_sub_sub_category_id : null);
+        }
+
+    });
+</script>
+@endpush
 @endpush

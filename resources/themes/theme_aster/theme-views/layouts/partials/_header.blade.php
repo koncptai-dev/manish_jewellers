@@ -16,7 +16,7 @@
     </div>
 @endif
 
-@php($categories = \App\Utils\CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting(dataLimit: 11))
+@php($categories = \App\Utils\CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting(1,dataLimit: 11))
 @php($brands = \App\Utils\BrandManager::getActiveBrandWithCountingAndPriorityWiseSorting())
 <header class="header">
     <div class="header-top py-2">

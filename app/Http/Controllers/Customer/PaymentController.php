@@ -115,10 +115,12 @@ class PaymentController extends Controller
         }
 
         $cartGroupIds = CartManager::get_cart_group_ids(request: $request, type: 'checked');
+       
         $carts = Cart::whereHas('product', function ($query) {
             return $query->active();
         })->whereIn('cart_group_id', $cartGroupIds)->where(['is_checked' => 1])->get();
         $productStockCheck = CartManager::product_stock_check($carts);
+        
         if (!$productStockCheck && in_array($request['payment_request_from'], ['app'])) {
             return response()->json(['errors' => ['code' => 'product-stock', 'message' => 'The following items in your cart are currently out of stock']], 403);
         } elseif (!$productStockCheck) {
@@ -127,16 +129,20 @@ class PaymentController extends Controller
         }
 
         $verifyStatus = OrderManager::verifyCartListMinimumOrderAmount($request);
+       
         if ($verifyStatus['status'] == 0 && in_array($request['payment_request_from'], ['app'])) {
             return response()->json(['errors' => ['code' => 'Check the minimum order amount requirement']], 403);
         } elseif ($verifyStatus['status'] == 0) {
             Toastr::info('Check the minimum order amount requirement');
             return redirect()->route('shop-cart');
         }
-
+ 
         if (in_array($request['payment_request_from'], ['app'])) {
+       
             $shippingMethod = getWebConfig(name: 'shipping_method');
             $physicalProductExist = false;
+                  echo "<pre>";
+       
             foreach ($carts as $cart) {
                 if ($cart->product_type == 'physical') {
                     $physicalProductExist = true;

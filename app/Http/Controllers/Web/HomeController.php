@@ -61,7 +61,7 @@ class HomeController extends Controller
 
     public function default_theme(): View
     {
-        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting();
+        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting($brand_id = 1, $dataLimit = null);
         $userId = Auth::guard('customer')->user() ? Auth::guard('customer')->id() : 0;
         $flashDeal = ProductManager::getPriorityWiseFlashDealsProductsQuery(userId: $userId);
 
@@ -187,7 +187,7 @@ class HomeController extends Controller
 
     public function theme_aster(): View
     {
-        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting(dataLimit: 11);
+        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting($brand_id = 1,dataLimit: 11);
         $userId = Auth::guard('customer')->user() ? Auth::guard('customer')->id() : 0;
         $flashDeal = ProductManager::getPriorityWiseFlashDealsProductsQuery(userId: $userId);
 
@@ -555,7 +555,7 @@ class HomeController extends Controller
     {
         $currentDate = date('Y-m-d H:i:s');
         $activeBrands = BrandManager::getActiveBrandWithCountingAndPriorityWiseSorting();
-        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting();
+        $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting($brand_id = 1,null);
         $userId = Auth::guard('customer')->user() ? Auth::guard('customer')->id() : 0;
         $flashDeal = ProductManager::getPriorityWiseFlashDealsProductsQuery(userId: $userId);
 

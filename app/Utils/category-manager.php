@@ -68,30 +68,45 @@ class CategoryManager
         return '';
     }
 
-    public static function getCategoriesWithCountingAndPriorityWiseSorting($dataLimit = null)
-    {
-        $categories = Cache::remember(CACHE_MAIN_CATEGORIES_LIST, CACHE_FOR_3_HOURS, function () {
-            return Category::with(['product' => function ($query) {
-                return $query->active()->withCount(['orderDetails']);
-            }])->withCount(['product' => function ($query) {
-                $query->active();
-            }])->with(['childes' => function ($query) {
-                $query->with(['childes' => function ($query) {
-                    $query->withCount(['subSubCategoryProduct' => function ($query) {
-                        $query->active();
-                    }])->where('position', 2);
-                }])->withCount(['subCategoryProduct' => function ($query) {
-                    $query->active();
-                }])->where('position', 1);
-            }, 'childes.childes'])->where('position', 0)->get();
-        });
-
-        $categoriesProcessed = self::getPriorityWiseCategorySortQuery(query: $categories);
-        if ($dataLimit) {
-            $categoriesProcessed = $categoriesProcessed->paginate($dataLimit);
+public static function getCategoriesWithCountingAndPriorityWiseSorting($brand_id, $dataLimit = null)
+{
+    $categories = Category::with([
+        'product' => function ($query) use ($brand_id) {
+            return $query->active()
+                ->where('brand_id', $brand_id)
+                ->withCount(['orderDetails']);
         }
-        return $categoriesProcessed;
+    ])->withCount([
+        'product' => function ($query) use ($brand_id) {
+            $query->active()->where('brand_id', $brand_id);
+        }
+    ])->with([
+        'childes' => function ($query) use ($brand_id) {
+            $query->with([
+                'childes' => function ($query) use ($brand_id) {
+                    $query->withCount([
+                        'subSubCategoryProduct' => function ($query) use ($brand_id) {
+                            $query->active()->where('brand_id', $brand_id);
+                        }
+                    ])->where('position', 2);
+                }
+            ])->withCount([
+                'subCategoryProduct' => function ($query) use ($brand_id) {
+                    $query->active()->where('brand_id', $brand_id);
+                }
+            ])->where('position', 1);
+        },
+        'childes.childes'
+    ])->where(['position'=> 0 , 'brand_id'=> $brand_id])->get();
+
+    $categoriesProcessed = self::getPriorityWiseCategorySortQuery(query: $categories);
+
+    if ($dataLimit) {
+        $categoriesProcessed = $categoriesProcessed->paginate($dataLimit); 
     }
+
+    return $categoriesProcessed;
+}
 
     public static function getPriorityWiseCategorySortQuery($query)
     {

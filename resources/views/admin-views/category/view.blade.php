@@ -29,6 +29,16 @@
                             </ul>
                             <div class="row">
                                 <div class="col-lg-6">
+                                    <!-- Brand Dropdown -->
+                                    <div class="form-group mb-4">
+                                        <label for="brand_id" class="title-color">{{ translate('Select Brand') }} <span class="text-danger">*</span></label>
+                                        <select name="brand_id" id="brand_id" class="form-control" required>
+                                            <option value="">{{ translate('Select Brand') }}</option>
+                                            @foreach($brands as $brand)
+                                                <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div>
                                         @foreach($languages as $lang)
                                             <div
@@ -139,6 +149,7 @@
                                 <th>{{ translate('ID') }}</th>
                                 <th class="text-center">{{ translate('category_Image') }}</th>
                                 <th>{{ translate('name') }}</th>
+                                <th>{{ translate('brand') }}</th>
                                 <th class="text-center">{{ translate('priority') }}</th>
                                 <th class="text-center">{{ translate('home_category_status') }}</th>
                                 <th class="text-center">{{ translate('action') }}</th>
@@ -155,6 +166,7 @@
                                         </div>
                                     </td>
                                     <td>{{ $category['defaultname'] }}</td>
+                                    <td>{{ $category?->brand?->name }}</td>
                                     <td class="text-center">
                                         {{ $category['priority'] }}
                                     </td>

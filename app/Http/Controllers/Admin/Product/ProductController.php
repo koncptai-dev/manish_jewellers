@@ -44,7 +44,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use App\Models\Catalogue;
+use App\Models\Category;
 class ProductController extends BaseController
 {
     use ProductTrait;
@@ -218,7 +218,6 @@ class ProductController extends BaseController
         $product['colors']       = json_decode($product['colors']);
         $categories              = $this->categoryRepo->getListWhere(filters: ['position' => 0], dataLimit: 'all');
         $brands                  = $this->brandRepo->getListWhere(dataLimit: 'all');
-        $catalogues              = Catalogue::orderBy('id', 'desc')->where('status', 1)->get();
         $brandSetting            = getWebConfig(name: 'product_brand');
         $digitalProductSetting   = getWebConfig(name: 'digital_product');
         $languages               = getWebConfig(name: 'pnc_language') ?? null;
@@ -229,7 +228,7 @@ class ProductController extends BaseController
         $digitalProductAuthors   = $this->authorRepo->getListWhere(dataLimit: 'all');
         $publishingHouseList     = $this->publishingHouseRepo->getListWhere(dataLimit: 'all');
 
-        return view(Product::UPDATE[VIEW], compact('product', 'categories', 'brands', 'brandSetting', 'digitalProductSetting', 'colors', 'attributes', 'languages', 'defaultLanguage', 'digitalProductFileTypes', 'digitalProductAuthors', 'publishingHouseList', 'productAuthorIds', 'productPublishingHouseIds', 'catalogues'));
+        return view(Product::UPDATE[VIEW], compact('product', 'categories', 'brands', 'brandSetting', 'digitalProductSetting', 'colors', 'attributes', 'languages', 'defaultLanguage', 'digitalProductFileTypes', 'digitalProductAuthors', 'publishingHouseList', 'productAuthorIds', 'productPublishingHouseIds'));
     }
 
     public function update(ProductUpdateRequest $request, ProductService $service, string | int $id): JsonResponse | RedirectResponse
@@ -879,4 +878,16 @@ class ProductController extends BaseController
 
         return response()->json(['unit_price' => $price]);
     }
+
+   public function getCategoriesByBrand(Request $request)
+{
+    $brand_id = $request->input('brand_id');
+
+    // Query categories where parent_id matches
+    $categories = Category::where(['brand_id'=> $brand_id, 'parent_id' =>0])
+                           ->get();
+
+    // Return the JSON collection directly
+    return response()->json($categories);
+}
 }
