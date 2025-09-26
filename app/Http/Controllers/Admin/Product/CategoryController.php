@@ -22,7 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-
+use App\Models\Brand;
 class CategoryController extends BaseController
 {
     use PaginatorTrait;
@@ -49,12 +49,22 @@ class CategoryController extends BaseController
 
     public function getAddView(Request $request): View
     {
-        $categories = $this->categoryRepo->getListWhere(orderBy: ['id'=>'desc'], searchValue: $request->get('searchValue'), filters: ['position' => 0], dataLimit: getWebConfig(name: 'pagination_limit'));
-        $languages = getWebConfig(name: 'pnc_language') ?? null;
+        $categories = $this->categoryRepo->getListWhere(
+            orderBy: ['id' => 'desc'],
+            searchValue: $request->get('searchValue'),
+            filters: ['position' => 0],
+            relations: ['brand'], // 👈 add this
+            dataLimit: getWebConfig(name: 'pagination_limit')
+        );
+
+        $languages       = getWebConfig(name: 'pnc_language') ?? null;
         $defaultLanguage = $languages[0];
+        $brands          = Brand::where('status', 1)->get();
+
         return view(Category::LIST[VIEW], [
-            'categories' => $categories,
-            'languages' => $languages,
+            'brands'          => $brands,
+            'categories'      => $categories,
+            'languages'       => $languages,
             'defaultLanguage' => $defaultLanguage,
         ]);
     }
@@ -64,10 +74,12 @@ class CategoryController extends BaseController
         $category = $this->categoryRepo->getFirstWhere(params:['id'=>$id], relations: ['translations']);
         $languages = getWebConfig(name: 'pnc_language') ?? null;
         $defaultLanguage = $languages[0];
+        $brands          = Brand::where('status',1)->get();
         return view(Category::UPDATE[VIEW], [
             'category' => $category,
             'languages' => $languages,
             'defaultLanguage' => $defaultLanguage,
+            'brands'      => $brands,
         ]);
     }
 

@@ -49,14 +49,22 @@ class ProductController extends Controller
 
     public function get_latest_products(Request $request): JsonResponse
     {
-        $products = ProductManager::get_latest_products($request, $request['limit'], $request['offset']);
+        $brand_id = 1;
+        if($request['brand_id']){
+            $brand_id = $request['brand_id'];
+        }
+        $products = ProductManager::get_latest_products($request, $request['limit'], $request['offset'], $brand_id);
         $products['products'] = Helpers::product_data_formatting($products['products'], true);
         return response()->json($products, 200);
     }
 
     public function getNewArrivalProducts(Request $request): JsonResponse
     {
-        $products = ProductManager::getNewArrivalProducts($request, $request['limit'], $request['offset']);
+        $brand_id = 1;
+        if($request['brand_id']){
+            $brand_id = $request['brand_id'];
+        }
+        $products = ProductManager::getNewArrivalProducts($request, $request['limit'], $request['offset'], $brand_id);
         $productsList = $products->total() > 0 ? Helpers::product_data_formatting($products->items(), true) : [];
         return response()->json([
             'total_size' => $products->total(),
@@ -68,14 +76,22 @@ class ProductController extends Controller
 
     public function getFeaturedProductsList(Request $request): JsonResponse
     {
-        $products = ProductManager::getFeaturedProductsList($request, $request['limit'], $request['offset']);
+        $brand_id = 1;
+        if($request['brand_id']){
+            $brand_id = $request['brand_id'];
+        }
+        $products = ProductManager::getFeaturedProductsList($request, $request['limit'], $request['offset'],$brand_id );
         $products['products'] = Helpers::product_data_formatting($products['products'], true);
         return response()->json($products, 200);
     }
 
     public function getTopRatedProducts(Request $request): JsonResponse
     {
-        $products = ProductManager::getTopRatedProducts($request, $request['limit'], $request['offset']);
+        $brand_id = 1;
+        if($request['brand_id']){
+            $brand_id = $request['brand_id'];
+        }
+        $products = ProductManager::getTopRatedProducts($request, $request['limit'], $request['offset'], $brand_id);
         $productsList = count($products->items()) > 0 ? Helpers::product_data_formatting($products->items(), true) : [];
         return response()->json([
             'total_size' => $products->total(),
@@ -94,6 +110,7 @@ class ProductController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::validationErrorProcessor($validator)], 403);
         }
+        
 
         $products = ProductManager::search_products($request, $request['name'], 'all', $request['limit'], $request['offset']);
 
@@ -328,7 +345,11 @@ class ProductController extends Controller
 
     public function getBestSellingProducts(Request $request): JsonResponse
     {
-        $products = ProductManager::getBestSellingProductsList($request, $request['limit'], $request['offset']);
+        $brand_id = 1;
+        if($request['brand_id']){
+            $brand_id = $request['brand_id'];
+        }
+        $products = ProductManager::getBestSellingProductsList($request, $request['limit'], $request['offset'],$brand_id );
         $productsList = $products->total() > 0 ? Helpers::product_data_formatting($products->items(), true) : [];
         return response()->json([
             'total_size' => $products->total(),
@@ -352,8 +373,12 @@ class ProductController extends Controller
 
     public function get_related_products(Request $request, $id)
     {
+        $brand_id = 1;
+        if($request['brand_id']){
+            $brand_id = $request['brand_id'];
+        }
         if (Product::find($id)) {
-            $products = ProductManager::get_related_products($id, $request);
+            $products = ProductManager::get_related_products($id, $request, $brand_id );
             $products = Helpers::product_data_formatting($products, true);
             return response()->json($products, 200);
         }
@@ -594,7 +619,11 @@ class ProductController extends Controller
 
     public function get_discounted_product(Request $request)
     {
-        $products = ProductManager::get_discounted_product($request, $request['limit'], $request['offset']);
+        $brand_id = 1;
+        if($request['brand_id']){
+            $brand_id = $request['brand_id'];
+        }
+        $products = ProductManager::get_discounted_product($request, $request['limit'], $request['offset'], $brand_id );
         $products['products'] = Helpers::product_data_formatting($products['products'], true);
         return response()->json($products, 200);
     }

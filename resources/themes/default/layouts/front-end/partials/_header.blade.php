@@ -225,7 +225,7 @@
                         </li>
                     </ul>
 
-                    @php($categories = \App\Utils\CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting(dataLimit: 11))
+                    @php($categories = \App\Utils\CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting(1,11))
 
                     <ul class="navbar-nav mega-nav pr-lg-2 pl-lg-2 mr-2 d-none d-md-block __mega-nav">
                         <li class="nav-item {{!request()->is('/')?'dropdown':''}}">

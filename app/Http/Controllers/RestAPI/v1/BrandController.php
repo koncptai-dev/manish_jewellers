@@ -26,16 +26,10 @@ class BrandController extends Controller
 
             $brands = Brand::active()
             ->whereIn('id', $brand_ids)
-            ->withCount('brandProducts')
-            ->with(['catalogues' => function($query) {
-                $query->where('status', 1);
-            }]);
+            ->withCount('brandProducts');
         } else {
             $brands = Brand::active()
-            ->withCount('brandProducts')
-            ->with(['catalogues' => function($query) {
-                $query->where('status', 1);
-            }]);
+            ->withCount('brandProducts');
         }
 
         $brands = self::getPriorityWiseBrandProductsQuery(query: $brands);
