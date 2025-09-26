@@ -15,6 +15,10 @@ class CategoryController extends Controller
     public function get_categories(Request $request): JsonResponse
     {
         $categoriesID = [];
+        $brand_id = 1;
+        if($request['brand_id']){
+            $brand_id = $request['brand_id'];
+        }
         if ($request->has('seller_id') && $request['seller_id'] != null) {
             // Finding category ids
             $categoriesID = Product::active()
@@ -24,7 +28,7 @@ class CategoryController extends Controller
                 })->when($request->has('seller_id') && $request['seller_id'] != null && $request['seller_id'] == 0, function ($query) use ($request) {
                     return $query->where(['added_by' => 'admin',
                     ]);
-                })->pluck('category_id');
+                })->pluck('category_id')->where(['brand_id' => $brand_id]);
         }
 
         $categories = Category::when($request->has('seller_id') && $request['seller_id'] != null, function ($query) use ($categoriesID) {
@@ -42,7 +46,7 @@ class CategoryController extends Controller
                     $query->withCount(['subSubCategoryProduct'])->where('position', 2);
                 }])->withCount(['subCategoryProduct'])->where('position', 1);
             }, 'childes.childes'])
-            ->where(['position' => 0])->get();
+            ->where(['position' => 0,'brand_id' => $brand_id])->get();
 
         $categories = CategoryManager::getPriorityWiseCategorySortQuery(query: $categories);
 
