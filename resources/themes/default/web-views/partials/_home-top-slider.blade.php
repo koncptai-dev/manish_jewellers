@@ -8,15 +8,15 @@
                         <ul class="category-menu mt-0">
                             @foreach ($categories as $key=>$category)
                                 <li>
-                                    <a href="{{route('products',['category_id'=> $category['id'],'data_from'=>'category','page'=>1])}}">{{$category->name}}</a>
+                                    <a href="{{route('products',['brand_id'=> $category['brand_id'],'category_id'=> $category['id'],'data_from'=>'category','page'=>1])}}">{{$category->name}}</a>
                                     @if ($category->childes->count() > 0)
                                         <div class="mega_menu z-2">
                                             @foreach ($category->childes as $sub_category)
                                                 <div class="mega_menu_inner">
-                                                    <h6><a href="{{route('products',['category_id'=> $sub_category['id'],'data_from'=>'category','page'=>1])}}">{{$sub_category->name}}</a></h6>
+                                                    <h6><a href="{{route('products',['brand_id'=> $sub_category['brand_id'],'category_id'=> $sub_category['id'],'data_from'=>'category','page'=>1])}}">{{$sub_category->name}}</a></h6>
                                                     @if ($sub_category->childes->count() >0)
                                                         @foreach ($sub_category->childes as $sub_sub_category)
-                                                            <div><a href="{{route('products',['category_id'=> $sub_sub_category['id'],'data_from'=>'category','page'=>1])}}">{{$sub_sub_category->name}}</a></div>
+                                                            <div><a href="{{route('products',['brand_id'=> $sub_category['brand_id'],'category_id'=> $sub_sub_category['id'],'data_from'=>'category','page'=>1])}}">{{$sub_sub_category->name}}</a></div>
                                                         @endforeach
                                                     @endif
                                                 </div>
