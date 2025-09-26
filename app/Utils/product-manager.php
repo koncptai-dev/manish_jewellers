@@ -310,8 +310,6 @@ class ProductManager
 
     public static function get_related_products($product_id, $request = null,$brand_id )
     {
-        echo $brand_id;
-        die;
         $user = Helpers::getCustomerInformation($request);
         $product = Product::find($product_id);
         $products = Product::active()->with(['rating', 'flashDealProducts.flashDeal', 'tags', 'seller.shop'])
@@ -1897,7 +1895,7 @@ class ProductManager
                 'compareList' => function ($query) {
                     return $query->where('user_id', Auth::guard('customer')->user()->id ?? 0);
                 }
-            ])
+            ])->where(['brand_id'=>$request->brand_id])
             ->when($productAddedBy == 'admin', function ($query) use ($productAddedBy) {
                 return $query->where(['added_by' => $productAddedBy]);
             })

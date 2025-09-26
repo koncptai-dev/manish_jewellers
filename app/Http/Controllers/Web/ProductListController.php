@@ -52,13 +52,17 @@ class ProductListController extends Controller
         $brand_id = 1;
         if($request['data_from'] == 'brand'){
             $brand_id = (int)$request['brand_id']; 
+        }else{
+            $brand_id = (int)$request['brand_id'] ?? 1; 
         }
+
         $categories = CategoryManager::getCategoriesWithCountingAndPriorityWiseSorting($brand_id, null);
         $activeBrands = BrandManager::getActiveBrandWithCountingAndPriorityWiseSorting();
         $data = self::getProductListRequestData(request: $request);
         if ($request['data_from'] == 'category' && $request['category_id']) {
             $data['brand_name'] = Category::find((int)$request['category_id'])->name;
         }
+       
         if ($request['data_from'] == 'brand') {
             $brand_data = Brand::active()->find((int)$request['brand_id']);
             if ($brand_data) {

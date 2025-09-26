@@ -203,7 +203,7 @@
                                             <div class="card-header flex-between">
                                                 <div>
                                                     <label class="for-hover-label cursor-pointer get-view-by-onclick"
-                                                           data-link="{{ route('products',['category_id'=> $category['id'],'data_from'=>'category','page'=>1]) }}">
+                                                           data-link="{{ route('products',['brand_id'=> $category['brand_id'],'category_id'=> $category['id'],'data_from'=>'category','page'=>1]) }}">
                                                         {{$category['name']}}
                                                     </label>
                                                 </div>
@@ -223,7 +223,7 @@
                                                         <div class="for-hover-label card-header flex-between">
                                                             <div>
                                                                 <label class="cursor-pointer get-view-by-onclick"
-                                                                       data-link="{{ route('products',['sub_category_id'=> $child['id'],'data_from'=>'category','page'=>1]) }}">
+                                                                       data-link="{{ route('products',['brand_id'=> $child['brand_id'],'sub_category_id'=> $child['id'],'data_from'=>'category','page'=>1]) }}">
                                                                     {{$child['name']}}
                                                                 </label>
                                                             </div>
