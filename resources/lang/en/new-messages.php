@@ -9134,4 +9134,6 @@ return [
 	"error_loading_sub_sub_categories" => "Error loading sub sub categories",
 	"The payment method field is required." => "The payment method field is required.",
 	"The payment platform field is required." => "The payment platform field is required.",
+	"Select Brand" => "Select Brand",
+	"Select_Brand" => "Select Brand",
 ];

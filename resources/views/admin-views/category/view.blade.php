@@ -31,9 +31,9 @@
                                 <div class="col-lg-6">
                                     <!-- Brand Dropdown -->
                                     <div class="form-group mb-4">
-                                        <label for="brand_id" class="title-color">{{ translate('Select Brand') }} <span class="text-danger">*</span></label>
+                                        <label for="brand_id" class="title-color">{{ translate('select_Brand') }} <span class="text-danger">*</span></label>
                                         <select name="brand_id" id="brand_id" class="form-control" required>
-                                            <option value="">{{ translate('Select Brand') }}</option>
+                                            <option value="">{{ translate('select_Brand') }}</option>
                                             @foreach($brands as $brand)
                                                 <option value="{{ $brand->id }}">{{ $brand->name }}</option>
                                             @endforeach
