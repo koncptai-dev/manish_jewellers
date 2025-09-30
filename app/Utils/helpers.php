@@ -305,7 +305,7 @@ class Helpers
             }
 
         }
-        return (float)$unitPrice + (int)$hallmark_charges; // Add hallmark charges if applicable
+        return $unitPrice + $hallmark_charges; // Add hallmark charges if applicable
     }
 
     public static function calculateSilverPrice($choiceOptions, $unit_price, $making_charges)
