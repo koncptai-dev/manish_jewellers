@@ -189,7 +189,7 @@ class Helpers
 
         // Check if $data is array or object, and access accordingly
         $choiceOptions      = is_array($data) ? $data['choice_options'] ?? null : $data->choice_options ?? null;
-        $data['unit_price'] = Helpers::calculatePrice($choiceOptions, $data['unit_price'], $data['making_charges'], $data['product_metal'], $data['hallmark_charges'], $data);
+        $data['unit_price'] = Helpers::calculatePrice($choiceOptions, $data['unit_price'], $data['making_charges'], $data['product_metal'], $data);
         $tax = $data['tax_model'] == 'exclude' ? Helpers::tax_calculation(product: $data, price: $data['unit_price'], tax: $data['tax'], tax_type: $data['tax_type']) : 0;
         $data['tax_price'] = $tax;
         $data['unit_price'] = $data['unit_price'] + $tax; // Add tax to unit price
@@ -305,7 +305,7 @@ class Helpers
             }
 
         }
-        return $unitPrice + $hallmark_charges; // Add hallmark charges if applicable
+        return $unitPrice; // Add hallmark charges if applicable
     }
 
     public static function calculateSilverPrice($choiceOptions, $unit_price, $making_charges)
