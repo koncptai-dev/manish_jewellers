@@ -105,7 +105,7 @@ class CartController extends Controller
                 }
             }
         }
-        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal,$product);
+        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product);
         $tax = $product->tax_model == 'exclude' ? Helpers::tax_calculation(product: $product, price: $product->unit_price, tax: $product['tax'], tax_type: $product['tax_type']) : 0;
         $update_tax = $tax * $requestQuantity;
         $discount = Helpers::getProductDiscount($product, $product->unit_price);
