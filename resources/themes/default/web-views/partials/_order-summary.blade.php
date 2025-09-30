@@ -22,7 +22,7 @@
                     @php($hallmarkCharges += $itemHallmark)
                     @php($makingCharges += $itemMakingCharge)
                     @php($totalTax += ($cartItem['tax_model'] == 'exclude') ? ($cartItem['tax'] * $cartItem['quantity']) : 0)
-                    @php( $totalDiscountOnProduct += $cartItem['discount'] * $cartItem['quantity'])
+                    {{-- @php($totalDiscountOnProduct += $cartItem['discount']) --}}
                 @endforeach
 
                 @if(session()->missing('coupon_type') || session('coupon_type') !='free_delivery')

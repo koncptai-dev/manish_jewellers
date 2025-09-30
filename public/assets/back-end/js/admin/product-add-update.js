@@ -228,8 +228,8 @@ function getUpdateSKUFunctionality() {
         },
         success: function (data) {
             $("#sku_combination").html(data.view);
-            updateProductQuantity();
-            updateProductQuantityByKeyUp();
+            // updateProductQuantity();
+            // updateProductQuantityByKeyUp();
 
             let productType = elementProductTypeByID.val();
             if (productType && productType.toString() === "physical") {
@@ -1061,6 +1061,7 @@ function calculateUnitPrice() {
     let makingCharges = $("#making_charges").val();
     let productMetal = $("#product_metal").val();
     let hallmark_charges = $("#hallmark_charges").val();
+    let category = $("#category-select-ajax").val();
     // Only proceed if both Weight and carat are present with values
     if (hasWeight && hasCarat && unitPrice == "") {
         $.ajax({

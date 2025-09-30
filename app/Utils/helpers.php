@@ -189,7 +189,7 @@ class Helpers
 
         // Check if $data is array or object, and access accordingly
         $choiceOptions      = is_array($data) ? $data['choice_options'] ?? null : $data->choice_options ?? null;
-        $data['unit_price'] = Helpers::calculatePrice($choiceOptions, $data['unit_price'], $data['making_charges'], $data['product_metal']);
+        $data['unit_price'] = Helpers::calculatePrice($choiceOptions, $data['unit_price'], $data['making_charges'], $data['product_metal'], $data);
         $tax = $data['tax_model'] == 'exclude' ? Helpers::tax_calculation(product: $data, price: $data['unit_price'], tax: $data['tax'], tax_type: $data['tax_type']) : 0;
         $data['tax_price'] = $tax;
         $data['unit_price'] = $data['unit_price'] + $tax; // Add tax to unit price
@@ -239,7 +239,7 @@ class Helpers
     }
 
 
-    public static function calculatePrice($choiceOptions, $unit_price, $making_charges, $product_metal, $hallmark_charges = 0)
+    public static function calculatePrice($choiceOptions, $unit_price, $making_charges, $product_metal, $hallmark_charges = 0, $product = null)
     {
         if (is_string($choiceOptions)) {
             $decoded = json_decode(json: $choiceOptions);
@@ -259,6 +259,7 @@ class Helpers
                 $price_gram_24k = $goldRate['price_gram_24k']; // 24-carat price per gram
                 $price_gram_22k = $goldRate['price_gram_22k'];
                 $price_gram_18k = $goldRate['price_gram_18k'];
+                
 
                 $weight = 0;
                 $carat  = 0;
@@ -277,26 +278,26 @@ class Helpers
                 if ($weight <= 0 || $carat <= 0) {
                     return $unit_price;
                 }
-
+            
                 // Calculate the price based on carat
                 switch ($carat) {
                     case 24:
-                        $unitPrice = (new GoldRate())->calculatePriceWithMarkup($price_gram_24k, $weight, $making_charges);
+                        $unitPrice = (new GoldRate())->calculatePriceWithMarkup($price_gram_24k, $weight, $making_charges, $product);
                         break;
 
                     case 22:
                         // $price_gram_22k = (new GoldRate())->calculate22CaratPrice($price_gram_24k);
-                        $unitPrice = ((new GoldRate())->calculatePriceWithMarkup($price_gram_22k, $weight, $making_charges));
+                        $unitPrice = ((new GoldRate())->calculatePriceWithMarkup($price_gram_22k, $weight, $making_charges,$product));
                         break;
 
                     case 18:
                         // $price_gram_18k = (new GoldRate())->calculate18CaratPrice($price_gram_24k);
-                        $unitPrice = (new GoldRate())->calculatePriceWithMarkup($price_gram_18k, $weight, $making_charges);
+                        $unitPrice = (new GoldRate())->calculatePriceWithMarkup($price_gram_18k, $weight, $making_charges,$product);
                         break;
 
                     default:
                         $price_gram_22k = (new GoldRate())->calculate22CaratPrice($price_gram_24k);
-                        $unitPrice      = (new GoldRate())->calculatePriceWithMarkup($price_gram_22k, $weight, $making_charges);
+                        $unitPrice      = (new GoldRate())->calculatePriceWithMarkup($price_gram_22k, $weight, $making_charges,$product);
                         break;
                 }
             } else {

@@ -314,11 +314,7 @@
                                                     </div>
                                                 @endif
 
-                                                @if($product->product_type == 'physical' && $getProductCurrentStock < $cartItem['quantity'])
-                                                    <div class="d-flex text-danger font-bold">
-                                                        <span>{{ translate('Out_Of_Stock') }}</span>
-                                                    </div>
-                                                @endif
+                                             
                                             </div>
                                         </div>
                                     </div>

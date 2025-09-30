@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Razorpay\Api\Api;
+use App\Utils\CartManager;
 
 class PhonePeController extends Controller
 {
@@ -131,12 +132,21 @@ class PhonePeController extends Controller
     {
         $response = $this->phonePeService->paymentCallback($merchantOrderId);
         $payment_platform = session()->get('payment_platform', 'app');
-
+        
+        
         if($payment_platform == "web") { 
+            $payment_res = $response->getData();
+            $data = $payment_res->data;
+            $status = $data->state;
+            if(isset($status) && $status  == "FAILED"){
+                return redirect()->route('shop-cart')->with(['Payment Failed']);
+            }
+            CartManager::cart_clean();
             $isNewCustomerInSession = session('newCustomerRegister');
             session()->forget('newCustomerRegister');
             session()->forget('newRegisterCustomerInfo');
             $orderIds = session('order_ids');
+
             return view(VIEW_FILE_NAMES['order_complete'], [
                 'order_ids' => $orderIds,
                 'isNewCustomerInSession' => $isNewCustomerInSession,
