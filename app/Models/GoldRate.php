@@ -44,7 +44,7 @@ class GoldRate extends Model
 
         // if (empty($goldRate)) {
         $apiResponse = $this->getGoldRateDataUsingApi();
-
+    
         $price_gram_24k = $apiResponse;
         $price_gram_22k =  (new GoldRate())->calculate22CaratPrice($price_gram_24k);
         $price_gram_18k = (new GoldRate())->calculate18CaratPrice($price_gram_24k);
@@ -158,7 +158,7 @@ class GoldRate extends Model
         try {
             // Fetch API response with a timeout
             $response = Http::timeout(10)->get($url);
-
+            
             if ($response->failed()) {
                 return null; // Return null instead of JSON response
             }
@@ -171,7 +171,7 @@ class GoldRate extends Model
                 $line = preg_replace('/\s+/', ' ', trim($line));
 
                 // Match "GOLD 999 IMP (AHM)" followed by numbers
-                if (preg_match('/GOLD 999 IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches)) {
+                if (preg_match('/GOLD 999 IMP OR SAM IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches)) {
                     return (float) $matches[1]; // Return the extracted gold price as a float
                 }
             }
@@ -235,8 +235,9 @@ class GoldRate extends Model
         $goldRate->save();
     }
 
-    public function calculatePriceWithMarkup($pricePerGram, $grams, $makingChange)
+    public function calculatePriceWithMarkup($pricePerGram, $grams, $makingChange, $product = null)
     {
+       
         // $totalPrice = $pricePerGram * $grams; // Base price
 
         // $markup = $totalPrice * 0.03;        // Calculate 3% markup GST
@@ -247,8 +248,12 @@ class GoldRate extends Model
         // $totalPrice = (($pricePerGram * $grams) + $makingChanrge); //* 1.03;
         // $totalPrice = (($pricePerGram * $grams) + $makingChanrge); //* 1.03;
         $labourCharge = ($pricePerGram * $makingChange / 100) * $grams;
+        if($product && $product['discount']> 0 ){
+            $discount = getProductDiscount($product, $labourCharge);
+             $labourCharge = $labourCharge - $discount;
+        }
+    
         $totalPrice = ($pricePerGram * $grams) + $labourCharge;
-
 
         return $totalPrice;
     }

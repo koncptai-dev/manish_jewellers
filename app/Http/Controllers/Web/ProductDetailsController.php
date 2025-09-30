@@ -102,7 +102,7 @@ class ProductDetailsController extends Controller
             // Modify unit_price in the paginator's items
             $moreProductFromSeller->getCollection()->transform(function ($product) {
 
-                $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
+                $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product);
 
                 return $product;
             });
@@ -140,7 +140,7 @@ class ProductDetailsController extends Controller
             // Modify unit_price in the paginator's items
             $relatedProducts->getCollection()->transform(function ($product) {
 
-                $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
+                $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product);
 
                 return $product;
             });
@@ -159,7 +159,7 @@ class ProductDetailsController extends Controller
             $inHouseTemporaryClose    = $product['added_by'] == 'admin' ? $temporaryClose['status'] : false;
 
             $previewFileInfo     = getFileInfoFromURL(url: $product?->preview_file_full_url['path']);
-            $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
+            $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal,$product);
             $product->gold_rate  = Helpers::calculateGoldRate(json_decode($product->choice_options));
             return view(VIEW_FILE_NAMES['products_details'], compact(
                 'product',

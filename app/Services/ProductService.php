@@ -408,7 +408,7 @@ class ProductService
         $processedImages = $this->getProcessedImages(request: $request); //once the images are processed do not call this function again just use the variable
         $combinations = $this->getCombinations($this->getOptions(request: $request));
         $variations = $this->getVariations(request: $request, combinations: $combinations);
-        $stockCount = count($combinations[0]) > 0 ? $this->getTotalQuantity(variations: $variations) : (int)$request['current_stock'];
+        $stockCount = (int)$request['current_stock'];
 
         $digitalFile = '';
         if ($request['product_type'] == 'digital' && $request['digital_product_type'] == 'ready_product' && $request['digital_file_ready']) {
@@ -434,7 +434,6 @@ class ProductService
             'sub_category_id' => $request['sub_category_id'],
             'sub_sub_category_id' => $request['sub_sub_category_id'],
             'brand_id' => $request['product_type'] == 'physical' ? $request['brand_id'] : null,
-            'catalogue_id' => $request['catalogue_id'] ?? null,
             'unit' => $request['product_type'] == 'physical' ? $request['unit'] : null,
             'digital_product_type' => $request['product_type'] == 'digital' ? $request['digital_product_type'] : null,
             'digital_file_ready' => $digitalFile,
@@ -457,7 +456,7 @@ class ProductService
             'discount' => $request['discount_type'] == 'flat' ? currencyConverter(amount: $request['discount']) : $request['discount'],
             'discount_type' => $request['discount_type'],
             'attributes' => $request['product_type'] == 'physical' ? json_encode($request['choice_attributes']) : json_encode([]),
-            'current_stock' => $request['product_type'] == 'physical' ? abs($stockCount) : 999999999,
+            'current_stock' => $stockCount,
             'minimum_order_qty' => $request['minimum_order_qty'],
             'video_provider' => 'youtube',
             'video_url' => $request['video_url'],
@@ -514,7 +513,6 @@ class ProductService
             'sub_category_id' => $request['sub_category_id'],
             'sub_sub_category_id' => $request['sub_sub_category_id'],
             'brand_id' => $request['brand_id'],
-            'catalogue_id' => $request['catalogue_id'] ?? null,
             'unit' =>  $request['unit'],
             'digital_product_type' => $request['digital_product_type'],
             'details' => $request['description'][array_search('en', $request['lang'])],
@@ -774,15 +772,16 @@ class ProductService
         }
          
         $i= 0;
-           
+       
         foreach ($combinations as $combination) {
             $type = '';
             foreach ($combination as $combinationKey => $item) {
               
-                    if($weights && isset($weights[$combinationKey]) && is_numeric($weights[$combinationKey]) && $weights[$combinationKey] > 0){
-                         $unitPrice = $request['unit_price'] * $weights[$combinationKey];
+                $unitPrice = $request['unit_price'] * $weights[$i];
+                    // if($weights && isset($weights[$combinationKey]) && is_numeric($weights[$combinationKey]) && $weights[$combinationKey] > 0){
+                    //      $unitPrice = $request['unit_price'] * $weights[$combinationKey];
                       
-                    }                  
+                    // }                  
                 if ($combinationKey > 0) {
                     $type .= '-' . str_replace(' ', '', $item);
                     
@@ -821,6 +820,46 @@ class ProductService
                 ];
             }
         }
+
+        // foreach ($combinations as $combination) {
+        //     $type = '';
+        //     foreach ($combination as $combinationKey => $item) {
+        //         if ($combinationKey > 0) {
+        //             $type .= '-' . str_replace(' ', '', $item);
+        //         } else {
+        //             if ($request->has('colors_active') && $request->has('colors') && count($request['colors']) > 0) {
+        //                 $color_name = $this->color->where('code', $item)->first()->name;
+        //                 $type .= $color_name;
+        //             } else {
+        //                 $type .= str_replace(' ', '', $item);
+        //             }
+        //         }
+        //     }
+
+        //     $sku = '';
+        //     foreach (explode(' ', $productName) as $value) {
+        //         $sku .= substr($value, 0, 1);
+        //     }
+        //     $sku .= '-' . $type;
+        //     if (in_array($type, $existingType)) {
+        //         if ($product && $product->variation && count(json_decode($product->variation, true)) > 0) {
+        //             foreach (json_decode($product->variation, true) as $digitalVariation) {
+        //                 if ($digitalVariation['type'] == $type) {
+        //                     $digitalVariation['price'] = usdToDefaultCurrency(amount: $digitalVariation['price']);
+        //                     $digitalVariation['sku'] = str_replace(' ', '', $digitalVariation['sku']);
+        //                     $generateCombination[] = $digitalVariation;
+        //                 }
+        //             }
+        //         }
+        //     } else {
+        //         $generateCombination[] = [
+        //             'type' => $type,
+        //             'price' => $unitPrice,
+        //             'sku' => str_replace(' ', '', $sku),
+        //             'qty' => 1,
+        //         ];
+        //     }
+        // }
         return $generateCombination;
     }
 

@@ -455,7 +455,7 @@ class WebController extends Controller
             }
             return $response['redirect'] ? redirect($response['redirect']) : redirect('/');
         }
-
+      
         $cartItemGroupIDs = CartManager::get_cart_group_ids(type: 'checked');
         $cartGroupList = Cart::whereHas('product', function ($query) {
             return $query->active();
@@ -484,7 +484,6 @@ class WebController extends Controller
 
         $offlinePaymentMethods = OfflinePaymentMethod::where('status', 1)->get();
         $paymentGatewayPublishedStatus = config('get_payment_publish_status') ?? 0;
-
         if (session()->has('address_id') && session()->has('billing_address_id')) {
             return view(VIEW_FILE_NAMES['payment_details'], [
                 'cashOnDeliveryBtnShow' => $cashOnDeliveryBtnShow,
@@ -510,6 +509,7 @@ class WebController extends Controller
 
     public function getCashOnDeliveryCheckoutComplete(Request $request): View|RedirectResponse|JsonResponse
     {
+        echo "test1";exit;
         if ($request['payment_method'] != 'cash_on_delivery') {
             if ($request->ajax()) {
                 return response()->json([
@@ -637,6 +637,8 @@ class WebController extends Controller
 
     public function getOrderPlaceView(Request $request): View
     {
+        echo "test2";exit;
+
         $isNewCustomerInSession = session('newCustomerRegister');
         session()->forget('newCustomerRegister');
         session()->forget('newRegisterCustomerInfo');
@@ -651,6 +653,8 @@ class WebController extends Controller
 
     public function getOfflinePaymentCheckoutComplete(Request $request): View|RedirectResponse
     {
+        echo "test3";exit;
+
         if ($request['payment_method'] != 'offline_payment') {
             return back()->with('error', 'Something went wrong!');
         }
@@ -803,6 +807,8 @@ class WebController extends Controller
 
     public function order_placed(): View
     {
+        echo "test4";exit;
+
         $isNewCustomerInSession = session('newCustomerRegister');
         session()->forget('newCustomerRegister');
         return view(VIEW_FILE_NAMES['order_complete'], compact('isNewCustomerInSession'));
@@ -912,7 +918,7 @@ class WebController extends Controller
             $firstVariationQuantity = json_decode($product['variation'], true)[0]['qty'];
         }
         $firstVariationQuantity = $product['product_type'] == 'physical' ? $firstVariationQuantity : 999;
-
+       
         return response()->json([
             'success' => 1,
             'product' => $product,
@@ -1917,8 +1923,6 @@ class WebController extends Controller
 
             }
 
-            CartManager::cart_clean();
-          
             if ($orderIds) {
                 return response()->json([
                     'status' => 1,

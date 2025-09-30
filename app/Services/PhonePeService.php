@@ -557,7 +557,7 @@ class PhonePeService
         }
 
         $url = "https://api.phonepe.com/apis/pg/checkout/v2/order/{$merchantOrderId}/status"; // Production Mode
-
+        
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => $url,
@@ -570,7 +570,10 @@ class PhonePeService
 
         $response = curl_exec($curl);
         curl_close($curl);
-
+        echo "<pre>";
+        print_r($response);
+        echo "</pre>";
+        die;
         // Decode the JSON response
         $result = json_decode($response, true); // ✅ Convert JSON string to an array
 
