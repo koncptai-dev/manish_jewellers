@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Currency;
+use App\Models\GoldRate;
 
 if (!function_exists('loadCurrency')) {
     /**
@@ -105,6 +106,75 @@ if (!function_exists('webCurrencyConverter')) {
 
         return setCurrencySymbol(amount: round($amount * $rate, 2), currencyCode: getCurrencyCode(type: 'web'), type: 'web');
     }
+}
+
+function calculateHallmarkingPrice($product){
+     
+     $goldRate = (new GoldRate())->getTodayGoldRate(); // Get today's gold rates
+    $choiceOptions = json_decode($product->choice_options);
+    $unit_price = $product->unit_price;
+    $making_charges = $product->making_charges;
+    $discount =0;
+            if (isset($goldRate) && isset($goldRate['price_gram_24k'])) {
+                $price_gram_24k = $goldRate['price_gram_24k']; // 24-carat price per gram
+                $price_gram_22k = $goldRate['price_gram_22k'];
+                $price_gram_18k = $goldRate['price_gram_18k'];
+                
+
+                $weight = 0;
+                $carat  = 0;
+
+                // Parse the choice options for weight and carat
+                foreach ($choiceOptions as $option) {
+
+                    if ($option->title === 'Weight') {
+                        $weight = floatval($option->options[0]); // Extract weight
+                    }
+                    if ($option->title === 'carat') {
+                        $carat = intval($option->options[0]); // Extract carat
+                    }
+                }
+
+                // if ($weight <= 0 || $carat <= 0) {
+                //     return $unit_price;
+                // }
+            
+                // Calculate the price based on carat
+                switch ($carat) {
+                    case 24:
+                        $making_charges =($price_gram_24k * $making_charges / 100) * $weight;
+                        if($product && $product['discount']> 0 ){
+                            $discount = getProductDiscount($product, ($making_charges));
+                        }
+                        break;
+
+                    case 22:
+                      $making_charges =($price_gram_22k * $making_charges / 100) * $weight;
+                        if($product && $product['discount']> 0 ){
+                            $discount = getProductDiscount($product, ($making_charges));
+                        }
+                        break;
+
+                    case 18:
+                        $making_charges =($price_gram_18k * $making_charges / 100) * $weight;
+                        if($product && $product['discount']> 0 ){
+                            $discount = getProductDiscount($product, ($making_charges));
+                        }
+                        break;
+
+                    default:
+                       $making_charges =($price_gram_22k * $making_charges / 100) * $weight;
+                        if($product && $product['discount']> 0 ){
+                            $discount = getProductDiscount($product, ($making_charges));
+                        }
+                        break;
+                }
+            } else {
+                $discount = 0; // Fallback to unit price if gold rate is not available
+            }
+
+        return webCurrencyConverter(round($product->unit_price + $discount, 2));
+
 }
 
 

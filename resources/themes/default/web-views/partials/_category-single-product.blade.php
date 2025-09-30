@@ -61,12 +61,12 @@
                 <div class="product-price d-flex flex-wrap gap-8 align-items-center row-gap-0">
                     @if($product->discount > 0)
                         <del class="category-single-product-price">
-                        {{ webCurrencyConverter(amount: $product->unit_price) }}
+                        {{calculateHallmarkingPrice(product: $product)}}
                         </del>
                     @endif
                     <span class="text-accent text-dark">
                         {{ webCurrencyConverter(amount:
-                            $product->unit_price-(getProductDiscount(product: $product, price: $product->unit_price))
+                            $product->unit_price
                         ) }}
                     </span>
                 </div>

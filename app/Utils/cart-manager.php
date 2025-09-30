@@ -377,18 +377,21 @@ $orderWiseShippingCost = 0;
             'variations' => json_encode($variations),
             'variant' => $string,
         ];
-        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal);
-
+        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal,$product);
+      
         if ($string != null) {
             $count = count(json_decode($product->variation));
             for ($i = 0; $i < $count; $i++) {
+                 
                 if (json_decode($product->variation)[$i]->type == $string) {
+                
                     $product->unit_price = json_decode($product->variation)[$i]->price;
                 }
             }
         }
 
         $price = $product->unit_price;
+           
         // $tax = Helpers::tax_calculation(product: $product, price: $price, tax: $product['tax'], tax_type: 'percent');
         $tax = $product->tax_model == 'include' ? 0 : Helpers::tax_calculation(product: $product, price: $price, tax: $product['tax'], tax_type: 'percent');
         $getProductDiscount = Helpers::getProductDiscount($product, $price);
@@ -401,7 +404,7 @@ $orderWiseShippingCost = 0;
             'price' => $price,
             'tax' => $tax,
             'tax_model' => $product->tax_model,
-            'discount' => $getProductDiscount,
+            'discount' => $product->discount ?? 0,
             'hallmark_charges' => $product['hallmark_charges'] ?? 0,
             'making_charges' => $product['making_charges'] ?? 0,
             'is_checked' => 1,
@@ -792,15 +795,9 @@ $orderWiseShippingCost = 0;
         foreach ($carts as $cart) {
             if ($cart->product) {
                 $product = $cart->product;
-                $count = count(json_decode($product->variation));
-                if ($count) {
-                    for ($i = 0; $i < $count; $i++) {
-                        if (json_decode($product->variation)[$i]->type == $cart['variant']) {
-                            if (json_decode($product->variation)[$i]->qty < $cart->quantity) {
-                                $status = false;
-                            }
-                        }
-                    }
+                $count = $product->current_stock ;
+                if ($count < 1) {
+                    $status = false;
                 } else if (($product['product_type'] == 'physical') && $product['current_stock'] < $cart->quantity) {
                     $status = false;
                 }
