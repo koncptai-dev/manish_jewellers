@@ -192,7 +192,7 @@ class Helpers
         $data['unit_price'] = Helpers::calculatePrice($choiceOptions, $data['unit_price'], $data['making_charges'], $data['product_metal'],$data['hallmark_charges'], $data);
         $tax = $data['tax_model'] == 'exclude' ? Helpers::tax_calculation(product: $data, price: $data['unit_price'], tax: $data['tax'], tax_type: $data['tax_type']) : 0;
         $data['tax_price'] = $tax;
-        $data['unit_price'] = $data['unit_price'] + $tax; // Add tax to unit price
+        // $data['unit_price'] = $data['unit_price'] + $tax; // Add tax to unit price
         return $data;
     }
 
