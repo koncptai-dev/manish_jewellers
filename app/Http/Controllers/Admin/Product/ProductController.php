@@ -871,7 +871,7 @@ class ProductController extends BaseController
         $choiceOptions  = $request->input('choice_options'); // Expected to be an array like [{ title: 'Weight', options: ['2'] }, ...]
         $unit_price     = $request->input('unit_price', 0);  // Default fallback
         $making_charges = $request->input('making_charges', 0);
-        $metal          = $request->input('metal');
+        $metal          = $request->input('product_metal');
         $hallmark_charges = $request->input('hallmark_charges',0);
 
         $price = Helpers::calculatePrice($choiceOptions, $unit_price, $making_charges, $metal, $hallmark_charges);
