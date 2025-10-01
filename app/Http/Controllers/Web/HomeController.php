@@ -86,7 +86,7 @@ class HomeController extends Controller
         // Modify unit_price in the paginator's items
         $featuredProductsList->getCollection()->transform(function ($product) {
 
-            $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product);
+            $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product->hallmark_charges, $product);
 
             return $product;
         });
@@ -95,7 +95,7 @@ class HomeController extends Controller
         $latestProductsList = $this->product->with(['reviews'])->active()->orderBy('id', 'desc')->take(8)->get();
         // Modify unit_price in the paginator's items
         $latestProductsList->transform(function ($product1) {
-            $product1->unit_price = Helpers::calculatePrice(json_decode($product1->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal, $product1);
+            $product1->unit_price = Helpers::calculatePrice(json_decode($product1->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal,$product1->hallmark_charges, $product1);
             return $product1;
         });
 
@@ -105,7 +105,7 @@ class HomeController extends Controller
 
         // Modify unit_price in the paginator's items
         $newArrivalProducts->transform(function ($product1) {
-            $product1->unit_price = Helpers::calculatePrice(json_decode($product1->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal, $product1);
+            $product1->unit_price = Helpers::calculatePrice(json_decode($product1->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal,$product1->hallmark_charges, $product1);
             return $product1;
         });
 
@@ -136,7 +136,7 @@ class HomeController extends Controller
         } else {
             // Modify unit_price in the paginator's items
             $bestSellProduct->transform(function ($product1) {
-                $unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->product->unit_price, $product1->making_charges, $product1->product->product_metal, $product1->product);
+                $unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->product->unit_price, $product1->making_charges, $product1->product->product_metal,$product1->hallmark_charges, $product1->product);
               
                 $product1->product->unit_price = $unit_price;
                 return $product1;
@@ -150,7 +150,7 @@ class HomeController extends Controller
         } else {
             // Modify unit_price in the paginator's items
             $topRated->transform(function ($product1) {
-                $product1->product->unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal, $product1->product);
+                $product1->product->unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal,$product1->hallmark_charges, $product1->product);
                 return $product1;
             });
         }

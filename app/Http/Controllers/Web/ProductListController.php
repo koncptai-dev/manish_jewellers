@@ -78,7 +78,7 @@ class ProductListController extends Controller
         // Modify unit_price in the paginator's items
         $productListData->transform(function ($product) {
 
-            $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product);
+            $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal,$product->hallmark_charges, $product);
 
             return $product;
         });

@@ -298,5 +298,6 @@ if (!function_exists('getFormatCurrency')) {
 
         return $formattedValue;
     }
+    
 }
 

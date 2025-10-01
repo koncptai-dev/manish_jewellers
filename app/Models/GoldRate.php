@@ -44,7 +44,7 @@ class GoldRate extends Model
 
         // if (empty($goldRate)) {
         $apiResponse = $this->getGoldRateDataUsingApi();
-    
+   
         $price_gram_24k = $apiResponse;
         $price_gram_22k =  (new GoldRate())->calculate22CaratPrice($price_gram_24k);
         $price_gram_18k = (new GoldRate())->calculate18CaratPrice($price_gram_24k);
@@ -158,20 +158,19 @@ class GoldRate extends Model
         try {
             // Fetch API response with a timeout
             $response = Http::timeout(10)->get($url);
-            
+                
             if ($response->failed()) {
                 return null; // Return null instead of JSON response
             }
 
             // Process the response
             $lines = explode("\n", trim($response->body()));
-
             foreach ($lines as $line) {
                 // Normalize spaces
                 $line = preg_replace('/\s+/', ' ', trim($line));
 
                 // Match "GOLD 999 IMP (AHM)" followed by numbers
-                if (preg_match('/GOLD 999 IMP OR SAM IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches)) {
+                if (preg_match('/GOLD 999 IMP OR SAM IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches) || preg_match('/GOLD 999 IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches)) {
                     return (float) $matches[1]; // Return the extracted gold price as a float
                 }
             }
@@ -248,13 +247,13 @@ class GoldRate extends Model
         // $totalPrice = (($pricePerGram * $grams) + $makingChanrge); //* 1.03;
         // $totalPrice = (($pricePerGram * $grams) + $makingChanrge); //* 1.03;
         $labourCharge = ($pricePerGram * $makingChange / 100) * $grams;
+        
         if($product && $product['discount']> 0 ){
             $discount = getProductDiscount($product, $labourCharge);
              $labourCharge = $labourCharge - $discount;
         }
     
         $totalPrice = ($pricePerGram * $grams) + $labourCharge;
-
         return $totalPrice;
     }
 
@@ -269,4 +268,5 @@ class GoldRate extends Model
         $price18Carat = $price24Carat * 0.78; // Calculate 78% of 24-carat price
         return round($price18Carat, 2);       // Round to 2 decimal places
     }
+    
 }
