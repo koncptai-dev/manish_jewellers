@@ -121,6 +121,9 @@ class CartController extends Controller
         $discountedUnitPrice = $product->unit_price;
         $unit_price = $product->unit_price;
         $quantity = $product->current_stock;
+        if($product->product_metal == "Imitation"){
+            $discountedUnitPrice = $product->unit_price - $discount;
+        }
         // }
 
         $digitalVariation = DigitalProductVariation::where(['product_id' => $product['id'], 'variant_key' => $request['variant_key']])->first();

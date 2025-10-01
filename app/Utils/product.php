@@ -94,7 +94,17 @@ if (!function_exists('getPriceRangeWithDiscount')) {
                 return '<span class="discounted_unit_price fs-24 font-bold">' . setCurrencySymbol(amount: usdToDefaultCurrency(amount: $productUnitPrice), currencyCode: getCurrencyCode()) . '</span>';
             }
         } else {
-                return '<span class="discounted_unit_price fs-24 font-bold">' . webCurrencyConverter(amount: $productUnitPrice) . '</span>';
+           if ($product->product_metal == "Imitation") {
+                return '<span class="discounted_unit_price fs-24 font-bold">' .
+                    webCurrencyConverter(
+                        amount: $productUnitPrice - getProductDiscount(product: $product, price: $productUnitPrice)
+                    ) .
+                '</span>';
+            } else {
+                return '<span class="discounted_unit_price fs-24 font-bold">' .
+                    webCurrencyConverter(amount: $productUnitPrice) .
+                '</span>';
+            }
         }
     }
 }

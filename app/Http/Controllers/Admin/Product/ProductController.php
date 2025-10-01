@@ -879,15 +879,27 @@ class ProductController extends BaseController
         return response()->json(['unit_price' => $price]);
     }
 
-   public function getCategoriesByBrand(Request $request)
-{
-    $brand_id = $request->input('brand_id');
+    public function getCategoriesByBrand(Request $request)
+    {
+        $brand_id = $request->input('brand_id');
 
-    // Query categories where parent_id matches
-    $categories = Category::where(['brand_id'=> $brand_id, 'parent_id' =>0])
-                           ->get();
+        // Query categories where parent_id matches
+        $categories = Category::where(['brand_id' => $brand_id, 'parent_id' => 0])
+            ->get();
 
-    // Return the JSON collection directly
-    return response()->json($categories);
-}
+        // Return the JSON collection directly
+        return response()->json($categories);
+    }
+
+    public function getCategoryDetail(Request $request)
+    {
+        $category_id = $request->input('id');
+
+        // Query categories where parent_id matches
+        $category = Category::where('id', $category_id)->first();
+
+        // Return the JSON collection directly
+        return response()->json($category);
+
+    }
 }
