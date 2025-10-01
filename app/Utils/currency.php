@@ -110,9 +110,12 @@ if (!function_exists('webCurrencyConverter')) {
 
 function calculateHallmarkingPrice($product){
      
-     $goldRate = (new GoldRate())->getTodayGoldRate(); // Get today's gold rates
+    $goldRate = (new GoldRate())->getTodayGoldRate(); // Get today's gold rates
     $choiceOptions = json_decode($product->choice_options);
     $unit_price = $product->unit_price;
+    if($product->product_metal == "Imitation"){
+        return webCurrencyConverter(round($unit_price, 2) - App\Utils\Helpers::tax_calculation(product: $product, price: $product['unit_price'], tax: $product['tax'], tax_type: $product['tax_type']));
+    }
     $making_charges = $product->making_charges;
     $discount =0;
             if (isset($goldRate) && isset($goldRate['price_gram_24k'])) {
