@@ -190,6 +190,9 @@ class Helpers
         // Check if $data is array or object, and access accordingly
         $choiceOptions      = is_array($data) ? $data['choice_options'] ?? null : $data->choice_options ?? null;
         $data['unit_price'] = Helpers::calculatePrice($choiceOptions, $data['unit_price'], $data['making_charges'], $data['product_metal'],$data['hallmark_charges'], $data);
+        if($data['product_metal'] == "Imitation"){
+            $data['unit_price'] = $data['unit_price'] - getProductDiscount(product: $data, price: $data['unit_price']);
+        }
         $tax = $data['tax_model'] == 'exclude' ? Helpers::tax_calculation(product: $data, price: $data['unit_price'], tax: $data['tax'], tax_type: $data['tax_type']) : 0;
         $data['tax_price'] = $tax;
         // $data['unit_price'] = $data['unit_price'] + $tax; // Add tax to unit price
