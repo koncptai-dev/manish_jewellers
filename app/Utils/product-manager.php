@@ -67,6 +67,8 @@ class ProductManager
             }
             $product['flash_deal_status'] = $flashDealStatus;
             $product['flash_deal_end_date'] = $flashDealEndDate;
+            $product['unit_price'] = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product->hallmark_charges, $product);
+
             return $product;
         });
 

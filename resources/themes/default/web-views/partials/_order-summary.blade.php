@@ -15,15 +15,20 @@
             @php($getShippingCostSavedForFreeDelivery=\App\Utils\CartManager::get_shipping_cost_saved_for_free_delivery(type: 'checked'))
             @if($cart->count() > 0)
                 @foreach($cart as $key => $cartItem)
-                    @php($itemTotal = $cartItem['price'] * $cartItem['quantity'])
-                    @php( $itemHallmark = $cartItem['hallmark_charges'] * $cartItem['quantity'])
-                    @php($itemMakingCharge = ($itemTotal * $cartItem['making_charges']) / 100)
-                    @php($subTotal += $itemTotal - $itemMakingCharge)
-                    @php($hallmarkCharges += $itemHallmark)
-                    @php($makingCharges += $itemMakingCharge)
-                    @php($totalTax += ($cartItem['tax_model'] == 'exclude') ? ($cartItem['tax'] * $cartItem['quantity']) : 0)
-                    {{-- @php($totalDiscountOnProduct += $cartItem['discount']) --}}
-                @endforeach
+                @php($itemTotal = $cartItem['price'] * $cartItem['quantity'])
+                @php($itemHallmark = $cartItem['hallmark_charges'] * $cartItem['quantity'])
+                @php($itemMakingCharge = ($itemTotal * $cartItem['making_charges']) / 100)
+
+                @php($subTotal += $itemTotal - $itemMakingCharge)
+                @php($hallmarkCharges += $itemHallmark)
+                @php($makingCharges += $itemMakingCharge)
+                @php($totalTax += ($cartItem['tax_model'] == 'exclude') ? ($cartItem['tax'] * $cartItem['quantity']) : 0)
+
+                @if($cartItem['variant'] == "")
+                    @php($totalDiscountOnProduct += $cartItem['discount'] * $cartItem['quantity'])
+                @endif
+            @endforeach
+
 
                 @if(session()->missing('coupon_type') || session('coupon_type') !='free_delivery')
                     @php($totalShippingCost=$getShippingCost - $getShippingCostSavedForFreeDelivery)

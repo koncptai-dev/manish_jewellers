@@ -140,8 +140,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 col-lg-4 col-xl-3">
-                        <div class="form-group">
+                    <div class="col-md-6 col-lg-4 col-xl-3 "> <div class="form-group">
                             <label class="title-color">
                                 Product Metal
                                 <span class="input-required-icon">*</span>
@@ -149,6 +148,7 @@
                             <select name="product_metal" id="product_metal" class="form-control" required>
                                 <option value="Gold" selected>Gold</option>
                                 <option value="Silver">Silver</option>
+                                <option value="Imitation">Imitation</option>
                             </select>
                         </div>
                     </div>
@@ -951,8 +951,32 @@
             // Clear subsequent dropdowns
             $('#sub-category-select-ajax').html('<option value="" selected disabled>{{ translate('loading') }}...</option>');
 
+            $.ajax({
+                url: '{{ route('admin.products.get-category-details') }}', // ** You MUST define this route and controller method **
+                type: 'GET',
+                data: { id: parent_id },
+                dataType: 'json',
+                success: function(category) {
+                    var isImitation = category.name == "Imitation" ? 1: 0 ; // Assuming the server returns { id: ..., name: ..., is_imitation: true/false }
 
-            if (parent_id) {
+                    if (isImitation) {
+                        // Hide fields for imitation product
+                        $('#hallmark_charges').closest('.col-md-6').addClass('d-none'); // Hallmark Charges Field
+                        $('.physical_product_show.card').last().addClass('d-none'); // Product Variation Setup Card
+                    } else {
+                        // Show fields for non-imitation product
+                        $('#hallmark_charges').closest('.col-md-6').removeClass('d-none');
+                        $('.physical_product_show.card').last().removeClass('d-none');
+                    }
+                },
+                error: function() {
+                    console.error("Could not fetch category details for imitation check.");
+                    // Default to showing all fields on error as a safety measure
+                    $('#hallmark_charges').closest('.col-md-6').removeClass('d-none');
+                    $('.physical_product_show.card').last().removeClass('d-none');
+                }
+            });
+            if (parent_id) {    
                 $.ajax({
                     // Route for fetching categories by parent_id (used for sub/sub-sub)
                     url: '{{ route('admin.products.get-categories') }}',

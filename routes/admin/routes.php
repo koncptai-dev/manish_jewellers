@@ -288,6 +288,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::post(Product::DIGITAL_VARIATION_FILE_DELETE[URI], 'deleteDigitalVariationFile')->name('digital-variation-file-delete');
             Route::post(Product::FEATURED_STATUS[URI], 'updateFeaturedStatus')->name('featured-status');
             Route::get(Product::GET_CATEGORIES[URI], 'getCategories')->name('get-categories');
+            Route::get('get-category-details','getCategoryDetail')->name('get-category-details');
             Route::post(Product::UPDATE_STATUS[URI], 'updateStatus')->name('status-update');
             Route::get(Product::BARCODE_VIEW[URI] . '/{id}', 'getBarcodeView')->name('barcode');
             Route::get(Product::EXPORT_EXCEL[URI] . '/{type}', 'exportList')->name('export-excel');

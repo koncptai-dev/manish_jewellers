@@ -54,6 +54,7 @@ class ProductController extends Controller
             $brand_id = $request['brand_id'];
         }
         $products = ProductManager::get_latest_products($request, $request['limit'], $request['offset'], $brand_id);
+      
         $products['products'] = Helpers::product_data_formatting($products['products'], true);
         return response()->json($products, 200);
     }
