@@ -114,7 +114,7 @@ function calculateHallmarkingPrice($product){
     $choiceOptions = json_decode($product->choice_options);
     $unit_price = $product->unit_price;
     if($product->product_metal == "Imitation"){
-        return webCurrencyConverter(round($unit_price, 2) - App\Utils\Helpers::tax_calculation(product: $product, price: $product['unit_price'], tax: $product['tax'], tax_type: $product['tax_type']));
+        return webCurrencyConverter($unit_price);
     }
     $making_charges = $product->making_charges;
     $discount =0;
