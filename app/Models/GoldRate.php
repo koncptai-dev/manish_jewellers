@@ -165,14 +165,18 @@ class GoldRate extends Model
 
             // Process the response
             $lines = explode("\n", trim($response->body()));
+           
             foreach ($lines as $line) {
                 // Normalize spaces
                 $line = preg_replace('/\s+/', ' ', trim($line));
-
                 // Match "GOLD 999 IMP (AHM)" followed by numbers
-                if (preg_match('/GOLD 999 IMP OR SAM IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches) || preg_match('/GOLD 999 IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches)) {
-                    return (float) $matches[1]; // Return the extracted gold price as a float
-                }
+                if (
+                preg_match('/GOLD 999 IMP OR SAM IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches) ||
+                preg_match('/GOLD 999 IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches) ||
+                preg_match('/GOLD 999 IMP \(AHM\)\s+T\+2\s+(\d+\.?\d*)/', $line, $matches) // <-- Added condition
+            ) {
+                return (float) $matches[1]; // Return the extracted gold price as a float
+            }
             }
 
             return null; // Return null if no price is found
