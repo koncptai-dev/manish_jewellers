@@ -251,6 +251,7 @@ class Helpers
                 $choiceOptions = $decoded;
             }
         }
+       
         if ($product_metal == 'Silver') {
             $unitPrice = Helpers::calculateSilverPrice($choiceOptions, $unit_price, $making_charges);
         } else {
@@ -314,8 +315,9 @@ class Helpers
     public static function calculateSilverPrice($choiceOptions, $unit_price, $making_charges)
     {
                                                                 // Extract today's gold rates
-        $silverRate = (new SilverRate())->getTodaySilverRate(); // Get today's gold rates
-
+        $silverRate = (new SilverRate())->getTodaySilverRateUsingAPI();
+        $one_gram_rate = ($silverRate * 92.5/100)/1000;
+        
         $weight = 0;
         // Parse the choice options for weight and carat
         foreach ($choiceOptions as $option) {
@@ -325,15 +327,13 @@ class Helpers
             }
         }
 
-        if ($weight <= 0 || ! isset($silverRate)) {
+        if ($weight <= 0 || ! isset($one_gram_rate)) {
 
             return $unit_price;
         }
 
-        $price = isset($silverRate['price']) ? $silverRate['price'] : $unit_price;
-
+        $price = isset($one_gram_rate) ? $one_gram_rate : $unit_price;
         $unitPrice = (new GoldRate())->calculatePriceWithMarkup($price, $weight, $making_charges);
-
         return $unitPrice;
     }
     public static function set_data_format_for_json_data($data)
