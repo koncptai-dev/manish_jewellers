@@ -1519,18 +1519,18 @@
                     if (isImitation) {
                         // Hide fields for imitation product
                         $('#hallmark_charges').closest('.col-md-6').addClass('d-none'); // Hallmark Charges Field
-                        $('.physical_product_show.card').last().addClass('d-none'); // Product Variation Setup Card
+                        // $('.physical_product_show.card').last().addClass('d-none'); // Product Variation Setup Card
                     } else {
                         // Show fields for non-imitation product
                         $('#hallmark_charges').closest('.col-md-6').removeClass('d-none');
-                        $('.physical_product_show.card').last().removeClass('d-none');
+                        // $('.physical_product_show.card').last().removeClass('d-none');
                     }
                 },
                 error: function() {
                     console.error("Could not fetch category details for imitation check.");
                     // Default to showing all fields on error as a safety measure
                     $('#hallmark_charges').closest('.col-md-6').removeClass('d-none');
-                    $('.physical_product_show.card').last().removeClass('d-none');
+                    // $('.physical_product_show.card').last().removeClass('d-none');
                 }
             });
              // Get saved ID from HTML data attribute

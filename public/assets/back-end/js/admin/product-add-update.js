@@ -1061,9 +1061,9 @@ function calculateUnitPrice() {
     let makingCharges = $("#making_charges").val();
     let productMetal = $("#product_metal").val();
     let hallmark_charges = $("#hallmark_charges").val();
-    let category = $("#category-select-ajax").val();
+    var categoryTitle = $('#category-select-ajax').find('option:selected').text();
     // Only proceed if both Weight and carat are present with values
-    if (hasWeight && hasCarat && unitPrice == "") {
+    if (hasWeight && hasCarat && unitPrice == "" ) {
         $.ajax({
             url: $("#calculate-unit-price").data("url"),
             method: "POST",
@@ -1094,6 +1094,39 @@ function calculateUnitPrice() {
                 $("#loading").fadeOut();
             },
         });
+    }else{
+        if(categoryTitle == "Silver"){
+            $.ajax({
+            url: $("#calculate-unit-price").data("url"),
+            method: "POST",
+            dataType: "json",
+            beforeSend: function () {
+                $("#loading").fadeIn();
+            },
+            data: {
+                choice_options: JSON.stringify(choiceOptions),
+                unit_price: unitPrice,
+                making_charges: makingCharges,
+                product_metal: productMetal,
+                hallmark_charges: hallmark_charges,
+            },
+            success: function (response) {
+                console.log(response);
+                if (response.unit_price) {
+                    let formattedPrice = parseFloat(response.unit_price).toFixed(2);
+                    $("#unit_price").val(formattedPrice);
+
+                    // Confirm value is actually set before proceeding
+                    if ($("#unit_price").val() === formattedPrice) {
+                        getUpdateSKUFunctionality();
+                    }
+                }
+            },
+            complete: function () {
+                $("#loading").fadeOut();
+            },
+        });
+        }
     }
 }
 
