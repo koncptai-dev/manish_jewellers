@@ -20,7 +20,7 @@
                                 @foreach($categories as $key => $category)
                                     @if ($key < 8)
                                         <div class="text-center __m-5px __cate-item">
-                                            <a href="{{route('products',['category_id'=> $category['id'],'data_from'=>'category','page'=>1])}}" class="d-flex flex-column align-items-center">
+                                            <a href="{{route('products',['brand_id' => $category['brand_id'],'category_id'=> $category['id'],'data_from'=>'category','page'=>1])}}" class="d-flex flex-column align-items-center">
                                                 <div class="__img">
                                                     <img alt="{{ $category->name }}"
                                                          src="{{ getStorageImages(path:$category->icon_full_url, type: 'category') }}">
