@@ -66,22 +66,14 @@
 
     <link rel="stylesheet" href="{{theme_asset(path: 'public/assets/front-end/css/custom.css')}}">
 
-    @php($google_tag_manager_id = getWebConfig(name: 'google_tag_manager_id'))
-    @if($google_tag_manager_id )
-    <!-- Google Tag Manager -->
-    <script>
-        try {
-            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','{{$google_tag_manager_id}}');
-        } catch (e) {
-            console.log(e)
-        }
-    </script>
-    <!-- End Google Tag Manager -->
-    @endif
+   <!-- Google Tag Manager --> 
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': 
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], 
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); 
+    })(window,document,'script','dataLayer','GTM-NR7KXJHG');</script> 
+    <!-- End Google Tag Manager →  
+
 
     @php($pixel_analytics_user_code =getWebConfig(name: 'pixel_analytics'))
     @if($pixel_analytics_user_code)
@@ -108,12 +100,10 @@
 
 <body class="toolbar-enabled">
 
-@if($google_tag_manager_id)
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{$google_tag_manager_id}}"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-@endif
+<!-- Google Tag Manager (noscript) --> 
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NR7KXJHG" 
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript> 
+<!-- End Google Tag Manager (noscript) --> 
 
 @include('layouts.front-end.partials._modals')
 
