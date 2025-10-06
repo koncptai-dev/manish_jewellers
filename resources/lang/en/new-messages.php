@@ -9136,4 +9136,9 @@ return [
 	"The payment platform field is required." => "The payment platform field is required.",
 	"Select Brand" => "Select Brand",
 	"Select_Brand" => "Select Brand",
+	"Note:_Only_Weight_is_available_for_variation_setup_in_this_category." => "Note: Only Weight is available for variation setup in this category.",
+	"select_Attribute" => "Select Attribute",
+	"enter_Weight_Values_(comma_separated)" => "Enter Weight Values (comma separated)",
+	"Enter_values_and_press_Enter" => "Enter values and press Enter",
+	"generate_variants" => "Generate variants",
 ];
