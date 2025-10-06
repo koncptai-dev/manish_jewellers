@@ -261,6 +261,19 @@ class GoldRate extends Model
         return $totalPrice;
     }
 
+    public function calculatePriceWithMarkupInRupees($pricePerGram, $grams, $makingChange, $product = null)
+    {
+        $labourCharge = $makingChange + $pricePerGram;
+        
+        if($product && $product['discount']> 0 ){
+            $discount = getProductDiscount($product, $labourCharge);
+             $labourCharge = $labourCharge - $discount;
+        }
+    
+        $totalPrice = $labourCharge * $grams;
+        return $totalPrice;
+    }
+
     public function calculate22CaratPrice($price24Carat)
     {
         $price22Carat = $price24Carat * 0.92; // Calculate 92% of 24-carat price

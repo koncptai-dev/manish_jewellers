@@ -333,7 +333,7 @@ class Helpers
         }
 
         $price = isset($one_gram_rate) ? $one_gram_rate : $unit_price;
-        $unitPrice = (new GoldRate())->calculatePriceWithMarkup($price, $weight, $making_charges);
+        $unitPrice = (new GoldRate())->calculatePriceWithMarkupInRupees($price, $weight, $making_charges);
         return $unitPrice;
     }
     public static function set_data_format_for_json_data($data)
