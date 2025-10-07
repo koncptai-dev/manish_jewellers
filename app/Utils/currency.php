@@ -109,9 +109,11 @@ if (!function_exists('webCurrencyConverter')) {
 }
 
 function calculateHallmarkingPrice($product){
-     
+    
     $goldRate = (new GoldRate())->getTodayGoldRate(); // Get today's gold rates
-    $choiceOptions = json_decode($product->choice_options);
+    $choiceOptions = is_string($product->choice_options) 
+        ? json_decode($product->choice_options) 
+        : $product->choice_options;
     $unit_price = $product->unit_price;
     if($product->product_metal == "Imitation"){
         return webCurrencyConverter($unit_price);
