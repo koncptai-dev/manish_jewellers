@@ -116,6 +116,10 @@ function calculateHallmarkingPrice($product){
     if($product->product_metal == "Imitation"){
         return webCurrencyConverter($unit_price);
     }
+    if($product->product_metal == "Silver"){
+        
+        return webCurrencyConverter($unit_price);
+    }
     $making_charges = $product->making_charges;
     $discount =0;
             if (isset($goldRate) && isset($goldRate['price_gram_24k'])) {

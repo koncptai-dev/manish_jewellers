@@ -77,7 +77,7 @@
                                     $product->making_charges,
                                     $product->product_metal,
                                     $product->hallmark_charges,
-                                    $product
+                                    $product, $product->discount_on
                                 )
                             ) }}
                         @endif

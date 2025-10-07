@@ -51,7 +51,7 @@
                     </del>
                     @endif
                     <span class="flash-product-price fw-semibold text-dark">
-                        {{webCurrencyConverter( App\Utils\Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal,$product->hallmark_charges, $product));}}
+                        {{webCurrencyConverter( App\Utils\Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal,$product->hallmark_charges, $product,$product->discount_on));}}
                     </span>
                 </div>
 

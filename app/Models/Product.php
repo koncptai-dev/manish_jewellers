@@ -90,6 +90,7 @@ class Product extends Model
         'tax',
         'tax_type',
         'tax_model',
+        'discount_on',
         'discount',
         'discount_type',
         'attributes',

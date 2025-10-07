@@ -9141,4 +9141,6 @@ return [
 	"enter_Weight_Values_(comma_separated)" => "Enter Weight Values (comma separated)",
 	"Enter_values_and_press_Enter" => "Enter values and press Enter",
 	"generate_variants" => "Generate variants",
+	"discount_on" => "Discount on",
+	"grams_(making_charges)" => "Grams (making charges)",
 ];

@@ -453,6 +453,7 @@ class ProductService
             'tax' => $request['tax_type'] == 'flat' ? currencyConverter(amount: $request['tax']) : $request['tax'],
             'tax_type' => $request->get('tax_type', 'percent'),
             'tax_model' => $request['tax_model'],
+            'discount_on' => $request->get('discount_on', 'price'),
             'discount' => $request['discount_type'] == 'flat' ? currencyConverter(amount: $request['discount']) : $request['discount'],
             'discount_type' => $request['discount_type'],
             'attributes' => $request['product_type'] == 'physical' ? json_encode($request['choice_attributes']) : json_encode([]),

@@ -189,7 +189,7 @@ class Helpers
 
         // Check if $data is array or object, and access accordingly
         $choiceOptions      = is_array($data) ? $data['choice_options'] ?? null : $data->choice_options ?? null;
-        $data['unit_price'] = Helpers::calculatePrice($choiceOptions, $data['unit_price'], $data['making_charges'], $data['product_metal'],$data['hallmark_charges'], $data);
+        $data['unit_price'] = Helpers::calculatePrice($choiceOptions, $data['unit_price'], $data['making_charges'], $data['product_metal'],$data['hallmark_charges'], $data, $data['discount_on'] ?? 'making_charges');
         if($data['product_metal'] == "Imitation"){
             $data['unit_price'] = $data['unit_price'] - getProductDiscount(product: $data, price: $data['unit_price']);
         }
@@ -242,8 +242,9 @@ class Helpers
     }
 
 
-    public static function calculatePrice($choiceOptions, $unit_price, $making_charges, $product_metal, $hallmark_charges = 0, $product = null)
+    public static function calculatePrice($choiceOptions, $unit_price, $making_charges, $product_metal, $hallmark_charges = 0, $product = null, $discount_on = 'making_charges')
     {
+        
         if (is_string($choiceOptions)) {
             $decoded = json_decode(json: $choiceOptions);
 
@@ -253,7 +254,7 @@ class Helpers
         }
        
         if ($product_metal == 'Silver') {
-            $unitPrice = Helpers::calculateSilverPrice($choiceOptions, $unit_price, $making_charges);
+            $unitPrice = Helpers::calculateSilverPrice($choiceOptions, $unit_price, $making_charges,$product, $discount_on);
         } else {
 
                                                               // Extract today's gold rates
@@ -312,7 +313,7 @@ class Helpers
         return $unitPrice + $hallmark_charges; // Add hallmark charges if applicable
     }
 
-    public static function calculateSilverPrice($choiceOptions, $unit_price, $making_charges)
+    public static function calculateSilverPrice($choiceOptions, $unit_price, $making_charges,$product = null, $discount_on)
     {
                                                                 // Extract today's gold rates
         $silverRate = (new SilverRate())->getTodaySilverRateUsingAPI();
@@ -333,9 +334,9 @@ class Helpers
         }
 
         $price = isset($one_gram_rate) ? $one_gram_rate : $unit_price;
-        $unitPrice = (new GoldRate())->calculatePriceWithMarkupInRupees($price, $weight, $making_charges);
+        $unitPrice = (new GoldRate())->calculatePriceWithMarkupInRupees($price, $weight, $making_charges, $product,  $discount_on);
         return $unitPrice;
-    }
+    } 
     public static function set_data_format_for_json_data($data)
     {
         $colors        = is_array($data['colors']) ? $data['colors'] : json_decode($data['colors']);

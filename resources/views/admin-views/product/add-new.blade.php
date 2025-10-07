@@ -345,6 +345,22 @@
                                 name="current_stock" id="current_stock" class="form-control" required>
                         </div>
                     </div>
+
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="form-group">
+                            <div class="d-flex gap-2 mb-2">
+                                <label class="title-color mb-0"
+                                    for="discount_on">{{ translate('discount_on') }}</label>
+                            </div>
+
+                            <select class="form-control" name="discount_on" id="discount_on">
+                                <option value="">{{ translate('select') }}</option>
+                                <option value="making_charges">{{ translate('grams_(making_charges)') }}</option>
+                                <option value="price">{{ translate('price') }}</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="col-md-6 col-lg-4 col-xl-3">
                         <div class="form-group">
                             <div class="d-flex gap-2 mb-2">

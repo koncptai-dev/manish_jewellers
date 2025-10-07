@@ -377,7 +377,7 @@ $orderWiseShippingCost = 0;
             'variations' => json_encode($variations),
             'variant' => $string,
         ];
-        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal,$product->hallmark_charges,$product);
+        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal,$product->hallmark_charges,$product, $product->discount_on);
       
         if ($string != null) {
             $count = count(json_decode($product->variation));

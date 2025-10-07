@@ -95,7 +95,7 @@ class CartController extends Controller
         //         }
         //     }
         // } else {
-        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product->hallmark_charges, $product);
+        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product->hallmark_charges, $product,$product->discount_on);
       
         if ($string != null) {
             $count = count(json_decode($product->variation));
@@ -109,7 +109,7 @@ class CartController extends Controller
         // print_r($product->unit_price);
         // echo "</pre>";
         // die;
-        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product->hallmark_charges, $product);
+        $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal, $product->hallmark_charges, $product,$product->discount_on);
         // echo "<pre>";
         // print_r($product->unit_price);
         // echo "</pre>";

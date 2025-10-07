@@ -1062,6 +1062,7 @@ function calculateUnitPrice() {
     let productMetal = $("#product_metal").val();
     let hallmark_charges = $("#hallmark_charges").val();
     var categoryTitle = $('#category-select-ajax').find('option:selected').text();
+    var discount_on = $("#discount_on").find('option:selected').val();
     // Only proceed if both Weight and carat are present with values
     if (hasWeight && hasCarat && unitPrice == "" ) {
         $.ajax({
@@ -1077,6 +1078,7 @@ function calculateUnitPrice() {
                 making_charges: makingCharges,
                 product_metal: productMetal,
                 hallmark_charges: hallmark_charges,
+                discount_on: discount_on
             },
             success: function (response) {
                 console.log(response);
@@ -1109,6 +1111,7 @@ function calculateUnitPrice() {
                 making_charges: makingCharges,
                 product_metal: productMetal,
                 hallmark_charges: hallmark_charges,
+                discount_on: discount_on
             },
             success: function (response) {
                 console.log(response);

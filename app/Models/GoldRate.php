@@ -261,16 +261,27 @@ class GoldRate extends Model
         return $totalPrice;
     }
 
-    public function calculatePriceWithMarkupInRupees($pricePerGram, $grams, $makingChange, $product = null)
+    public function calculatePriceWithMarkupInRupees($pricePerGram, $grams, $makingChange, $product = null, $discount_on = 'making_charges')
     {
         $labourCharge = $makingChange + $pricePerGram;
-        
         if($product && $product['discount']> 0 ){
-            $discount = getProductDiscount($product, $labourCharge);
-             $labourCharge = $labourCharge - $discount;
+        
+            if($discount_on == "making_charges"){
+                $discount = getProductDiscount($product, $labourCharge);
+                $labourCharge = $labourCharge - $discount;
+            }
+            
         }
     
         $totalPrice = $labourCharge * $grams;
+       
+        if($product && $product['discount']> 0 ){
+            if($discount_on == "price"){
+                $discount = getProductDiscount($product, $totalPrice);
+                
+                $totalPrice = $totalPrice - $discount;
+            }
+        }
         return $totalPrice;
     }
 
