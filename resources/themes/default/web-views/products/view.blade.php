@@ -17,9 +17,31 @@
 @endpush
 
 @section('content')
-
+    @php
+        $currentCategoryId = request()->get('category_id');
+        $currentSubCategoryId = request()->get('sub_category_id');
+        $currentSubSubCategoryId = request()->get('sub_sub_category_id');
+        $active_filter_ids = [$currentCategoryId, $currentSubCategoryId, $currentSubSubCategoryId];
+    @endphp
+    
     @php($decimal_point_settings = getWebConfig(name: 'decimal_point_settings'))
+    <style>
+        /* Highlight active category/subcategory */
+.active-category {
+    background-color: #f0f0f0 !important;
+    padding-left: 4px !important;
+}
+.card-header:first-child {
+    border-radius: 0;
+}
 
+/* Rotate caret icon when active */
+.rotate-90 {
+    transform: rotate(90deg);
+    transition: transform 0.3s ease;
+}
+
+    </style>
     <div class="container py-3" dir="{{Session::get('direction')}}">
         <div class="search-page-header">
             <div>
@@ -195,66 +217,70 @@
                                 </div>
                             </div>
 
-                            <div>
-                                <h6 class="font-semibold fs-15 mb-3">{{ translate('categories') }}</h6>
-                                <div class="accordion mt-n1 product-categories-list" id="shop-categories">
-                                    @foreach($categories as $category)
-                                        <div class="menu--caret-accordion">
-                                            <div class="card-header flex-between">
-                                                <div>
-                                                    <label class="for-hover-label cursor-pointer get-view-by-onclick"
-                                                           data-link="{{ route('products',['brand_id'=> $category['brand_id'],'category_id'=> $category['id'],'data_from'=>'category','page'=>1]) }}">
-                                                        {{$category['name']}}
-                                                    </label>
-                                                </div>
-                                                <div class="px-2 cursor-pointer menu--caret">
-                                                    <strong class="pull-right for-brand-hover">
-                                                        @if($category->childes->count()>0)
-                                                            <i class="tio-next-ui fs-13"></i>
-                                                        @endif
-                                                    </strong>
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="card-body p-0 ms-2 d--none"
-                                                id="collapse-{{$category['id']}}">
-                                                @foreach($category->childes as $child)
-                                                    <div class="menu--caret-accordion">
-                                                        <div class="for-hover-label card-header flex-between">
-                                                            <div>
-                                                                <label class="cursor-pointer get-view-by-onclick"
-                                                                       data-link="{{ route('products',['brand_id'=> $child['brand_id'],'sub_category_id'=> $child['id'],'data_from'=>'category','page'=>1]) }}">
-                                                                    {{$child['name']}}
-                                                                </label>
-                                                            </div>
-                                                            <div class="px-2 cursor-pointer menu--caret">
-                                                                <strong class="pull-right">
-                                                                    @if($child->childes->count()>0)
-                                                                        <i class="tio-next-ui fs-13"></i>
-                                                                    @endif
-                                                                </strong>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="card-body p-0 ms-2 d--none"
-                                                            id="collapse-{{$child['id']}}">
-                                                            @foreach($child->childes as $ch)
-                                                                <div class="card-header">
-                                                                    <label
-                                                                        class="for-hover-label d-block cursor-pointer text-left get-view-by-onclick"
-                                                                        data-link="{{ route('products',['sub_sub_category_id'=> $ch['id'],'data_from'=>'category','page'=>1]) }}">
-                                                                        {{$ch['name']}}
-                                                                    </label>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @endforeach
+                           <div>
+    <h6 class="font-semibold fs-15 mb-3">{{ translate('categories') }}</h6>
+    <div class="accordion mt-n1 product-categories-list" id="shop-categories">
+        @foreach($categories as $category)
+            @php($isActiveCategory = ($currentCategoryId == $category['id']) ||
+                                    ($category->childes && $category->childes->pluck('id')->contains($currentSubCategoryId)))
+
+            <div class="menu--caret-accordion">
+                <div class="card-header flex-between {{ $isActiveCategory ? 'active-category' : '' }}">
+                    <div>
+                        <label class="for-hover-label cursor-pointer get-view-by-onclick"
+                               data-link="{{ route('products',['brand_id'=> $category['brand_id'],'category_id'=> $category['id'],'data_from'=>'category','page'=>1]) }}">
+                            {{$category['name']}}
+                        </label>
+                    </div>
+                    <div class="px-2 cursor-pointer menu--caret">
+                        <strong class="pull-right for-brand-hover">
+                            @if($category->childes->count()>0)
+                                <i class="tio-next-ui fs-13 {{ $isActiveCategory ? 'rotate-90' : '' }}"></i>
+                            @endif
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="card-body p-0 ms-2 {{ $isActiveCategory ? 'd--block' : 'd--none' }}" id="collapse-{{ $category['id'] }}">
+                    @foreach($category->childes as $child)
+                        @php($isActiveSub = ($currentSubCategoryId == $child['id']) ||
+                                           ($child->childes && $child->childes->pluck('id')->contains($currentSubSubCategoryId)))
+
+                        <div class="menu--caret-accordion">
+                            <div class="for-hover-label card-header flex-between {{ $isActiveSub ? 'active-category' : '' }}">
+                                <div>
+                                    <label class="cursor-pointer get-view-by-onclick"
+                                           data-link="{{ route('products',['brand_id'=> $child['brand_id'],'sub_category_id'=> $child['id'],'data_from'=>'category','page'=>1]) }}">
+                                        {{$child['name']}}
+                                    </label>
+                                </div>
+                                <div class="px-2 cursor-pointer menu--caret">
+                                    <strong class="pull-right">
+                                        @if($child->childes->count()>0)
+                                            <i class="tio-next-ui fs-13 {{ $isActiveSub ? 'rotate-90' : '' }}"></i>
+                                        @endif
+                                    </strong>
                                 </div>
                             </div>
+
+                            <div class="card-body p-0 ms-2 {{ $isActiveSub ? 'd--block' : 'd--none' }}" id="collapse-{{ $child['id'] }}">
+                                @foreach($child->childes as $ch)
+                                    <div class="card-header {{ ($currentSubSubCategoryId == $ch['id']) ? 'active-category' : '' }}">
+                                        <label class="for-hover-label d-block cursor-pointer text-left get-view-by-onclick"
+                                               data-link="{{ route('products',['sub_sub_category_id'=> $ch['id'],'data_from'=>'category','page'=>1]) }}">
+                                            {{$ch['name']}}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endforeach
+    </div>
+</div>
+
 
                             @if($web_config['brand_setting'])
                                 <div class="product-type-physical-section search-product-attribute-container">

@@ -105,7 +105,7 @@ class HomeController extends Controller
 
         // Modify unit_price in the paginator's items
         $newArrivalProducts->transform(function ($product1) {
-            $product1->unit_price = Helpers::calculatePrice(json_decode($product1->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal,$product1->hallmark_charges, $product1);
+            // $product1->unit_price = Helpers::calculatePrice(json_decode($product1->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal,$product1->hallmark_charges, $product1);
             return $product1;
         });
 
