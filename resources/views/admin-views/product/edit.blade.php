@@ -1482,7 +1482,7 @@
                         });
                         
                         // **Trigger the next cascade level if a category was selected**
-                        if (selected_category_id) {
+                        if (selected_sub_category_id) {
                             $subCategorySelect.trigger('change');
                         }
                     },
