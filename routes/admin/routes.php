@@ -314,6 +314,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['admin']],
             Route::get(Product::EXPORT_RESTOCK[URI], 'exportRestockList')->name('restock-export');
             Route::delete(Product::RESTOCK_DELETE[URI] . '/{id}', 'deleteRestock')->name('restock-delete');
             Route::get('/get-categories-by-brand', 'getCategoriesByBrand')->name('get-categories-by-brand');
+            Route::get('/get-sub-categories', 'getSubCategoriesByCategoryId')->name('get-sub-categories');
 
         });
     });
