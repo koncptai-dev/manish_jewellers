@@ -24,7 +24,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
-
+use Illuminate\Support\Facades\Http;
 class Helpers
 {
     use CommonTrait;
@@ -203,8 +203,11 @@ class Helpers
     public static function calculateGoldRate($choiceOptions)
     {
         // Extract today's gold rates
-        $goldRate = (new GoldRate())->getTodayGoldRate();
-
+        $url = "https://manish-jewellers.com/api/v1/goldPriceService";
+        $response = Http::timeout(10)->get($url);
+        $goldRate = json_decode($response->body(), true);   
+        $goldRate = $goldRate['data'];
+       
         $carat = null;
 
         // Get selected carat
@@ -219,23 +222,25 @@ class Helpers
             return "<div><strong>No gold rate available</strong></div>";
         }
 
-        $pricePerGram = null;
         $label = null;
 
+        $price24KOriginal  = $goldRate['price_gram']['24k_gst_included'] ;
+        $price22KOriginal  = $goldRate['price_gram']['22k_gst_included']* 0.916;
+        $price18KOriginal  = $goldRate['price_gram']['18k_gst_included']* 0.75;
+
         // Match price according to carat
-        if ($carat === '24' && isset($goldRate['price_gram_24k'])) {
-            $pricePerGram = $goldRate['price_gram_24k'];
+        if ($carat === '24' && $price24KOriginal) {
+            $priceFor10Gram = $price24KOriginal;
             $label = "24 Carat";
-        } elseif ($carat === '22' && isset($goldRate['price_gram_22k'])) {
-            $pricePerGram = $goldRate['price_gram_22k'];
+        } elseif ($carat === '22' && $price22KOriginal) {
+            $priceFor10Gram = $price22KOriginal;
             $label = "22 Carat";
-        } elseif ($carat === '18' && isset($goldRate['price_gram_18k'])) {
-            $pricePerGram = $goldRate['price_gram_18k'];
+        } elseif ($carat === '18' && $price18KOriginal) {
+            $priceFor10Gram = $price18KOriginal;
             $label = "18 Carat";
         }
 
-        if ($pricePerGram) {
-            $priceFor10Gram = $pricePerGram * 10; // ✅ calculate 10 gram price
+        if ($priceFor10Gram) {
             return "<div><strong>{$label} / 10 Gram:</strong> ₹" . number_format($priceFor10Gram, 2) . "</div>";
         }
 

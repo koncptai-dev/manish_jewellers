@@ -36,13 +36,12 @@ class GoldPriceGetController extends Controller
             'date' => now()->toDateTimeString(),
             'timestamp' => now()->timestamp,
         ];
-
         // Use the resource to return the response
         return new GoldMetalPriceResource($goldData);
     }
 
 
-     private function getGoldPriceApiCall()
+    public function getGoldPriceApiCall()
     {
         // API URL
         $url = "https://bcast.aaravbullion.in/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/aarav?_=" . time();
