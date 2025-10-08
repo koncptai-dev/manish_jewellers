@@ -1533,8 +1533,8 @@
             });
              // Get saved ID from HTML data attribute
             loadSubCategories(parent_id, selected_sub_category_id);
-            // After the first manual run, clear the data-id to prevent re-selection on subsequent manual changes
-            $('#sub-category-select-ajax').data('id', null); 
+            // // After the first manual run, clear the data-id to prevent re-selection on subsequent manual changes
+            // $('#sub-category-select-ajax').data('id', null); 
         });
 
         
