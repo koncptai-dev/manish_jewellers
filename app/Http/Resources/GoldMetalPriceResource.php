@@ -15,6 +15,15 @@ class GoldMetalPriceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $adjustment = \App\Models\AdjustedGoldRate::first(); // Fetch the first record for adjustment
+
+        if($adjustment){
+            if ($adjustment->adjust_type === 'add') {
+                    $this->price += $adjustment->amount;
+                } elseif ($adjustment->adjust_type === 'subtract') {
+                    $this->price -= $adjustment->amount;
+                }
+        }
         $price_gram_24k = $this->price;
         $price_gram_22k =  (new GoldRate())->calculate22CaratPrice($price_gram_24k);
         $price_gram_18k = (new GoldRate())->calculate18CaratPrice($price_gram_24k);
@@ -24,19 +33,6 @@ class GoldMetalPriceResource extends JsonResource
         $price_1gram_22k = $price_gram_22k / 10;
         $price_1gram_18k = $price_gram_18k / 10;
 
-            // Apply adjustment if exists
-            $adjustment = \App\Models\AdjustedGoldRate::first(); // Fetch the first record for adjustment
-            if ($adjustment) {
-                if ($adjustment->adjust_type === 'add') {
-                    $price_gram_24k += $adjustment->amount;
-                    $price_gram_22k += $adjustment->amount;
-                    $price_gram_18k += $adjustment->amount;
-                } elseif ($adjustment->adjust_type === 'subtract') {
-                    $price_gram_24k -= $adjustment->amount;
-                    $price_gram_22k -= $adjustment->amount;
-                    $price_gram_18k -= $adjustment->amount;
-                }
-            }
         return [
             'date' => $this->date,
             'timestamp' => $this->timestamp,

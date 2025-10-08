@@ -43,6 +43,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Shared\OLE\PPS;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Models\Category;
 class ProductController extends BaseController
@@ -227,7 +228,7 @@ class ProductController extends BaseController
         $digitalProductFileTypes = ['audio', 'video', 'document', 'software'];
         $digitalProductAuthors   = $this->authorRepo->getListWhere(dataLimit: 'all');
         $publishingHouseList     = $this->publishingHouseRepo->getListWhere(dataLimit: 'all');
-
+        
         return view(Product::UPDATE[VIEW], compact('product', 'categories', 'brands', 'brandSetting', 'digitalProductSetting', 'colors', 'attributes', 'languages', 'defaultLanguage', 'digitalProductFileTypes', 'digitalProductAuthors', 'publishingHouseList', 'productAuthorIds', 'productPublishingHouseIds'));
     }
 
@@ -885,6 +886,17 @@ class ProductController extends BaseController
 
         // Query categories where parent_id matches
         $categories = Category::where(['brand_id' => $brand_id, 'parent_id' => 0])
+            ->get();
+
+        // Return the JSON collection directly
+        return response()->json($categories);
+    }
+
+    public function getSubCategoriesByCategoryId(Request $request)
+    {
+        $parent_id = $request->input('parent_id');
+        // Query categories where parent_id matches
+        $categories = Category::where(['parent_id' => $parent_id])
             ->get();
 
         // Return the JSON collection directly

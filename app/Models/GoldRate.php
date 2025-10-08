@@ -44,7 +44,15 @@ class GoldRate extends Model
 
         // if (empty($goldRate)) {
         $apiResponse = $this->getGoldRateDataUsingApi();
-   
+        $adjustment = AdjustedGoldRate::first(); // Fetch the first record for adjustment
+        if ($adjustment) {
+            if ($adjustment->adjust_type === 'add') {
+                $apiResponse += $adjustment->amount;
+              
+            } elseif ($adjustment->adjust_type === 'subtract') {
+                $apiResponse -= $adjustment->amount;
+            }
+        }
         $price_gram_24k = $apiResponse;
         $price_gram_22k =  (new GoldRate())->calculate22CaratPrice($price_gram_24k);
         $price_gram_18k = (new GoldRate())->calculate18CaratPrice($price_gram_24k);
@@ -55,20 +63,7 @@ class GoldRate extends Model
         $price_1gram_18k = $price_gram_18k / 10;
 
         // Apply adjustment if exists
-        $adjustment = AdjustedGoldRate::first(); // Fetch the first record for adjustment
-        if ($adjustment) {
-            if ($adjustment->adjust_type === 'add') {
-                $price_gram_24k += $adjustment->amount;
-                $price_1gram_24k += $adjustment->amount;
-                $price_1gram_22k += $adjustment->amount;
-                $price_1gram_18k += $adjustment->amount;
-            } elseif ($adjustment->adjust_type === 'subtract') {
-                $price_gram_24k -= $adjustment->amount;
-                $price_1gram_24k -= $adjustment->amount;
-                $price_1gram_22k -= $adjustment->amount;
-                $price_1gram_18k -= $adjustment->amount;
-            }
-        }
+        
 
         $data = [
             'timestamp' => now(),

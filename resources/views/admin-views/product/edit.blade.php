@@ -1469,22 +1469,20 @@
             $subCategorySelect.html('<option value="" selected disabled>{{ translate('loading') }}...</option>');
             if (parent_id) {
                 $.ajax({
-                    url: '{{ url('/admin/products/get-categories?parent_id=') }}' + parent_id, // Using the full URL from data attribute
+                    url: '{{ url('/admin/products/get-sub-categories?parent_id=') }}' + parent_id, // Using the full URL from data attribute
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
-                        console.log('sub cat', data.select_tag)
-                        $subCategorySelect.empty();
-                        $subCategorySelect.append('<option value="" selected disabled>{{ translate('select_Sub_Category') }}</option>');
-                            $subCategorySelect.html(data.select_tag);
-
-                        // $.each(data, function(key, value) {
-                        //     var selected = (value.id == selected_sub_category_id) ? 'selected' : '';
-                        //     $subCategorySelect.html();
-                        // });
+                       $subCategorySelect.empty();
+                        $subCategorySelect.append('<option value="0" selected disabled>---{{ translate('select') }}---</option>');
+                        console.log('selected_sub_category_id', selected_sub_category_id);
+                        $.each(data, function(key, value) {
+                            var selected = (value.id == selected_sub_category_id) ? 'selected' : '';
+                            $subCategorySelect.append('<option value="' + value.id + '" ' + selected + '>' + value.name + '</option>');
+                        });
                         
-                        // **Trigger the next cascade level if a sub-category was selected**
-                        if (selected_sub_category_id) {
+                        // **Trigger the next cascade level if a category was selected**
+                        if (selected_category_id) {
                             $subCategorySelect.trigger('change');
                         }
                     },
@@ -1562,6 +1560,11 @@
             // Use the existing brand-based loading function
             loadCategoriesByBrand(initial_brand_id, initial_category_id);
         } 
+         if (initial_sub_category_id ) {
+            // Use the existing brand-based loading function
+            loadSubCategories(initial_category_id, initial_sub_category_id);
+        } 
+        
         
         // **CRITICAL FIX:** Ensure sub-categories are loaded even if no brand is selected,
         // as long as a Category ID is set. This triggers the category -> sub-category cascade.
