@@ -560,10 +560,13 @@ class Helpers
 
     public static function tax_calculation($product, $price, $tax, $tax_type)
     {
-        return ($price / 100) * $tax;
+        if($product->product_metal == "Imitation"){
+            $price = $price - getProductDiscount(product: $product, price: $price);
+        }
+        return ($price ) * $tax/100;
 
-        //        $discount = self::get_product_discount(product: $product, price: $price);
-        //        return (($price-$discount) / 100) * $tax; //after discount decrease
+            //    $discount = getProductDiscount(product: $product, price: $product->unit_price);
+            //    return (($price-$discount) / 100) * $tax; //after discount decrease
     }
 
     public static function get_price_range($product)
