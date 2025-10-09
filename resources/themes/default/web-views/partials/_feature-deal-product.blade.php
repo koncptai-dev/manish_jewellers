@@ -49,7 +49,22 @@
                             </del>
                         @endif
                         <span class="flash-product-price text-dark fw-semibold">
-                            {{webCurrencyConverter( App\Utils\Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal,$product->hallmark_charges, $product));}}
+                             @if($product->product_metal == 'Imitation')
+                            {{ webCurrencyConverter(
+                                amount: $product->unit_price - getProductDiscount(product: $product, price: $product->unit_price)
+                            ) }}
+                        @else
+                            {{ webCurrencyConverter(
+                                App\Utils\Helpers::calculatePrice(
+                                    json_decode($product->choice_options),
+                                    $product->unit_price,
+                                    $product->making_charges,
+                                    $product->product_metal,
+                                    $product->hallmark_charges,
+                                    $product
+                                )
+                            ) }}
+                        @endif
                         </span>
                     </div>
 
