@@ -117,9 +117,9 @@ class CartController extends Controller
         $tax = $product->tax_model == 'exclude' ? Helpers::tax_calculation(product: $product, price: $product->unit_price, tax: $product['tax'], tax_type: $product['tax_type']) : 0;
         $update_tax = $tax * $requestQuantity;
         $discount = Helpers::getProductDiscount($product, $product->unit_price);
-        $price = $product->unit_price  + $tax;
+        $price = $product->unit_price  + $tax - $discount;
         $discountedUnitPrice = $product->unit_price;
-        $unit_price = $product->unit_price;
+        $unit_price = $product->unit_price - $discount;
         $quantity = $product->current_stock;
         if($product->product_metal == "Imitation"){
             $discountedUnitPrice = $product->unit_price - $discount;
