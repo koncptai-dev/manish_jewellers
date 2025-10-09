@@ -385,7 +385,7 @@ $orderWiseShippingCost = 0;
                  
                 if (json_decode($product->variation)[$i]->type == $string) {
                 
-                    $product->unit_price = json_decode($product->variation)[$i]->price;
+                    $product->unit_price = Helpers::calculatePrice(json_decode($product->choice_options), $product->unit_price, $product->making_charges, $product->product_metal,$product->hallmark_charges,$product);
                 }
             }
         }
