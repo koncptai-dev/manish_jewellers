@@ -223,11 +223,10 @@ class Helpers
         }
 
         $label = null;
-
+       
         $price24KOriginal  = $goldRate['price_gram']['24k_gst_included'] ;
-        $price22KOriginal  = $goldRate['price_gram']['22k_gst_included']* 0.916;
-        $price18KOriginal  = $goldRate['price_gram']['18k_gst_included']* 0.75;
-
+        $price22KOriginal  = $goldRate['price_gram']['24k_gst_included'] * 0.916;
+        $price18KOriginal  = $goldRate['price_gram']['24k_gst_included'] * 0.75;
         // Match price according to carat
         if ($carat === '24' && $price24KOriginal) {
             $priceFor10Gram = $price24KOriginal;
