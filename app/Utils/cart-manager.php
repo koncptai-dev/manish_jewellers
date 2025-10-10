@@ -391,17 +391,19 @@ $orderWiseShippingCost = 0;
         }
 
         $price = $product->unit_price;
-      
+       
         // $tax = Helpers::tax_calculation(product: $product, price: $price, tax: $product['tax'], tax_type: 'percent');
         $tax = $product->tax_model == 'include' ? 0 : Helpers::tax_calculation(product: $product, price: $price, tax: $product['tax'], tax_type: 'percent');
         $getProductDiscount = Helpers::getProductDiscount($product, $price);
- 
+        if($product->product_metal == "Imitation"){
+            $price = $price - $getProductDiscount;
+        }
         $cartArray += [
             'customer_id' => ($user == 'offline' ? $guestId : $user->id),
             'product_id' => $request['id'],
             'product_type' => $product['product_type'],
             'quantity' => $request['quantity'],
-            'price' => $price - $getProductDiscount,
+            'price' => $price,
             'tax' => $tax,
             'tax_model' => $product->tax_model,
             'discount' => $product->discount ?? 0,
@@ -429,6 +431,7 @@ $orderWiseShippingCost = 0;
         }
 
         $cart = Cart::where(['product_id' => $request['id'], 'customer_id' => $customerId, 'is_guest' => $isGuest, 'variant' => $string])->first();
+      
         if ($cart) {
             $cartArray['cart_group_id'] = $cart['cart_group_id'];
             Cart::where(['id' => $cart['id']])->update($cartArray);
