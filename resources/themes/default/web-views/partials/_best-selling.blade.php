@@ -70,9 +70,22 @@
                                                 @endif
                                             </span>
                                             <span class="text-accent text-dark">
-                                                {{ webCurrencyConverter(amount:
-                                                $bestSell->product->unit_price-(getProductDiscount(product: $bestSell->product, price: $bestSell->product->unit_price))
-                                                ) }}
+                                                 @if($product->product_metal == 'Imitation')
+                                                    {{ webCurrencyConverter(
+                                                        amount: $product->unit_price - getProductDiscount(product: $product, price: $product->unit_price)
+                                                    ) }}
+                                                @else
+                                                    {{ webCurrencyConverter(
+                                                        App\Utils\Helpers::calculatePrice(
+                                                            json_decode($product->choice_options),
+                                                            $product->unit_price,
+                                                            $product->making_charges,
+                                                            $product->product_metal,
+                                                            $product->hallmark_charges,
+                                                            $product
+                                                        )
+                                                    ) }}
+                                                @endif
                                             </span>
                                         </div>
                                     </div>
