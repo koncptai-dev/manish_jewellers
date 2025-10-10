@@ -44,6 +44,7 @@ class GoldRate extends Model
 
         // if (empty($goldRate)) {
         $apiResponse = $this->getGoldRateDataUsingApi();
+       
         $adjustment = AdjustedGoldRate::first(); // Fetch the first record for adjustment
         if ($adjustment) {
             if ($adjustment->adjust_type === 'add') {
@@ -235,7 +236,7 @@ class GoldRate extends Model
 
     public function calculatePriceWithMarkup($pricePerGram, $grams, $makingChange, $product = null)
     {
-       
+    
         // $totalPrice = $pricePerGram * $grams; // Base price
 
         // $markup = $totalPrice * 0.03;        // Calculate 3% markup GST
@@ -249,7 +250,7 @@ class GoldRate extends Model
         
         if($product && $product['discount']> 0 ){
             $discount = getProductDiscount($product, $labourCharge);
-             $labourCharge = $labourCharge - $discount;
+            $labourCharge = $labourCharge - $discount;
         }
     
         $totalPrice = ($pricePerGram * $grams) + $labourCharge;
@@ -271,13 +272,13 @@ class GoldRate extends Model
 
     public function calculate22CaratPrice($price24Carat)
     {
-        $price22Carat = $price24Carat * 0.92; // Calculate 92% of 24-carat price
+        $price22Carat = $price24Carat *0.916; // Calculate 92% of 24-carat price
         return round($price22Carat, 2);       // Round to 2 decimal places
     }
 
     public function calculate18CaratPrice($price24Carat)
     {
-        $price18Carat = $price24Carat * 0.78; // Calculate 78% of 24-carat price
+        $price18Carat = $price24Carat *0.75; // Calculate 78% of 24-carat price
         return round($price18Carat, 2);       // Round to 2 decimal places
     }
     

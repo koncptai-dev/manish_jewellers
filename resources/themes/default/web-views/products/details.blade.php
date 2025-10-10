@@ -136,6 +136,17 @@
                         </div>
 
                         <div class="col-lg-7 col-md-8 col-12 mt-md-0 mt-sm-3 web-direction">
+                             @if($product->discount > 0)
+            <span class="for-discount-value p-1 pl-2 pr-2 font-bold fs-13" style="left: -69% !important;">
+                <span class="direction-ltr d-block">
+                    @if ($product->discount_type == 'percent')
+                        -{{round($product->discount,(!empty($decimal_point_settings) ? $decimal_point_settings: 0))}}%
+                    @elseif($product->discount_type =='flat')
+                        -{{ webCurrencyConverter(amount: $product->discount) }}
+                    @endif
+                </span>
+            </span>
+        @endif
                             <div class="details __h-100 product-cart-option-container">
                                 <h1 class="mb-2 __inline-24">{{$product->name}}</h1>
                                 <div class="d-flex flex-wrap align-items-center mb-2 pro">
@@ -201,12 +212,23 @@
                                         @endif
                                     </div>
                                 @endif
-
+                              
                                 <div class="mb-3">
                                     
                                     <span class="font-weight-normal text-accent d-flex align-items-end gap-2">
                                         {!! getPriceRangeWithDiscount(product: $product) !!}
                                     </span>
+                                      @if($product->discount > 0)
+                                            <div
+                                                class="product-description-label text-dark font-bold text-capitalize">
+                                                <strong>{{translate('M.R.P')}}</strong> :
+                                                <del class="category-single-product-price">
+                                                {{calculateHallmarkingPrice(product: $product)}}
+                                                </del>
+                                            </div>
+                                            
+                                            
+                                        @endif
                                 </div>
 
                                 <form id="add-to-cart-form" class="mb-2 addToCartDynamicForm">
@@ -356,6 +378,7 @@
                                                         <small id="set-tax-amount"></small>)
                                                     </small>
                                                 </div>
+                                                
                                             </div>
                                         </div>
                                     </div>
