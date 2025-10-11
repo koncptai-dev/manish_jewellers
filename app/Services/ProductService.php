@@ -777,7 +777,11 @@ class ProductService
             $type = '';
             foreach ($combination as $combinationKey => $item) {
               
-                $unitPrice = $request['unit_price'] * $weights[$i];
+                if(isset($weights) && isset($weights[$i])){
+                   $unitPrice = $request['unit_price'] * $weights[$i];
+                }else{
+                   $unitPrice = $request['unit_price'] * $weights[0];
+                }
                     // if($weights && isset($weights[$combinationKey]) && is_numeric($weights[$combinationKey]) && $weights[$combinationKey] > 0){
                     //      $unitPrice = $request['unit_price'] * $weights[$combinationKey];
                       
