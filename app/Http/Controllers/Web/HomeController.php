@@ -119,7 +119,7 @@ class HomeController extends Controller
             ->orderBy("count", 'desc')
             ->take(6)
             ->get();
-
+     
         $topRated = Review::with('product')
             ->whereHas('product', function ($query) {
                 $query->active();
@@ -130,27 +130,24 @@ class HomeController extends Controller
             ->take(6)
             ->get();
 
-
+  
         if ($bestSellProduct->count() == 0) {
             $bestSellProduct = $latestProductsList;
         } else {
             // Modify unit_price in the paginator's items
             $bestSellProduct->transform(function ($product1) {
-                $unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->product->unit_price, $product1->making_charges, $product1->product->product_metal,$product1->hallmark_charges, $product1->product);
-              
+                $unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->product->unit_price, $product1->product->making_charges, $product1->product->product_metal,$product1->product->hallmark_charges, $product1->product->product);
+                
                 $product1->product->unit_price = $unit_price;
                 return $product1;
             });
         }
-
-
-
         if ($topRated->count() == 0) {
             $topRated = $bestSellProduct;
         } else {
             // Modify unit_price in the paginator's items
             $topRated->transform(function ($product1) {
-                $product1->product->unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->unit_price, $product1->making_charges, $product1->product_metal,$product1->hallmark_charges, $product1->product);
+                $product1->product->unit_price = Helpers::calculatePrice(json_decode($product1->product->choice_options), $product1->product->unit_price, $product1->product->making_charges, $product1->product->product_metal,$product1->product->hallmark_charges, $product1->product->product);
                 return $product1;
             });
         }
