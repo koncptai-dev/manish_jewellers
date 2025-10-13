@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-
+use Carbon\Carbon;
 class PhonePeSubscriptionController extends Controller
 {
     private $accessToken;
@@ -188,7 +188,7 @@ class PhonePeSubscriptionController extends Controller
         };
 
         // Calculate the expiry date
-        return \Carbon\Carbon::parse($startDate)
+        return Carbon::parse($startDate)
             ->addMonths($durationMonths)
             ->timestamp * 1000;
     }
@@ -517,43 +517,28 @@ class PhonePeSubscriptionController extends Controller
 
     public function notifyUser()
     {
-        $subscriptions = SubscriptionMandate::with('installment')
+    $subscriptions = SubscriptionMandate::with('installment')
         ->where('status', 'ACTIVE')
-        ->where(function ($query) {
-            $query->where(function ($q) {
-                $q->whereRaw('LOWER(frequency) = ?', ['daily'])
-                    ->where(function ($subQ) {
-                        $subQ->whereNull('last_deduction_at')
-                            ->orWhereDate('last_deduction_at', '<=', now()->startOfDay());
-                    });
-            })->orWhere(function ($q) {
-                $q->whereRaw('LOWER(frequency) = ?', ['weekly'])
-                    ->where(function ($subQ) {
-                        $subQ->whereNull('last_deduction_at')
-                            ->orWhere('last_deduction_at', '<=', now()->subWeek());
-                    });
-            })->orWhere(function ($q) {
-                $q->whereRaw('LOWER(frequency) = ?', ['monthly'])
-                    ->where(function ($subQ) {
-                        $subQ->whereNull('last_deduction_at')
-                            ->orWhere('last_deduction_at', '<=', now()->subMonth());
-                    });
-            })->orWhere(function ($q) {
-                $q->whereRaw('LOWER(frequency) = ?', ['yearly'])
-                    ->where(function ($subQ) {
-                        $subQ->whereNull('last_deduction_at')
-                            ->orWhere('last_deduction_at', '<=', now()->subYear());
-                    });
-            });
-        })
-        ->get();
+        ->get()
+        ->filter(function($sub) {
+            $last = $sub->last_deduction_at ? Carbon::parse($sub->last_deduction_at) : Carbon::parse($sub->start_date);
+
+            return match(strtolower($sub->frequency)) {
+                'daily' => $last->addDay()->lte(now()->startOfDay()),
+                'weekly' => $last->addWeek()->lte(now()->startOfDay()),
+                'monthly' => $last->addMonth()->lte(now()->startOfDay()),
+                'yearly' => $last->addYear()->lte(now()->startOfDay()),
+                default => false
+            };
+        });
+
 
         $results = [
             'notified' => [],
             'failed'   => [],
             'skipped'  => [],
         ];
-
+       
         foreach ($subscriptions as $subscription) {
             if (empty($subscription->mandate_id)) {
                 $results['skipped'][] = [
