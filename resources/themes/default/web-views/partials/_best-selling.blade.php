@@ -65,24 +65,24 @@
                                             <span>
                                                 @if($bestSell->product->discount > 0)
                                                     <del class="__color-9B9B9B __text-12px">
-                                                        {{ webCurrencyConverter(amount: $bestSell->product->unit_price) }}
+                                                         {{calculateHallmarkingPrice(product: $bestSell->product)}}
                                                     </del>
                                                 @endif
                                             </span>
                                             <span class="text-accent text-dark">
-                                                 @if($product->product_metal == 'Imitation')
+                                                 @if($bestSell->product->product_metal == 'Imitation')
                                                     {{ webCurrencyConverter(
-                                                        amount: $product->unit_price - getProductDiscount(product: $product, price: $product->unit_price)
+                                                        amount: $bestSell->product->unit_price - getProductDiscount(product: $bestSell->product, price: $bestSell->product->unit_price)
                                                     ) }}
                                                 @else
                                                     {{ webCurrencyConverter(
                                                         App\Utils\Helpers::calculatePrice(
-                                                            json_decode($product->choice_options),
-                                                            $product->unit_price,
-                                                            $product->making_charges,
-                                                            $product->product_metal,
-                                                            $product->hallmark_charges,
-                                                            $product
+                                                            json_decode($bestSell->product->choice_options),
+                                                            $bestSell->product->unit_price,
+                                                            $bestSell->product->making_charges,
+                                                            $bestSell->product->product_metal,
+                                                            $bestSell->product->hallmark_charges,
+                                                            $bestSell->product
                                                         )
                                                     ) }}
                                                 @endif
