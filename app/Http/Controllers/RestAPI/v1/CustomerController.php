@@ -384,7 +384,7 @@ class CustomerController extends Controller
 
         $orders->map(function ($data) {
             $data->details->map(function ($query) {
-                $query['product'] = Helpers::product_data_formatting(json_decode($query['product'], true));
+                $query['product'] = Helpers::product_data_formatting_for_json_data(json_decode($query['product'], true));
                 return $query;
             });
 
