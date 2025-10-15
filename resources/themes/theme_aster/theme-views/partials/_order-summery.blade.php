@@ -67,7 +67,7 @@
 
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>{{ translate('sub_total') }}</div>
-                <div>{{webCurrencyConverter($product_price_total)}}</div>
+                <div>{{webCurrencyConverter($product_price_total - $total_discount_on_product)}}</div>
             </div>
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>{{ translate('tax') }}</div>
@@ -89,7 +89,7 @@
             @endif
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h4>{{ translate('total') }}</h4>
-                <h2 class="text-primary">{{webCurrencyConverter($product_price_total+$total_tax+$total_shipping_cost-$coupon_dis-$order_wise_shipping_discount)}}</h2>
+                <h2 class="text-primary">{{webCurrencyConverter($product_price_total+$total_tax+$total_shipping_cost-$coupon_dis-$total_discount_on_product-$order_wise_shipping_discount)}}</h2>
             </div>
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4">
                 <a href="{{ route('home') }}" class="btn-link text-primary text-capitalize"><i

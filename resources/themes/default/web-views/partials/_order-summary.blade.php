@@ -57,7 +57,7 @@
             <div class="d-flex justify-content-between">
                 <span class="cart_title">{{translate('sub_total')}}</span>
                 <span class="cart_value">
-                    {{ webCurrencyConverter(amount: $subTotal-$hallmarkCharges) }}
+                    {{ webCurrencyConverter(amount: $subTotal-$hallmarkCharges +$totalDiscountOnProduct) }}
                 </span>
             </div>
             <div class="d-flex justify-content-between">
@@ -138,7 +138,7 @@
             <div class="d-flex justify-content-between">
                 <span class="cart_title text-primary font-weight-bold">{{translate('total')}}</span>
                 <span class="cart_value">
-                {{ webCurrencyConverter(amount: $subTotal+$totalTax+$totalShippingCost-$coupon_dis-$totalDiscountOnProduct-$orderWiseShippingDiscount+$makingCharges) }}
+                {{ webCurrencyConverter(amount: $subTotal+$totalTax+$totalShippingCost-$coupon_dis-$orderWiseShippingDiscount+$makingCharges) }}
                 </span>
             </div>
         </div>
