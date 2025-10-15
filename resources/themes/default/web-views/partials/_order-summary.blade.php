@@ -61,21 +61,21 @@
                 </span>
             </div>
             <div class="d-flex justify-content-between">
-                <span class="cart_title">{{translate('hallmark_charges')}}</span>
-                <span class="cart_value">
-                    {{ webCurrencyConverter(amount: $hallmarkCharges) }}
-                </span>
-            </div>
-            <div class="d-flex justify-content-between">
                 <span class="cart_title">{{translate('making_charges')}}</span>
                 <span class="cart_value">
                     {{ webCurrencyConverter(amount: $makingCharges) }}
                 </span>
             </div>
             <div class="d-flex justify-content-between">
-                <span class="cart_title">{{translate('tax')}}</span>
+                <span class="cart_title">{{translate('discount_on_product')}}</span>
                 <span class="cart_value">
-                    {{ webCurrencyConverter(amount: $totalTax) }}
+                    - {{ webCurrencyConverter(amount: $totalDiscountOnProduct) }}
+                </span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="cart_title">{{translate('hallmark_charges')}}</span>
+                <span class="cart_value">
+                    {{ webCurrencyConverter(amount: $hallmarkCharges) }}
                 </span>
             </div>
             <div class="d-flex justify-content-between">
@@ -85,9 +85,9 @@
                 </span>
             </div>
             <div class="d-flex justify-content-between">
-                <span class="cart_title">{{translate('discount_on_product')}}</span>
+                <span class="cart_title">{{translate('tax')}}</span>
                 <span class="cart_value">
-                    - {{ webCurrencyConverter(amount: $totalDiscountOnProduct) }}
+                    {{ webCurrencyConverter(amount: $totalTax) }}
                 </span>
             </div>
             @php($coupon_dis=0)
