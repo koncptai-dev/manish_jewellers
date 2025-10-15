@@ -70,6 +70,31 @@ class CustomerAuthService
         }
     }
 
+     public function sendCustomerEmailVerificationTokenForLogin($email, $token): array
+    {
+            try {
+                $data = [
+                    'userName' => "User",
+                    'subject' => translate('registration_Verification_Code'),
+                    'title' => translate('registration_Verification_Code'),
+                    'verificationCode' => $token,
+                    'userType' => 'customer',
+                    'templateName' => 'registration-verification',
+                ];
+
+                event(new EmailVerificationEvent(email: $email, data: $data));
+                return [
+                    'status' => 'success',
+                    'message' => translate('check_your_email'),
+                ];
+            } catch (\Exception $exception) {
+                return [
+                    'status' => 'error',
+                    'message' => translate('email_is_not_configured') . '. ' . translate('contact_with_the_administrator'),
+                ];
+            }
+      
+    }
     public function getCustomerLoginPreviousRoute($previousUrl): string
     {
         $redirectUrl = "";

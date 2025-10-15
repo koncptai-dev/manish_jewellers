@@ -9142,4 +9142,10 @@ return [
 	"Enter_values_and_press_Enter" => "Enter values and press Enter",
 	"generate_variants" => "Generate variants",
 	"M.R.P" => "M.R.P",
+	"The_token_field_is_required" => "The token field is required",
+	"you_are_already_Sign_in_proceed" => "You are already Sign in proceed",
+	"proceed_to_payment" => "Proceed to payment",
+	"place_order" => "Place order",
+	"Please_select_a_payment_method" => "Please select a payment method",
+	"not_exist" => "Not exist",
 ];

@@ -41,29 +41,13 @@ class CustomerAuthController extends Controller
     public function loginView(): View|RedirectResponse
     {
         session()->put('keep_return_url', url()->previous());
-        return theme_root_path() == 'default' ? view('web-views.customer-views.auth.login') : redirect()->route('home');
+        return theme_root_path() == 'default' ? view('web-views.customer-views.auth.sign-in') : redirect()->route('home');
     }
 
     public function loginSubmit(Request $request): JsonResponse|RedirectResponse
     {
-        $firebaseOTPVerification = getWebConfig(name: 'firebase_otp_verification') ?? [];
-
-        if ($firebaseOTPVerification && $firebaseOTPVerification['status'] && empty($request['g-recaptcha-response'])) {
-            if (request()->ajax()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => translate('ReCAPTCHA_Failed')
-                ]);
-            }
-            Toastr::error(translate('ReCAPTCHA_Failed'));
-            return redirect()->back();
-        }
-        $loginOptions = json_decode($this->loginSetupRepo->getFirstWhere(params: ['key' => 'login_options'])?->value ?? [], true);
-        session()->forget('tempCustomerInfo');
-        if (isset($loginOptions['otp_login']) && $loginOptions['otp_login'] && $request['login_type'] == 'otp-login') {
+        if (isset($request->login_type) && $request->login_type && $request->login_type == 'otp-login') {
             return $this->loginByOTP(request: $request);
-        } elseif (isset($loginOptions['manual_login']) && $loginOptions['manual_login'] && $request['login_type'] == 'manual-login') {
-            return $this->loginByEmailOrPhone(request: $request);
         } else {
             return redirect()->route('home');
         }
@@ -72,7 +56,7 @@ class CustomerAuthController extends Controller
     public function loginByOTP(Request $request): JsonResponse|RedirectResponse
     {
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|min:6|max:20'
+            'user_identity' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -86,9 +70,10 @@ class CustomerAuthController extends Controller
             return back();
         }
 
-        $phoneNumber = $request['phone'];
+        $email = $request['user_identity'];
         $OTPIntervalTime = getWebConfig(name: 'otp_resend_time') ?? 60;
-        $OTPVerificationData = $this->phoneOrEmailVerificationRepo->getFirstWhere(params: ['phone_or_email' => $phoneNumber]);
+        $OTPVerificationData = $this->phoneOrEmailVerificationRepo->getFirstWhere(params: ['phone_or_email' => $email]);
+      
 
         if (isset($OTPVerificationData) && Carbon::parse($OTPVerificationData['created_at'])->DiffInSeconds() < $OTPIntervalTime) {
             $time = $OTPIntervalTime - Carbon::parse($OTPVerificationData['created_at'])->DiffInSeconds();
@@ -103,10 +88,11 @@ class CustomerAuthController extends Controller
         }
 
         $token = $this->customerAuthService->getCustomerVerificationToken();
+        
         $firebaseOTPVerification = getWebConfig(name: 'firebase_otp_verification') ?? [];
         $errorMsg = translate('OTP_sending_failed');
-
-        if ($firebaseOTPVerification && $firebaseOTPVerification['status']) {
+        
+        /*if ($firebaseOTPVerification && $firebaseOTPVerification['status']) {
             $firebaseResponse = $this->firebaseService->sendOtp($phoneNumber);
             $response = 'error';
             if ($firebaseResponse['status'] == 'success') {
@@ -120,20 +106,20 @@ class CustomerAuthController extends Controller
             if (env('APP_MODE') == 'dev') {
                 $response = 'success';
             }
-        }
-
-        if ($response == 'success') {
-            $this->phoneOrEmailVerificationRepo->updateOrCreate(params: ['phone_or_email' => $phoneNumber], value: [
-                'phone_or_email' => $phoneNumber,
+        }*/
+        $response = $this->customerAuthService->sendCustomerEmailVerificationTokenForLogin($email,$token);
+        if ($response['status'] == 'success') {
+            $this->phoneOrEmailVerificationRepo->updateOrCreate(params: ['phone_or_email' => $email], value: [
+                'phone_or_email' => $email,
                 'token' => $token,
             ]);
         }
 
         if (request()->ajax()) {
-            if ($response == 'success') {
+            if ($response['status'] == 'success') {
                 return response()->json([
                     'status' => 'success',
-                    'redirect_url' => route('customer.auth.login.verify-account', ['identity' => base64_encode($phoneNumber), 'type' => base64_encode('phone_verification')]),
+                    'redirect_url' => route('customer.auth.login.verify-account', ['identity' => base64_encode($email), 'type' => base64_encode('phone_verification')]),
                     'message' => translate('Please_Verify_that_it’s_you')
                 ]);
             }
@@ -142,8 +128,8 @@ class CustomerAuthController extends Controller
                 'message' => $errorMsg
             ]);
         } else {
-            if ($response == 'success') {
-                return redirect()->route('customer.auth.login.verify-account', ['identity' => base64_encode($phoneNumber), 'type' => base64_encode('phone_verification')]);
+            if ($response['status'] == 'success') {
+                return redirect()->route('customer.auth.login.verify-account', ['identity' => base64_encode($email), 'type' => base64_encode('phone_verification')]);
             }
             Toastr::error($errorMsg);
             return redirect()->back();
@@ -429,7 +415,7 @@ class CustomerAuthController extends Controller
         $tempBlockTime = getWebConfig(name: 'temporary_block_time') ?? 600; // seconds
         $verificationData = $this->phoneOrEmailVerificationRepo->getFirstWhere(params: ['phone_or_email' => $identity]);
         $OTPVerificationData = $this->phoneOrEmailVerificationRepo->getFirstWhere(params: ['phone_or_email' => $identity, 'token' => $request['token']]);
-
+       
         if ($verificationData) {
             $validateBlock = 0;
             $errorMsg = translate('OTP_is_not_matched');
@@ -456,10 +442,12 @@ class CustomerAuthController extends Controller
                 $errorMsg = translate('Too_many_attempts.') .' '. translate('please_try_again_after_') . CarbonInterval::seconds($time)->cascade()->forHumans();
             }
             $verificationData = $this->phoneOrEmailVerificationRepo->getFirstWhere(params: ['phone_or_email' => $identity]);
+          
             $this->phoneOrEmailVerificationRepo->updateOrCreate(params: ['phone_or_email' => $identity], value: [
                 'otp_hit_count' => ($verificationData['otp_hit_count'] + 1),
                 'updated_at' => now(),
             ]);
+               
             if ($validateBlock) {
                 if (request()->ajax()) {
                     return response()->json([
@@ -486,6 +474,7 @@ class CustomerAuthController extends Controller
                     return back();
                 }
             } else {
+                
                 $tokenVerifyStatus = (boolean)$OTPVerificationData;
             }
 
@@ -503,21 +492,21 @@ class CustomerAuthController extends Controller
                     return redirect()->back();
                 }
 
-                $this->customerRepo->updateWhere(params: ['phone' => $identity], data: [
-                    'is_phone_verified' => 1,
+                $this->customerRepo->updateOrCreate(params: ['email' => $identity], data: [
+                    'is_email_verified' => 1,'name' => 'User'
                 ]);
                 $user = $this->customerRepo->getByIdentity(filters: ['identity' => $identity]);
+              
                 $this->phoneOrEmailVerificationRepo->delete(params: ['phone_or_email' => $identity]);
                 if (isset($request['type']) && $request['type'] == 'password-reset') {
                     auth('customer')->login($user);
                     CustomerManager::updateCustomerSessionData(userId: auth('customer')->id());
                     return redirect()->route('home');
-                } elseif ($user && ($user['name'] == null)) {
-                    return redirect()->route('customer.auth.login.update-info', ['identity' => base64_encode($identity)]);
                 } elseif ($user && $user['name']) {
                     auth('customer')->login($user);
                     CustomerManager::updateCustomerSessionData(userId: auth('customer')->id());
-                    return redirect()->route('home');
+                    CartManager::cartListSessionToDatabase();
+                    return redirect()->route('checkout-details');
                 } else {
                     session()->put('tempCustomerInfo', [
                         'phone' => $identity,
