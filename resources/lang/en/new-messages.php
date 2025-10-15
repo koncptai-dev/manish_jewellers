@@ -9148,4 +9148,11 @@ return [
 	"place_order" => "Place order",
 	"Please_select_a_payment_method" => "Please select a payment method",
 	"not_exist" => "Not exist",
+	"select_a_payment_method" => "Select a payment method",
+	"choose_your_preferred_way_to_pay_for_this_order" => "Choose your preferred way to pay for this order",
+	"general_payment_options" => "General payment options",
+	"pay_with_cash_upon_delivery" => "Pay with cash upon delivery",
+	"online_payment_gateways" => "Online payment gateways",
+	"pay_with" => "Pay with",
+	"proceed_to_pay" => "Proceed to pay",
 ];
