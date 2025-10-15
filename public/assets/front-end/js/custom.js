@@ -1014,6 +1014,8 @@ function productQuickView(product_id) {
 $(".action-hide-billing-address").on("click", function () {
     hideBillingAddressFunction();
 });
+    hideBillingAddressFunction();
+
 
 function hideBillingAddressFunction() {
     let checkSameAsShipping = $("#same_as_shipping_address").is(":checked");
