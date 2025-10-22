@@ -43,37 +43,35 @@ class GoldPriceGetController extends Controller
 
     public function getGoldPriceApiCall()
     {
-        // API URL
-        $url = "https://bcast.aaravbullion.in/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/aarav?_=" . time();
+    $url = "https://bcast.aaravbullion.in/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/aarav?_=" . time();
 
-        try {
-            // Fetch API response with a timeout
-            $response = Http::timeout(10)->get($url);
+    try {
+        $response = Http::timeout(10)->get($url);
 
-            if ($response->failed()) {
-                return null; // Return null instead of JSON response
-            }
+        if ($response->failed()) {
+            return null;
+        }
 
-            // Process the response
-            $lines = explode("\n", trim($response->body()));
+        $lines = explode("\n", trim($response->body()));
 
-            foreach ($lines as $line) {
-                // Normalize spaces
-                $line = preg_replace('/\s+/', ' ', trim($line));
+        foreach ($lines as $line) {
+            $line = preg_replace('/\s+/', ' ', trim($line));
 
-                // Match "GOLD 999 IMP (AHM)" followed by numbers
-                if (
-                preg_match('/GOLD 999 IMP OR SAM IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches) ||
-                preg_match('/GOLD 999 IMP \(AHM\)\s+(\d+\.?\d*)/', $line, $matches) ||
-                preg_match('/GOLD 999 IMP \(AHM\)\s+T\+2\s+(\d+\.?\d*)/', $line, $matches)
-                ) {
-                    return (float) $matches[1]; // Return the extracted gold price as a float
+            // Match GOLD 999 IMP (AHM) and get the FIRST numeric value after date
+            if (stripos($line, 'GOLD 999 IMP (AHM)') !== false) {
+                // Split by space and find first big numeric value after words
+                $parts = explode(' ', $line);
+                foreach ($parts as $part) {
+                    if (is_numeric($part) && (float)$part > 10000) {
+                        return (float)$part;
+                    }
                 }
             }
-
-            return null; // Return null if no price is found
-        } catch (\Exception $e) {
-            return null; // Return null on failure
         }
+
+        return null;
+    } catch (\Exception $e) {
+        return null;
     }
+}
 }    
