@@ -524,15 +524,15 @@ class PhonePeSubscriptionController extends Controller
             $last = $sub->last_deduction_at ? Carbon::parse($sub->last_deduction_at) : Carbon::parse($sub->start_date);
 
             return match(strtolower($sub->frequency)) {
-                'daily' => $last->addDay()->lte(now()->startOfDay()),
-                'weekly' => $last->addWeek()->lte(now()->startOfDay()),
-                'monthly' => $last->addMonth()->lte(now()->startOfDay()),
-                'yearly' => $last->addYear()->lte(now()->startOfDay()),
-                default => false
+                'daily'   => $last->addDay()->lte(now()),
+                'weekly'  => $last->addWeek()->lte(now()),
+                'monthly' => $last->addMonth()->lte(now()),
+                'yearly'  => $last->addYear()->lte(now()),
+                default   => false
             };
         });
 
-
+        
         $results = [
             'notified' => [],
             'failed'   => [],
